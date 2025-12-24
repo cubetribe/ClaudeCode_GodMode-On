@@ -65,24 +65,29 @@ npm run generate:api-types  # OpenAPI → TypeScript
 | `@architect` | High-level design | New modules, tech decisions |
 | `@api-guardian` | API lifecycle | ANY API/Type changes |
 | `@builder` | Implementation | Code writing |
-| `@validator` | Quality gate | Verification |
+| `@validator` | Code quality gate | TypeScript, unit tests, security |
+| `@tester` | UX quality gate | E2E, visual regression, a11y, performance |
 | `@scribe` | Documentation | Docs updates |
+| `@github-manager` | Project management | Issues, PRs, Releases |
 
 ### Orchestration Rules
 
 ```
 Rule 1: @architect BEFORE @builder for new features
 Rule 2: @api-guardian BEFORE @builder for API changes
-Rule 3: @validator AFTER every implementation
-Rule 4: @scribe after feature completion
+Rule 3: @validator AFTER every implementation (code quality)
+Rule 4: @tester AFTER @validator for UI changes (UX quality)
+Rule 5: @scribe after feature completion
+Rule 6: @github-manager for Issues, PRs, Releases
 ```
 
 ### Workflows
 
-- **New Feature:** `@architect` → `@builder` → `@validator` → `@scribe`
-- **Bug Fix:** `@builder` → `@validator`
-- **API Change:** `@architect` → `@api-guardian` → `@builder` → `@validator` → `@scribe`
-- **Refactoring:** `@architect` → `@builder` → `@validator`
+- **New Feature:** `@architect` → `@builder` → `@validator` → `@tester` → `@scribe`
+- **Bug Fix:** `@builder` → `@validator` → `@tester`
+- **API Change:** `@architect` → `@api-guardian` → `@builder` → `@validator` → `@tester` → `@scribe`
+- **Refactoring:** `@architect` → `@builder` → `@validator` → `@tester`
+- **Release:** `@scribe` → `@github-manager`
 
 ## ⚠️ CRITICAL RULE: API Changes
 
@@ -92,8 +97,9 @@ Rule 4: @scribe after feature completion
 2. **Call @api-guardian** for impact analysis
 3. **Receive** consumer file list
 4. **@builder** updates all consumers
-5. **@validator** verifies changes
-6. **@scribe** updates documentation
+5. **@validator** verifies code quality
+6. **@tester** verifies UX quality (if UI affected)
+7. **@scribe** updates documentation
 
 **You do NOT manually search for consumers - @api-guardian handles this!**
 

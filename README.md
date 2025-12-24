@@ -36,7 +36,8 @@ AI (now Orchestrator):
   → Calls @architect for high-level design
   → Calls @api-guardian for API impact analysis
   → Calls @builder for implementation
-  → Calls @validator for quality checks
+  → Calls @validator for code quality checks
+  → Calls @tester for UX quality checks
   → Calls @scribe for documentation
   → Calls @github-manager to create PR and release
   → Hooks automatically warn about API changes
@@ -82,9 +83,17 @@ You: *drinks coffee*
         │                   │                   │
         └───────────────────┼───────────────────┘
                             │
+                            ▼
+                       @validator
+                       (Subagent)
+                            │
+                            ▼
+                        @tester
+                       (Subagent)
+                            │
                     ┌───────┴───────┐
                     ▼               ▼
-               @validator       @scribe
+                @scribe      @github-manager
                (Subagent)      (Subagent)
                     │               │
                     └───────┬───────┘
