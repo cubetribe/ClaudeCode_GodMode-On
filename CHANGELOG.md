@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.1.0] - 2025-12-24
+
+### Added
+
+- **GitHub Issue Workflow** - Automated issue processing
+  - Load issues via `@github-manager`
+  - Orchestrator analyzes: Type, Complexity, Areas affected
+  - Automatic workflow selection based on analysis
+  - PR creation with "Fixes #X" reference
+  - Batch issue processing support
+
+- **New Orchestrator Prompt V3.1** - `ORCHESTRATOR-PROMPT-V3.1.md`
+  - Issue analysis checklist (Type/Complexity/Areas/Auto-OK)
+  - Issue workflow diagram
+  - Shorter and minimalist variants updated
+  - Quick reference for issue processing
+
+- **Project Structure Improvements**
+  - New `reports/` folder for agent reports (gitignored)
+  - Cleaner separation: `agents/` for definitions, `reports/` for outputs
+
+### Changed
+
+- **Workflow trigger via Issue**
+  - "Bearbeite Issue #X" → loads, analyzes, executes, creates PR
+  - Low bugs skip @architect for faster processing
+  - Feature requests always include @scribe
+
+- **Documentation**
+  - Fixed repository URLs (GodMon → GodMode)
+  - Fixed MCP package names in all files
+  - Updated .gitignore for reports folder
+
+---
+
 ## [3.0.0] - 2025-12-24
 
 ### Added

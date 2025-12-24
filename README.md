@@ -2,14 +2,14 @@
 
 > **Years of trial, error, and mass prompt engineering - distilled into one glorious package.**
 
-[![Version](https://img.shields.io/badge/Version-3.0.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-3.1.0-blue)](./CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Subagents](https://img.shields.io/badge/Subagents-7%20Specialists-green)](./agents/)
 [![YOLO Mode](https://img.shields.io/badge/YOLO%20Mode-Available-red)](./INSTALLATION.md)
 [![MCP Servers](https://img.shields.io/badge/MCP%20Servers-4%20Integrated-purple)](./INSTALLATION.md#-mcp-server-installation)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E%20Testing-orange)](https://github.com/microsoft/playwright-mcp)
 
-> **Version 3.0.0** - 7-Agent System with `@tester` + `@github-manager` + MCP Integration | [See CHANGELOG](./CHANGELOG.md)
+> **Version 3.1.0** - GitHub Issue Workflow + 7-Agent System | [See CHANGELOG](./CHANGELOG.md)
 
 ---
 
@@ -342,8 +342,8 @@ See [INSTALLATION.md](./INSTALLATION.md#-mcp-server-installation) for detailed s
 > *For the brave: One prompt, everything automatic*
 
 ```bash
-git clone https://github.com/cubetribe/ClaudeCode_GodMon-On.git
-cd ClaudeCode_GodMon-On
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 claude --dangerously-skip-permissions
 ```
 
@@ -360,8 +360,8 @@ Lean back. Done.
 > *For the cautious: Step by step with confirmation*
 
 ```bash
-git clone https://github.com/cubetribe/ClaudeCode_GodMon-On.git
-cd ClaudeCode_GodMon-On
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 claude
 ```
 
@@ -447,7 +447,7 @@ The Orchestrator:
 CC_GodMode/
 ├── README.md                 # You are here 👋
 ├── INSTALLATION.md           # Setup guide (with MCP instructions)
-├── ORCHESTRATOR-PROMPT-V3.md # Copy-paste prompts
+├── ORCHESTRATOR-PROMPT-V3.1.md # Copy-paste prompts (latest)
 ├── CHANGELOG.md              # Version history
 │
 ├── agents/                   # The 7 subagents

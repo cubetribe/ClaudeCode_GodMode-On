@@ -62,8 +62,8 @@ No idea is too wild. Except maybe "Claude should also make me coffee". That does
 ```bash
 # Fork the repo on GitHub
 # Then:
-git clone https://github.com/YOUR-USERNAME/ClaudeCode_GodMon-On.git
-cd ClaudeCode_GodMon-On
+git clone https://github.com/YOUR-USERNAME/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 ```
 
 ### Create a branch

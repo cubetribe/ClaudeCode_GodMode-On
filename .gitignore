@@ -8,11 +8,15 @@ Thumbs.db
 *.swp
 *.swo
 
-# Generated Reports (project-specific, only in Agents/ folder)
-/Agents/*.md
+# Generated Reports (all agent/subagent reports go here)
+/reports/
+!/reports/.gitkeep
+
+# Legacy Agents folder (for projects using CC_GodMode)
+/Agents/
 !/Agents/.gitkeep
 
-# Agent definitions must be tracked (negation comes after to override)
+# Agent definitions must be tracked (these are the agent prompts, not reports)
 !agents/*.md
 
 # Node

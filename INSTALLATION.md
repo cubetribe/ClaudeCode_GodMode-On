@@ -27,8 +27,8 @@
 ### Step 1: Clone the repo
 
 ```bash
-git clone https://github.com/cubetribe/ClaudeCode_GodMon-On.git
-cd ClaudeCode_GodMon-On
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 ```
 
 ### Step 2: Start Claude in God Mode
@@ -71,8 +71,8 @@ Claude does the rest. You'll get a summary at the end.
 ### Step 1: Clone the repo
 
 ```bash
-git clone https://github.com/cubetribe/ClaudeCode_GodMon-On.git
-cd ClaudeCode_GodMon-On
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 ```
 
 ### Step 2: Start Claude normally
@@ -544,7 +544,7 @@ You should see a warning about API changes.
 
 ### Start Orchestrator Mode
 
-Copy the prompt from [ORCHESTRATOR-PROMPT-V3.md](./ORCHESTRATOR-PROMPT-V3.md)
+Copy the prompt from [ORCHESTRATOR-PROMPT-V3.1.md](./ORCHESTRATOR-PROMPT-V3.1.md)
 
 ---
 
@@ -553,7 +553,7 @@ Copy the prompt from [ORCHESTRATOR-PROMPT-V3.md](./ORCHESTRATOR-PROMPT-V3.md)
 To update CC_GodMode:
 
 ```bash
-cd ClaudeCode_GodMon-On
+cd ClaudeCode_GodMode-On
 git pull
 
 # Update agents
@@ -606,7 +606,7 @@ You are now in **God Mode**.
 **MCP Servers connected:**
 - Playwright (Browser), GitHub (Repo), Lighthouse (Performance), A11y (Accessibility)
 
-Next step: Read [ORCHESTRATOR-PROMPT-V3.md](./ORCHESTRATOR-PROMPT-V3.md) for the prompts you need.
+Next step: Read [ORCHESTRATOR-PROMPT-V3.1.md](./ORCHESTRATOR-PROMPT-V3.1.md) for the prompts you need.
 
 ---
 
