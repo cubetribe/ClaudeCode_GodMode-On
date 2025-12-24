@@ -2,14 +2,14 @@
 
 > **Years of trial, error, and mass prompt engineering - distilled into one glorious package.**
 
-[![Version](https://img.shields.io/badge/Version-3.1.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-3.2.0-blue)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![Subagents](https://img.shields.io/badge/Subagents-7%20Specialists-green)](./agents/)
 [![YOLO Mode](https://img.shields.io/badge/YOLO%20Mode-Available-red)](./INSTALLATION.md)
 [![MCP Servers](https://img.shields.io/badge/MCP%20Servers-4%20Integrated-purple)](./INSTALLATION.md#-mcp-server-installation)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E%20Testing-orange)](https://github.com/microsoft/playwright-mcp)
 
-> **Version 3.1.0** - GitHub Issue Workflow + 7-Agent System | [See CHANGELOG](./CHANGELOG.md)
+> **Version 3.2.0** - Auto-Update-Check + GitHub Issue Workflow + 7-Agent System | [See CHANGELOG](./CHANGELOG.md)
 
 ---
 
@@ -447,8 +447,9 @@ The Orchestrator:
 CC_GodMode/
 ├── README.md                 # You are here 👋
 ├── INSTALLATION.md           # Setup guide (with MCP instructions)
-├── ORCHESTRATOR-PROMPT-V3.1.md # Copy-paste prompts (latest)
+├── ORCHESTRATOR-PROMPT-V3.2.md # Copy-paste prompts (latest)
 ├── CHANGELOG.md              # Version history
+├── VERSION                   # Current version number
 │
 ├── agents/                   # The 7 subagents
 │   ├── architect.md          # 🏗️ The Architect

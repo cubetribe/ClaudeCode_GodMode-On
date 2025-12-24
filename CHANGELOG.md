@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.2.0] - 2025-12-24
+
+### Added
+
+- **Auto-Update-Check** - Version check at session start
+  - `scripts/check-update.js` - Cross-platform (Windows/Mac/Linux)
+  - Checks GitHub for latest version
+  - Shows changelog diff if update available
+  - Colored terminal output
+  - `VERSION` file for local version tracking
+
+- **New Orchestrator Prompt V3.2** - `ORCHESTRATOR-PROMPT-V3.2.md`
+  - Version check instruction at start
+  - All V3.1 features included
+
+### Changed
+
+- Renamed `ORCHESTRATOR-PROMPT-V3.1.md` → `ORCHESTRATOR-PROMPT-V3.2.md`
+- Updated all version references to 3.2.0
+
+---
+
 ## [3.1.0] - 2025-12-24
 
 ### Added

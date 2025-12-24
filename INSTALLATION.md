@@ -544,7 +544,7 @@ You should see a warning about API changes.
 
 ### Start Orchestrator Mode
 
-Copy the prompt from [ORCHESTRATOR-PROMPT-V3.1.md](./ORCHESTRATOR-PROMPT-V3.1.md)
+Copy the prompt from [ORCHESTRATOR-PROMPT-V3.2.md](./ORCHESTRATOR-PROMPT-V3.2.md)
 
 ---
 
@@ -606,7 +606,7 @@ You are now in **God Mode**.
 **MCP Servers connected:**
 - Playwright (Browser), GitHub (Repo), Lighthouse (Performance), A11y (Accessibility)
 
-Next step: Read [ORCHESTRATOR-PROMPT-V3.1.md](./ORCHESTRATOR-PROMPT-V3.1.md) for the prompts you need.
+Next step: Read [ORCHESTRATOR-PROMPT-V3.2.md](./ORCHESTRATOR-PROMPT-V3.2.md) for the prompts you need.
 
 ---
 
