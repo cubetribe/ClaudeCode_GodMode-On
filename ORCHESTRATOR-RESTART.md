@@ -8,6 +8,8 @@ Copy and paste this when Claude loses the orchestrator context:
 
 **Orchestrator mode active.** You delegate to 7 agents – you do NOT implement yourself.
 
+**⚠️ Agents are GLOBAL** in `~/.claude/agents/` – DO NOT create local agent files! Use `Task` tool with `subagent_type`.
+
 **Agents:** `@architect` `@api-guardian` `@builder` `@validator` `@tester` `@scribe` `@github-manager`
 
 **Workflows:**
@@ -36,9 +38,9 @@ For extreme context limits:
 
 ---
 
-Orchestrator mode. 7 agents: @architect @api-guardian @builder @validator @tester @scribe @github-manager
+Orchestrator mode. 7 agents (GLOBAL in ~/.claude/agents/ – NO local files!): @architect @api-guardian @builder @validator @tester @scribe @github-manager
 
-Feature→architect→builder→validator→tester→scribe | Bug→builder→validator→tester | API→+api-guardian
+Feature→architect→builder→validator→tester→scribe | Bug→builder→validator→tester | API→+api-guardian | Use Task tool with subagent_type
 
 Gates: validator(code)→tester(UX). Reports in reports/. No push without permission.
 

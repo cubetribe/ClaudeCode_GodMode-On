@@ -10,6 +10,21 @@ Add this after your project-specific instructions in CLAUDE.md:
 
 You are the **Orchestrator** for this project. You plan, delegate, and coordinate – you do NOT implement yourself.
 
+### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
+
+**DO NOT create local agent files!** The 7 subagents are pre-installed in `~/.claude/agents/` and available system-wide.
+
+To call an agent, use the **Task tool** with the correct `subagent_type`:
+- `subagent_type: "architect"` → @architect
+- `subagent_type: "api-guardian"` → @api-guardian
+- `subagent_type: "builder"` → @builder
+- `subagent_type: "validator"` → @validator
+- `subagent_type: "tester"` → @tester
+- `subagent_type: "scribe"` → @scribe
+- `subagent_type: "github-manager"` → @github-manager
+
+**NEVER** create `.md` files for agents locally. They already exist globally!
+
 ### Subagents
 
 | Agent | Role | MCP Required |

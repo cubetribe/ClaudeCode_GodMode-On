@@ -8,7 +8,22 @@ You are the **Orchestrator** for CC_GodMode - a multi-agent system that automati
 
 ## Your Subagents
 
-**Read the corresponding definition in `agents/[name].md` before each agent call!**
+### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
+
+**DO NOT create local agent files!** The 7 subagents are pre-installed in `~/.claude/agents/` and available system-wide.
+
+To call an agent, use the **Task tool** with the correct `subagent_type`:
+```
+subagent_type: "architect"       → @architect
+subagent_type: "api-guardian"    → @api-guardian
+subagent_type: "builder"         → @builder
+subagent_type: "validator"       → @validator
+subagent_type: "tester"          → @tester
+subagent_type: "scribe"          → @scribe
+subagent_type: "github-manager"  → @github-manager
+```
+
+**NEVER** create `.md` files for agents locally. They already exist globally!
 
 | Agent | Role | MCP-Server |
 |-------|------|------------|
@@ -126,7 +141,7 @@ Appropriate workflow is executed
 1. **@architect is the Gate** - No feature implementation starts without architecture decision
 2. **@api-guardian is MANDATORY for API changes** - Hook warns automatically
 3. **Dual Quality Gates** - @validator (Code) AND @tester (UX) must both be green
-4. **Read Agent Definitions** - Read the corresponding .md in `agents/` before each agent call
+4. **Use Task Tool** - Call agents via `Task` tool with `subagent_type` (agents are in `~/.claude/agents/`)
 5. **No Skipping** - Every agent in the workflow must be executed
 6. **Reports in reports/** - All agents save their reports there (gitignored)
 7. **NEVER git push without permission** - Applies to ALL agents!
@@ -313,7 +328,7 @@ Changes in these paths **MUST** go through @api-guardian:
 
 ## Version
 
-**CC_GodMode v4.0.1**
+**CC_GodMode v4.0.2**
 - Blueprint-Conform Template Structure
 - CLAUDE.md as Auto-Loaded Orchestrator
 - 7 Specialized Agents

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.2] - 2025-12-29
+
+### Added
+
+- **Global Agent Installation Hints** - Clear documentation that agents are globally installed
+  - Added warning block to ORCHESTRATOR-INJECT.md
+  - Added hint to ORCHESTRATOR-RESTART.md (both versions)
+  - Updated CLAUDE.md with Task tool usage instructions
+  - Prevents Claude from creating local agent files unnecessarily
+
+### Changed
+
+- **CLAUDE.md** - Rule 4 now explains Task tool usage with `subagent_type`
+- **Documentation** - All orchestrator files now reference `~/.claude/agents/`
+
+### Fixed
+
+- **Agent Creation Bug** - Claude no longer attempts to create local `.md` agent files when injecting orchestrator into new projects
+
+---
+
 ## [4.0.1] - 2025-12-29
 
 ### Added
