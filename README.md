@@ -2,14 +2,14 @@
 
 > **The Blueprint for Self-Orchestrating Claude Code Teams**
 
-[![Version](https://img.shields.io/badge/Version-4.0.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-4.0.1-blue)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![Subagents](https://img.shields.io/badge/Subagents-7%20Specialists-green)](./agents/)
 [![Blueprint](https://img.shields.io/badge/Blueprint-Template-gold)](./CLAUDE.md)
 [![MCP Servers](https://img.shields.io/badge/MCP%20Servers-4%20Integrated-purple)](./INSTALLATION.md#-mcp-server-installation)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E%20Testing-orange)](https://github.com/microsoft/playwright-mcp)
 
-> **Version 4.0.0** - Blueprint-Conform + Template-Ready | [See CHANGELOG](./CHANGELOG.md)
+> **Version 4.0.1** - Blueprint-Conform + Template-Ready | [See CHANGELOG](./CHANGELOG.md)
 
 ---
 
@@ -46,6 +46,30 @@ CC_GodMode is now a **universal template** for multi-agent teams. Copy the struc
 2. **Modify** the agents in `agents/` for your domain
 3. **Customize** `CLAUDE.md` (workflows, rules, commands)
 4. **Done** - Your team orchestrates itself!
+
+### Add to Existing Project
+
+Want to add CC_GodMode to an existing project? Use the inject file:
+
+1. **Copy** the content from [`ORCHESTRATOR-INJECT.md`](./ORCHESTRATOR-INJECT.md)
+2. **Paste** it into your project's `CLAUDE.md` (after your project-specific instructions)
+3. **Copy** the `agents/` folder to your project
+4. **Done** - Your existing project now has orchestration!
+
+### Context Recovery (After /compact)
+
+Claude Code's context compaction can cause the orchestrator to "forget" its role. Use the restart prompt:
+
+1. **Open** [`ORCHESTRATOR-RESTART.md`](./ORCHESTRATOR-RESTART.md)
+2. **Copy** the short restart prompt
+3. **Paste** it into the chat when Claude starts implementing instead of delegating
+4. **Continue** - Orchestrator mode is restored!
+
+**Signs you need to restart:**
+- Claude writes code instead of calling agents
+- Claude forgets @api-guardian for API changes
+- Claude skips quality gates
+- Claude pushes without permission
 
 ---
 
@@ -484,7 +508,8 @@ CC_GodMode/
 ├── CLAUDE.md                 # 🎯 ORCHESTRATOR (Auto-loaded!)
 ├── README.md                 # You are here 👋
 ├── INSTALLATION.md           # Setup guide (with MCP instructions)
-├── ORCHESTRATOR-PROMPT-V3.2.md # Legacy prompts (optional)
+├── ORCHESTRATOR-INJECT.md    # Inject into existing CLAUDE.md
+├── ORCHESTRATOR-RESTART.md   # Short restart prompt after /compact
 ├── CHANGELOG.md              # Version history
 ├── VERSION                   # Current version number
 │

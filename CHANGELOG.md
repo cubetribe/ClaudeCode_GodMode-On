@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.1] - 2025-12-29
+
+### Added
+
+- **ORCHESTRATOR-INJECT.md** - Copy-paste orchestrator for existing projects
+  - Compact version of orchestrator instructions
+  - Designed to be injected into any project's CLAUDE.md
+  - Contains all essential rules, workflows, and agent definitions
+
+- **ORCHESTRATOR-RESTART.md** - Context recovery after /compact
+  - Short restart prompt for when Claude "forgets" orchestrator mode
+  - Minimal version for extreme context limits
+  - Usage guide with signs that restart is needed
+
+### Changed
+
+- **README.md** - New sections for integration options
+  - "Add to Existing Project" - How to inject into existing CLAUDE.md
+  - "Context Recovery" - How to restore orchestrator after /compact
+  - Updated project structure with new files
+
+### Removed
+
+- **ORCHESTRATOR-PROMPT-V3.2.md** - Replaced by INJECT and RESTART files
+
+### Technical
+
+- Split monolithic prompt into purpose-specific files
+- Improved context efficiency for long sessions
+
+---
+
 ## [4.0.0] - 2025-12-29
 
 ### Added

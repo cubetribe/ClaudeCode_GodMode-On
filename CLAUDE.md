@@ -313,7 +313,7 @@ Changes in these paths **MUST** go through @api-guardian:
 
 ## Version
 
-**CC_GodMode v4.0.0**
+**CC_GodMode v4.0.1**
 - Blueprint-Conform Template Structure
 - CLAUDE.md as Auto-Loaded Orchestrator
 - 7 Specialized Agents
