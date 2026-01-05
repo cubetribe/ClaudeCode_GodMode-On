@@ -2,14 +2,14 @@
 
 > **The Blueprint for Self-Orchestrating Claude Code Teams**
 
-[![Version](https://img.shields.io/badge/Version-4.1.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-5.0.0-blue)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![Subagents](https://img.shields.io/badge/Subagents-7%20Specialists-green)](./agents/)
 [![Blueprint](https://img.shields.io/badge/Blueprint-Template-gold)](./CLAUDE.md)
-[![MCP Servers](https://img.shields.io/badge/MCP%20Servers-4%20Integrated-purple)](./INSTALLATION.md#-mcp-server-installation)
+[![MCP Servers](https://img.shields.io/badge/MCP%20Servers-5%20Integrated-purple)](./MANUAL-INSTALL-V5.0.md)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E%20Testing-orange)](https://github.com/microsoft/playwright-mcp)
 
-> **Version 4.1.0** - Version-First Workflow + Organized Reports | [See CHANGELOG](./CHANGELOG.md)
+> **Version 5.0.0** - One-Shot Installation + Full English Translation | [See CHANGELOG](./CHANGELOG.md)
 
 ---
 
@@ -50,18 +50,17 @@ CC_GodMode is now a **universal template** for multi-agent teams. Copy the struc
 
 ### Add to Existing Project
 
-Want to add CC_GodMode to an existing project? Use the inject file:
+Want to add CC_GodMode to an existing project? Use the project setup file:
 
-1. **Copy** the content from [`ORCHESTRATOR-INJECT-V4.1.0.md`](./ORCHESTRATOR-INJECT-V4.1.0.md)
+1. **Copy** the content from [`PROJECT-SETUP-V5.0.md`](./PROJECT-SETUP-V5.0.md)
 2. **Paste** it into your project's `CLAUDE.md` (after your project-specific instructions)
-3. **Copy** the `agents/` folder to your project
-4. **Done** - Your existing project now has orchestration!
+3. **Done** - Your existing project now has orchestration! (Agents are already global)
 
 ### Context Recovery (After /compact)
 
 Claude Code's context compaction can cause the orchestrator to "forget" its role. Use the restart prompt:
 
-1. **Open** [`ORCHESTRATOR-RESTART-V4.1.0.md`](./ORCHESTRATOR-RESTART-V4.1.0.md)
+1. **Open** [`RESTART-V5.0.md`](./RESTART-V5.0.md)
 2. **Copy** the short restart prompt
 3. **Paste** it into the chat when Claude starts implementing instead of delegating
 4. **Continue** - Orchestrator mode is restored!
@@ -392,33 +391,44 @@ claude mcp add github -e GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_TOKEN \
   -- docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server
 ```
 
-See [INSTALLATION.md](./INSTALLATION.md#-mcp-server-installation) for detailed setup instructions.
+See [MANUAL-INSTALL-V5.0.md](./MANUAL-INSTALL-V5.0.md) for detailed setup instructions.
 
 ---
 
 ## Installation 🛠️
 
-### Option A: YOLO Mode 🚀💀
+### Option A: One-Shot Install (Recommended) 🚀
 
-> *For the brave: One prompt, everything automatic*
+> *One prompt - Claude installs everything automatically*
+
+**Step 1:** Start Claude Code with Skip-Permissions (important!):
 
 ```bash
-git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
-cd ClaudeCode_GodMode-On
 claude --dangerously-skip-permissions
 ```
 
-Then enter:
-```
-Run the complete CC_GodMode installation.
-You have full access. Install everything globally. YOLO.
-```
+**Step 2:** Copy the complete content from [`INSTALL-V5.0.md`](./INSTALL-V5.0.md) and paste it.
 
-Lean back. Done.
+**Step 3:** Sit back. Claude will:
+- Clone the repository
+- Install the 7 agents
+- Set up the hook scripts
+- Install the Memory MCP Server
+- Configure and verify everything
+
+**Why `--dangerously-skip-permissions`?**
+The installation requires many file and shell operations. Without this flag, you would have to confirm each individual action (30+ times). With the flag, everything runs automatically.
+
+**Works on:**
+- macOS
+- Linux
+- Windows (PowerShell)
+
+---
 
 ### Option B: Safe Mode 🛡️
 
-> *For the cautious: Step by step with confirmation*
+> *For cautious users: Step by step with confirmation*
 
 ```bash
 git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
@@ -429,13 +439,15 @@ claude
 Then enter:
 ```
 I want to install CC_GodMode step by step.
-Read INSTALLATION.md and guide me through.
-Ask before every file change.
+Read MANUAL-INSTALL-V5.0.md and guide me through.
+Ask before each file change.
 ```
+
+---
 
 ### Option C: Manual 📝
 
-See [INSTALLATION.md](./INSTALLATION.md) for the complete guide.
+See [MANUAL-INSTALL-V5.0.md](./MANUAL-INSTALL-V5.0.md) for the step-by-step guide.
 
 ---
 
@@ -508,10 +520,11 @@ The Orchestrator:
 CC_GodMode/
 ├── CLAUDE.md                 # 🎯 ORCHESTRATOR (Auto-loaded!)
 ├── README.md                 # You are here 👋
-├── INSTALLATION.md           # Setup guide (with MCP instructions)
-├── ORCHESTRATOR-INJECT-V4.1.0.md    # Inject into existing CLAUDE.md
-├── ORCHESTRATOR-RESTART-V4.1.0.md   # Short restart prompt after /compact
-├── ORCHESTRATOR-PROMPT-V4.1.0.md    # Full orchestrator prompt (legacy)
+├── INSTALL-V5.0.md           # 🚀 One-shot installation prompt
+├── PROJECT-SETUP-V5.0.md     # Inject into existing CLAUDE.md
+├── RESTART-V5.0.md           # Short restart prompt after /compact
+├── MANUAL-INSTALL-V5.0.md    # Manual setup guide (step-by-step)
+├── ROADMAP-V5.0.md           # Future plans (Memory MCP)
 ├── CHANGELOG.md              # Version history
 ├── VERSION                   # Current version number
 │
@@ -594,7 +607,7 @@ A: Recommended. If Docker is not available, @github-manager falls back to `gh` C
 A: No. CC_GodMode enforces "NEVER git push without permission" across all agents.
 
 **Q: Where do I get the MCP servers?**
-A: See [MCP Server Installation](./INSTALLATION.md#-mcp-server-installation) for all links and commands.
+A: See [MANUAL-INSTALL-V5.0.md](./MANUAL-INSTALL-V5.0.md) for all links and commands.
 
 ---
 

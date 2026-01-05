@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.0.0] - 2025-01-05
+
+### Added
+
+- **One-Shot Installation System** - Self-installing prompt
+  - `INSTALL-V5.0.md` - Copy & paste into Claude Code for automatic setup
+  - Supports macOS, Linux, and Windows (PowerShell)
+  - Includes `--dangerously-skip-permissions` hint for smooth installation
+  - Welcome message explaining what will be installed
+  - Installation report at the end
+
+- **Manual Installation Guide** - `MANUAL-INSTALL-V5.0.md`
+  - Step-by-step instructions for manual setup
+  - Cross-platform commands (bash + PowerShell)
+  - Troubleshooting section
+
+- **Templates System** - `~/.claude/templates/`
+  - `CLAUDE-ORCHESTRATOR.md` - Copy to projects for instant orchestration
+  - `PROJECT-SETUP-V5.0.md` - Inject into existing CLAUDE.md
+
+- **Memory MCP Roadmap** - `ROADMAP-V5.0.md`
+  - Planned shared knowledge graph between agents
+  - Simplified from 5 MCP servers to 1 (Memory MCP only)
+  - IDE-independent architecture
+
+### Changed
+
+- **File Renaming** - Clearer, version-consistent names
+  - `INIT-V5.md` → `INSTALL-V5.0.md`
+  - `ORCHESTRATOR-INJECT-V4.1.0.md` → `PROJECT-SETUP-V5.0.md`
+  - `ORCHESTRATOR-RESTART-V4.1.0.md` → `RESTART-V5.0.md`
+  - `INSTALLATION.md` → `MANUAL-INSTALL-V5.0.md`
+
+- **Complete English Translation** - All documentation now in English
+  - INSTALL-V5.0.md translated
+  - MANUAL-INSTALL-V5.0.md translated
+  - ROADMAP-V5.0.md translated
+  - README.md German sections translated
+
+- **README.md** - Updated installation section
+  - Option A: One-Shot Install (recommended)
+  - Option B: Safe Mode (step by step)
+  - Option C: Manual
+
+### Removed
+
+- `ORCHESTRATOR-PROMPT-V4.1.0.md` - Redundant with CLAUDE.md
+- `INSTALLATION.md` - Replaced by MANUAL-INSTALL-V5.0.md
+- `ORCHESTRATOR-INJECT-V4.1.0.md` - Renamed to PROJECT-SETUP-V5.0.md
+- `ORCHESTRATOR-RESTART-V4.1.0.md` - Renamed to RESTART-V5.0.md
+
+### Technical
+
+- All files validated for link integrity
+- 116 code blocks verified intact
+- Cross-platform compatibility confirmed
+- No German text remaining
+
+---
+
 ## [4.1.0] - 2025-01-04
 
 ### Added
@@ -540,12 +600,12 @@ chmod +x ~/.claude/scripts/check-api-impact.js
 
 ### 4. Use New Orchestrator Prompt
 
-Use `ORCHESTRATOR-PROMPT-V2.md` instead of the old prompt.
+Use `PROJECT-SETUP-V5.0.md` instead of the old prompt.
 
 ---
 
 ## Links
 
 - [README](./README.md)
-- [Installation Guide](./INSTALLATION.md)
-- [Orchestrator Prompt V2](./ORCHESTRATOR-PROMPT-V2.md)
+- [Installation Guide](./MANUAL-INSTALL-V5.0.md)
+- [Project Setup](./PROJECT-SETUP-V5.0.md)
