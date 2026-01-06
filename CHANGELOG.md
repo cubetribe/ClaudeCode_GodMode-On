@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.0.1] - 2026-01-06
+
+### Fixed
+
+- **Agent Tool Mismatch Bug** - Subagents no longer hang when trying to use unavailable tools
+  - `scribe.md` - Removed Bash commands from "Tips" and "Quick Commands" sections
+  - `architect.md` - Removed Bash commands from "Dependency Check" section
+  - Both agents now use their available tools: Read, Grep, Glob (+ Write/Edit for scribe)
+  - Git operations are now explicitly delegated to Orchestrator
+  - Clear warnings added: "I do NOT have Bash access!"
+
+### Technical
+
+- Root cause: Agent instructions contained `cat`, `git`, `find`, `tail`, `npx` commands but agents lacked Bash tool access
+- Solution: Rewrote instructions to use native Claude tools (Read, Grep, Glob) and delegate Bash operations to Orchestrator
+
+---
+
 ## [5.0.0] - 2025-01-05
 
 ### Added
