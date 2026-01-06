@@ -135,6 +135,10 @@ I am the **first agent** in the workflow. Before code is written, I determine:
 ## Tips
 
 ### Dependency Check (MANDATORY for new modules)
+
+**NOTE: I do NOT have Bash access!**
+
+To check dependencies, ask the Orchestrator to run:
 ```bash
 # Find circular dependencies
 npx depcruise --output-type err-long src/
@@ -142,6 +146,8 @@ npx depcruise --output-type err-long src/
 # Visualize new module in graph
 npx depcruise --focus "src/new-module" src/
 ```
+
+These commands help identify circular dependencies and visualize module structure, but must be executed by the Orchestrator.
 
 ### Design Principles
 - **Single Responsibility Principle** - One module, one task

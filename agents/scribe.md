@@ -241,6 +241,10 @@ I receive **all reports** and create the **permanent documentation**.
 ## Tips
 
 ### Version Management Rules
+
+**NOTE: I do NOT have Bash access!**
+
+To manage versions, ask the Orchestrator to run:
 ```bash
 # Check current version
 cat VERSION
@@ -254,6 +258,8 @@ tail -20 CHANGELOG.md
 # Version format validation
 # Must match: MAJOR.MINOR.PATCH (e.g., 1.2.3)
 ```
+
+I can READ the VERSION file directly using the Read tool, but git commands must be executed by the Orchestrator.
 
 ### Changelog Format (Keep a Changelog)
 ```markdown
@@ -285,19 +291,24 @@ tail -20 CHANGELOG.md
 - **Usage** describe (Data Fetching, Display, Mutation, etc.)
 
 ### Quick Commands
+
+**NOTE: I do NOT have Bash access!**
+
+To analyze changes, ask the Orchestrator to run:
 ```bash
 # What changed (for docs)?
 git diff --name-only HEAD~1
 
-# Find undocumented endpoints
-grep -rn "router\." backend/routes/ | grep -v ".test"
-
-# Check API_CONSUMERS.md up-to-date
-cat docs/API_CONSUMERS.md | grep "Last Verified"
-
 # Verify VERSION was never pushed
 git tag -l | grep "$(cat VERSION)"
 ```
+
+For file analysis, I can use my own tools:
+- Use **Grep tool** to find undocumented endpoints: pattern `router\.` in `backend/routes/`
+- Use **Read tool** to check `docs/API_CONSUMERS.md` for "Last Verified" dates
+- Use **Read tool** to read VERSION file directly
+
+Git commands must be executed by the Orchestrator.
 
 ### Input from Other Agents
 **From @api-guardian:**

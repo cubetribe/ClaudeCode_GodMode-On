@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 5.0
+> **Version:** 5.1.0
 > **Type:** Self-Installing System
 > **One-Shot:** Copy this entire prompt into Claude Code and it will set up everything automatically.
 

@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.1.0] - 2026-01-06
+
+### Added
+
+- **State-of-the-Art Analysis 2026** - Comprehensive research and validation
+  - 3 research documents: Hooks, MCP Servers, Subagents best practices
+  - Full project audit against 2026 standards
+  - 87% compliance score achieved
+  - Gap analysis with prioritized action items
+
+### Fixed
+
+- **Agent Tool Mismatch Bug (Complete Fix)** - v5.0.1 fix was incomplete
+  - `architect.md` - "Dependency Check" section now properly delegates Bash commands
+  - `scribe.md` - "Version Management" and "Quick Commands" sections fixed
+  - All agents now have clear "I do NOT have Bash access!" warnings
+  - Delegation pattern: "Ask Orchestrator to run: [command]"
+  - Tool alternatives documented (Grep/Read instead of bash grep/cat)
+
+### Changed
+
+- **GAP-ANALYSIS.md** - Corrected after validation
+  - Hook $CLAUDE_FILE_PATH is NOT a bug (CLI-argument pattern works)
+  - Local vs. Global agents is INTENTIONAL design (source vs. runtime)
+  - .mcp.json is OPTIONAL (global config is standard)
+
+### Documentation
+
+- New reports in `reports/state-of-the-art-analysis-2026/`:
+  - `01-HOOKS-RESEARCH-2026.md` - Hook best practices
+  - `02-MCP-SERVER-RESEARCH-2026.md` - MCP integration patterns
+  - `03-SUBAGENT-RESEARCH-2026.md` - Multi-agent workflows
+  - `04-PROJECT-AUDIT-2026.md` - Full project analysis
+  - `05-VALIDATION-REPORT.md` - First validation (found errors)
+  - `06-BUILDER-FIX-REPORT.md` - Fix documentation
+  - `GAP-ANALYSIS.md` - Gap analysis with corrections
+
+### Technical
+
+- Compliance Score: 87% State-of-the-Art
+- All critical items: 100% compliant
+- Release blockers: 0
+- Remaining optimizations documented for future releases
+
+---
+
 ## [5.0.1] - 2026-01-06
 
 ### Fixed

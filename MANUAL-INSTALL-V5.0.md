@@ -1,4 +1,4 @@
-# Manual Installation Guide v5.0
+# Manual Installation Guide v5.1.0
 
 > Manual step-by-step installation of CC_GodMode
 
