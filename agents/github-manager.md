@@ -2,7 +2,7 @@
 name: github-manager
 description: GitHub Project Management Specialist for issues, PRs, releases, repository sync, and CI/CD orchestration
 tools: Read, Grep, Glob, Bash, mcp__github
-model: sonnet
+model: haiku
 ---
 
 # @github-manager - GitHub Project Manager
@@ -340,3 +340,21 @@ gh workflow run [workflow-name]
 - Issue/PR numbers for tracking
 - CI failure notifications
 - Release completion confirmation
+
+---
+
+## Model Configuration
+
+**Assigned Model:** haiku (Claude Haiku)
+**Rationale:** Simple operations and GitHub API calls. GitHub Manager primarily coordinates with GitHub MCP server and executes straightforward workflows. Cost optimization priority.
+**Cost Impact:** Low
+
+**When to use @github-manager:**
+- Creating/managing GitHub issues
+- Creating/managing pull requests
+- Publishing releases
+- Syncing repositories
+- CI/CD monitoring
+- GitHub workflow automation
+
+**This agent is optimized for efficiency - uses fastest/cheapest model for API operations.**

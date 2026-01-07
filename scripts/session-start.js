@@ -250,9 +250,54 @@ function checkMcpHealth() {
 }
 
 /**
+ * Detect version bump suggestion (same logic as version-bump.js)
+ */
+function detectVersionBump() {
+  try {
+    const recentCommits = execSync('git log --oneline -10 2>/dev/null', { encoding: 'utf-8' }).trim();
+    const diffStat = execSync('git diff --stat HEAD~1 2>/dev/null', { encoding: 'utf-8' }).trim();
+
+    // Check for uncommitted changes
+    const statusOutput = execSync('git status --porcelain 2>/dev/null', { encoding: 'utf-8' }).trim();
+    if (!statusOutput) {
+      return null; // No changes to analyze
+    }
+
+    // Check for breaking change indicators
+    if (recentCommits.match(/BREAKING CHANGE|breaking:/i)) {
+      return { type: 'MAJOR', reason: 'Breaking change detected', confidence: 'HIGH' };
+    }
+
+    // Check for feature additions
+    if (recentCommits.match(/^[a-f0-9]+ feat:|^[a-f0-9]+ feature:/mi)) {
+      return { type: 'MINOR', reason: 'Feature addition detected', confidence: 'HIGH' };
+    }
+
+    // Check for new src/ files
+    if (diffStat.match(/src\/[^|]+\|\s+\d+ \+/)) {
+      const newFiles = (diffStat.match(/src\/[^|]+\|\s+\d+ \+/g) || []).length;
+      if (newFiles >= 2) {
+        return { type: 'MINOR', reason: `${newFiles} new files detected`, confidence: 'MEDIUM' };
+      }
+    }
+
+    // Check for bug fixes
+    if (recentCommits.match(/^[a-f0-9]+ fix:|^[a-f0-9]+ bug:/mi)) {
+      return { type: 'PATCH', reason: 'Bug fix detected', confidence: 'HIGH' };
+    }
+
+    // Default for any uncommitted changes
+    return { type: 'PATCH', reason: 'Changes detected', confidence: 'LOW' };
+
+  } catch (error) {
+    return null; // Can't detect
+  }
+}
+
+/**
  * Display welcome message with system status
  */
-function displayWelcome(version, mcpStatus, reportFolder) {
+function displayWelcome(version, mcpStatus, reportFolder, versionBump) {
   const lines = [
     `${colors.bright}CC_GodMode v${version.toString()}${colors.reset}`,
     ''
@@ -319,6 +364,20 @@ function displayWelcome(version, mcpStatus, reportFolder) {
 
   // Print the box
   printBox(lines, colors.blue);
+
+  // Print version bump suggestion if available (only for MEDIUM/HIGH confidence)
+  if (versionBump && versionBump.confidence !== 'LOW') {
+    console.log('');
+    printBox([
+      `${colors.yellow}Version Bump Suggestion${colors.reset}`,
+      '',
+      `  Type: ${colors.bright}${versionBump.type}${colors.reset}`,
+      `  Reason: ${versionBump.reason}`,
+      `  Confidence: ${versionBump.confidence}`,
+      '',
+      `  Run: ${colors.cyan}node scripts/version-bump.js ${versionBump.type.toLowerCase()}${colors.reset}`
+    ], colors.yellow);
+  }
 }
 
 /**
@@ -334,9 +393,12 @@ function main() {
   // Check MCP health
   const mcpStatus = checkMcpHealth();
 
+  // Detect version bump suggestion
+  const versionBump = detectVersionBump();
+
   // Display welcome message
   console.log(''); // Empty line before box
-  displayWelcome(version, mcpStatus, reportFolder);
+  displayWelcome(version, mcpStatus, reportFolder, versionBump);
   console.log(''); // Empty line after box
 }
 
