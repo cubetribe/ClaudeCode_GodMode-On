@@ -91,25 +91,40 @@ subagent_type: "github-manager"  → @github-manager
 
 ## Standard Workflows
 
+**Note:** @validator and @tester run IN PARALLEL after @builder.
+Both must APPROVE before continuing to @scribe.
+
 ### 1. New Feature
 ```
-User ──▶ @architect ──▶ @builder ──▶ @validator ──▶ @tester ──▶ @scribe
+                            ┌──▶ @validator ──┐
+User ──▶ @architect ──▶ @builder              ├──▶ @scribe
+                            └──▶ @tester   ──┘
+                                 (PARALLEL)
 ```
 
 ### 2. Bug Fix
 ```
-User ──▶ @builder ──▶ @validator ──▶ @tester
+                ┌──▶ @validator ──┐
+User ──▶ @builder                  ├──▶ (done)
+                └──▶ @tester   ──┘
+                     (PARALLEL)
 ```
 
 ### 3. API Change (CRITICAL!)
 ```
-User ──▶ @architect ──▶ @api-guardian ──▶ @builder ──▶ @validator ──▶ @tester ──▶ @scribe
+                                                    ┌──▶ @validator ──┐
+User ──▶ @architect ──▶ @api-guardian ──▶ @builder                    ├──▶ @scribe
+                                                    └──▶ @tester   ──┘
+                                                         (PARALLEL)
 ```
 **@api-guardian is MANDATORY for API changes!**
 
 ### 4. Refactoring
 ```
-User ──▶ @architect ──▶ @builder ──▶ @validator ──▶ @tester
+                            ┌──▶ @validator ──┐
+User ──▶ @architect ──▶ @builder              ├──▶ (done)
+                            └──▶ @tester   ──┘
+                                 (PARALLEL)
 ```
 
 ### 5. Release
@@ -275,7 +290,37 @@ Changes in these paths **MUST** go through @api-guardian:
 
 ---
 
-## Quality Gates in Detail
+## Quality Gates (PARALLEL)
+
+After @builder completes, BOTH gates run simultaneously:
+
+```
+@builder
+    │
+    ├──────────────────┐
+    │                  │
+    ▼                  ▼
+@validator        @tester
+(Code Quality)    (UX Quality)
+    │                  │
+    └────────┬─────────┘
+             │
+        SYNC POINT
+             │
+    ┌────────┴────────┐
+    │                 │
+BOTH APPROVED     ANY BLOCKED
+    │                 │
+    ▼                 ▼
+@scribe          @builder
+              (fix & retry)
+```
+
+**Decision Matrix:**
+| @validator | @tester | Action |
+|------------|---------|--------|
+| ✅ APPROVED | ✅ APPROVED | → @scribe |
+| Any combination with BLOCKED | → @builder (merged issues) |
 
 ### Gate 1: @validator (Code Quality)
 ```
@@ -284,7 +329,6 @@ Changes in these paths **MUST** go through @api-guardian:
 ✓ No security issues
 ✓ All consumers updated (for API changes)
 ```
-**Decision:** APPROVED → continue to @tester | BLOCKED → back to @builder
 
 ### Gate 2: @tester (UX Quality)
 ```
@@ -293,7 +337,6 @@ Changes in these paths **MUST** go through @api-guardian:
 ✓ A11y compliant (WCAG 2.1 AA)
 ✓ Performance OK (Core Web Vitals)
 ```
-**Decision:** APPROVED → continue to @scribe | ISSUES FOUND → back to @builder
 
 ---
 
@@ -337,10 +380,10 @@ Changes in these paths **MUST** go through @api-guardian:
 |-------|---------------|-----------|
 | @architect | User/Orchestrator | @api-guardian or @builder |
 | @api-guardian | @architect | @builder |
-| @builder | @architect, @api-guardian | @validator |
-| @validator | @builder | @tester (or back to @builder) |
-| @tester | @validator | @scribe or @github-manager |
-| @scribe | @tester, all agents | @github-manager (for release) |
+| @builder | @architect, @api-guardian | @validator AND @tester (PARALLEL) |
+| @validator | @builder | SYNC POINT (waits for @tester) |
+| @tester | @builder | SYNC POINT (waits for @validator) |
+| @scribe | @validator + @tester (both approved) | @github-manager (for release) |
 | @github-manager | @scribe, @tester, User | Done |
 
 ---

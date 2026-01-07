@@ -1,7 +1,7 @@
 ---
 name: architect
 description: System architect for high-level planning, design decisions, and module structure
-tools: Read, Grep, Glob, WebFetch
+tools: Read, Write, Bash, Grep, Glob, WebFetch
 model: sonnet
 ---
 
