@@ -1,3 +1,5 @@
+> **Version:** 5.9.0
+
 # CC_GodMode Update Check
 
 Use this prompt to check if your CC_GodMode installation is up to date.
@@ -87,7 +89,7 @@ The auto-update system updates these paths:
 - `VERSION` - Version number
 - `CHANGELOG.md` - Change history
 - `README.md` - Documentation
-- `UPDATE-CHECK.md` - Update check documentation
+- `CC-GodMode-Prompts/CCGM_Prompt_UPDATE-CHECK.md` - Update check documentation
 
 **Note:** If you copied prompts to your project root for easier access, you may want to re-copy them after an update:
 

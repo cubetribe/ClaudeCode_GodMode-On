@@ -271,7 +271,7 @@ mkdir -p ~/.claude/templates
 mkdir -p ~/.claude/CC-GodMode-Prompts
 cp /tmp/CC_GodMode_install/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
 cp /tmp/CC_GodMode_install/templates/adr-template.md ~/.claude/templates/
-cp /tmp/CC_GodMode_install/UPDATE-CHECK.md ~/.claude/templates/
+cp /tmp/CC_GodMode_install/CC-GodMode-Prompts/CCGM_Prompt_UPDATE-CHECK.md ~/.claude/templates/
 cp /tmp/CC_GodMode_install/CC-GodMode-Prompts/*.md ~/.claude/CC-GodMode-Prompts/
 ```
 
@@ -281,7 +281,7 @@ New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\templates"
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\CC-GodMode-Prompts"
 Copy-Item "$env:TEMP\CC_GodMode_install\CLAUDE.md" "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" -Force
 Copy-Item "$env:TEMP\CC_GodMode_install\templates\adr-template.md" "$env:USERPROFILE\.claude\templates\" -Force
-Copy-Item "$env:TEMP\CC_GodMode_install\UPDATE-CHECK.md" "$env:USERPROFILE\.claude\templates\" -Force
+Copy-Item "$env:TEMP\CC_GodMode_install\CC-GodMode-Prompts\CCGM_Prompt_UPDATE-CHECK.md" "$env:USERPROFILE\.claude\templates\" -Force
 Copy-Item "$env:TEMP\CC_GodMode_install\CC-GodMode-Prompts\*.md" "$env:USERPROFILE\.claude\CC-GodMode-Prompts\" -Force
 ```
 
@@ -290,7 +290,7 @@ Copy-Item "$env:TEMP\CC_GodMode_install\CC-GodMode-Prompts\*.md" "$env:USERPROFI
 **Expected templates:**
 - `CLAUDE-ORCHESTRATOR.md` - Main orchestrator configuration
 - `adr-template.md` - Architecture Decision Records template
-- `UPDATE-CHECK.md` - Auto-update notification template
+- `CCGM_Prompt_UPDATE-CHECK.md` - Auto-update notification template
 
 **Expected prompts (in CC-GodMode-Prompts/):**
 - `CCGM_Prompt_Install.md` - Installation prompt
@@ -666,7 +666,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **Templates (3):**
 - CLAUDE-ORCHESTRATOR.md
 - adr-template.md
-- UPDATE-CHECK.md
+- CCGM_Prompt_UPDATE-CHECK.md
 
 **Hooks (4):**
 - PostToolUse (Write|Edit) - API Impact Check
@@ -701,7 +701,7 @@ rm ~/.claude/config/domain-config.schema.json
 # Remove templates
 rm ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
 rm ~/.claude/templates/adr-template.md
-rm ~/.claude/templates/UPDATE-CHECK.md
+rm ~/.claude/templates/CCGM_Prompt_UPDATE-CHECK.md
 
 # Remove prompts
 rm -rf ~/.claude/CC-GodMode-Prompts
@@ -741,7 +741,7 @@ Remove-Item "$env:USERPROFILE\.claude\config\domain-config.schema.json"
 # Remove templates
 Remove-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md"
 Remove-Item "$env:USERPROFILE\.claude\templates\adr-template.md"
-Remove-Item "$env:USERPROFILE\.claude\templates\UPDATE-CHECK.md"
+Remove-Item "$env:USERPROFILE\.claude\templates\CCGM_Prompt_UPDATE-CHECK.md"
 
 # Remove prompts
 Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\CC-GodMode-Prompts"

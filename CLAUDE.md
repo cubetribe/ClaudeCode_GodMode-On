@@ -233,6 +233,7 @@ Appropriate workflow is executed
 - `CC-GodMode-Prompts/CCGM_Prompt_Install.md` - One-shot automated installation
 - `CC-GodMode-Prompts/CCGM_Prompt_ProjectSetup.md` - Inject orchestrator into project CLAUDE.md
 - `CC-GodMode-Prompts/CCGM_Prompt_ManualInstall.md` - Manual step-by-step installation
+- `CC-GodMode-Prompts/CCGM_Prompt_UPDATE-CHECK.md` - Version update checker
 
 ---
 

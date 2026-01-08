@@ -39,6 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Prompt File Organization** - Moved UPDATE-CHECK to prompts directory
+  - `UPDATE-CHECK.md` → `CC-GodMode-Prompts/CCGM_Prompt_UPDATE-CHECK.md`
+  - Follows naming convention established in v5.8.3
+  - Added version header (v5.9.0)
+  - Updated CLAUDE.md Active Prompt Files list
+
 - **Blocking Hook Enforcement** - Hooks now use exit(1) for critical violations
   - validate-agent-output.js: Blocks @scribe before gates approved
   - analyze-prompt.js: Blocks premature push attempts

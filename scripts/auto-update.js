@@ -66,7 +66,7 @@ const UPDATE_PATHS = [
   'VERSION',
   'CHANGELOG.md',
   'README.md',
-  'UPDATE-CHECK.md'
+  'CC-GodMode-Prompts/CCGM_Prompt_UPDATE-CHECK.md'
 ];
 
 // ANSI Colors
