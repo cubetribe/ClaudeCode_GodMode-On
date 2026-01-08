@@ -1,12 +1,12 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 5.8.0
+> **Version:** 5.8.2
 > **Type:** Self-Installing System
 > **One-Shot:** Copy this entire prompt into Claude Code and it will set up everything automatically.
 
 ---
 
-## What's New in v5.8.0
+## What's New in v5.8.2
 
 ### New Features
 
@@ -268,7 +268,7 @@ Copy the orchestrator template for projects:
 **macOS / Linux:**
 ```bash
 mkdir -p ~/.claude/templates
-cp /tmp/CC_GodMode_install/PROJECT-SETUP-V5.0.md ~/.claude/templates/
+cp /tmp/CC_GodMode_install/CCGM_Prompt_ProjectSetup_v5.8.2.md ~/.claude/templates/
 cp /tmp/CC_GodMode_install/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
 cp /tmp/CC_GodMode_install/templates/adr-template.md ~/.claude/templates/
 cp /tmp/CC_GodMode_install/UPDATE-CHECK.md ~/.claude/templates/
@@ -277,7 +277,7 @@ cp /tmp/CC_GodMode_install/UPDATE-CHECK.md ~/.claude/templates/
 **Windows (PowerShell):**
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\templates"
-Copy-Item "$env:TEMP\CC_GodMode_install\PROJECT-SETUP-V5.0.md" "$env:USERPROFILE\.claude\templates\" -Force
+Copy-Item "$env:TEMP\CC_GodMode_install\CCGM_Prompt_ProjectSetup_v5.8.2.md" "$env:USERPROFILE\.claude\templates\" -Force
 Copy-Item "$env:TEMP\CC_GodMode_install\CLAUDE.md" "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" -Force
 Copy-Item "$env:TEMP\CC_GodMode_install\templates\adr-template.md" "$env:USERPROFILE\.claude\templates\" -Force
 Copy-Item "$env:TEMP\CC_GodMode_install\UPDATE-CHECK.md" "$env:USERPROFILE\.claude\templates\" -Force
@@ -286,7 +286,7 @@ Copy-Item "$env:TEMP\CC_GodMode_install\UPDATE-CHECK.md" "$env:USERPROFILE\.clau
 **Important:** These templates will be copied to each project later!
 
 **Expected templates:**
-- `PROJECT-SETUP-V5.0.md` - Project setup guide
+- `CCGM_Prompt_ProjectSetup_v5.8.2.md` - Project setup guide
 - `CLAUDE-ORCHESTRATOR.md` - Main orchestrator configuration
 - `adr-template.md` - Architecture Decision Records template
 - `UPDATE-CHECK.md` - Auto-update notification template
@@ -506,7 +506,7 @@ After completing all steps, provide this summary to the user:
 ║                                                                           ║
 ║   📊 INSTALLATION REPORT                                                  ║
 ║                                                                           ║
-║   Version:      5.8.0                                                     ║
+║   Version:      5.8.2                                                     ║
 ║   Agents:       [X]/7 installed                                           ║
 ║   Scripts:      [X]/10 installed                                          ║
 ║   Config:       [X]/1 installed                                           ║
@@ -657,7 +657,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - domain-config.schema.json
 
 **Templates (4):**
-- PROJECT-SETUP-V5.0.md
+- CCGM_Prompt_ProjectSetup_v5.8.2.md
 - CLAUDE-ORCHESTRATOR.md
 - adr-template.md
 - UPDATE-CHECK.md
@@ -693,7 +693,7 @@ rm ~/.claude/scripts/test-phase2-integration.js
 rm ~/.claude/config/domain-config.schema.json
 
 # Remove templates
-rm ~/.claude/templates/PROJECT-SETUP-V5.0.md
+rm ~/.claude/templates/CCGM_Prompt_ProjectSetup_v5.8.2.md
 rm ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
 rm ~/.claude/templates/adr-template.md
 rm ~/.claude/templates/UPDATE-CHECK.md
@@ -731,7 +731,7 @@ Remove-Item "$env:USERPROFILE\.claude\scripts\test-phase2-integration.js"
 Remove-Item "$env:USERPROFILE\.claude\config\domain-config.schema.json"
 
 # Remove templates
-Remove-Item "$env:USERPROFILE\.claude\templates\PROJECT-SETUP-V5.0.md"
+Remove-Item "$env:USERPROFILE\.claude\templates\CCGM_Prompt_ProjectSetup_v5.8.2.md"
 Remove-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md"
 Remove-Item "$env:USERPROFILE\.claude\templates\adr-template.md"
 Remove-Item "$env:USERPROFILE\.claude\templates\UPDATE-CHECK.md"

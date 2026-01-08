@@ -195,6 +195,37 @@ Appropriate workflow is executed
 
 ---
 
+## Prompt File Naming Convention (MANDATORY)
+
+**All user-facing prompt files MUST include the version number in the filename.**
+
+**Format:** `CCGM_Prompt_[Name]_v[VERSION].md`
+
+**Examples:**
+- `CCGM_Prompt_Restart_v5.8.2.md`
+- `CCGM_Prompt_Install_v5.8.2.md`
+- `CCGM_Prompt_ProjectSetup_v5.8.2.md`
+- `CCGM_Prompt_ManualInstall_v5.8.2.md`
+
+**Why?** Users must know which version they have installed. This prevents confusion and ensures compatibility.
+
+**When updating prompts:**
+1. Rename files to new version: `CCGM_Prompt_*_vOLD.md` → `CCGM_Prompt_*_vNEW.md`
+2. Update all internal cross-references in the files themselves
+3. Update README.md references to use new filenames
+4. Update CHANGELOG.md to document the change
+5. Templates in `~/.claude/templates/` should use versioned names
+
+**Current Version:** v5.8.2
+
+**Active Prompt Files:**
+- `CCGM_Prompt_Restart_v5.8.2.md` - Context recovery after `/compact`
+- `CCGM_Prompt_Install_v5.8.2.md` - One-shot automated installation
+- `CCGM_Prompt_ProjectSetup_v5.8.2.md` - Inject orchestrator into project CLAUDE.md
+- `CCGM_Prompt_ManualInstall_v5.8.2.md` - Manual step-by-step installation
+
+---
+
 ## Version-First Workflow (MANDATORY)
 
 **Before ANY work starts:**

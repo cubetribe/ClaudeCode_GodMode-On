@@ -2,7 +2,7 @@
 
 > Manual step-by-step installation of CC_GodMode
 
-**Note:** For automatic installation see [`INSTALL-V5.0.md`](./INSTALL-V5.0.md)
+**Note:** For automatic installation see [`CCGM_Prompt_Install_v5.8.2.md`](./CCGM_Prompt_Install_v5.8.2.md)
 
 ---
 
@@ -94,13 +94,13 @@ Copy-Item "$env:TEMP\CC_GodMode\scripts\*.js" "$env:USERPROFILE\.claude\scripts\
 
 **macOS / Linux:**
 ```bash
-cp /tmp/CC_GodMode/PROJECT-SETUP-V5.0.md ~/.claude/templates/
+cp /tmp/CC_GodMode/CCGM_Prompt_ProjectSetup_v5.8.2.md ~/.claude/templates/
 cp /tmp/CC_GodMode/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Copy-Item "$env:TEMP\CC_GodMode\PROJECT-SETUP-V5.0.md" "$env:USERPROFILE\.claude\templates\" -Force
+Copy-Item "$env:TEMP\CC_GodMode\CCGM_Prompt_ProjectSetup_v5.8.2.md" "$env:USERPROFILE\.claude\templates\" -Force
 Copy-Item "$env:TEMP\CC_GodMode\CLAUDE.md" "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" -Force
 ```
 
@@ -205,7 +205,7 @@ claude mcp list
 **Expected result:**
 - 7 agent files
 - at least 1 script (`check-api-impact.js`)
-- 2 templates (`CLAUDE-ORCHESTRATOR.md`, `PROJECT-SETUP-V5.0.md`)
+- 2 templates (`CLAUDE-ORCHESTRATOR.md`, `CCGM_Prompt_ProjectSetup_v5.8.2.md`)
 - MCP: `memory`, optional: `playwright`, `github`, `lighthouse`, `a11y`
 
 ---
@@ -326,4 +326,4 @@ See [CHANGELOG.md](./CHANGELOG.md) for details.
 
 ---
 
-*For automatic installation: [`INSTALL-V5.0.md`](./INSTALL-V5.0.md)*
+*For automatic installation: [`CCGM_Prompt_Install_v5.8.2.md`](./CCGM_Prompt_Install_v5.8.2.md)*

@@ -125,7 +125,7 @@ The difference?
 │   └── check-api-impact.js
 ├── templates/                      ← Project templates
 │   ├── CLAUDE-ORCHESTRATOR.md
-│   └── PROJECT-SETUP-V5.0.md
+│   └── CCGM_Prompt_ProjectSetup_v5.8.2.md
 └── settings.json                   ← Hooks configuration
 ```
 
@@ -189,23 +189,25 @@ The Orchestrator selects the right workflow automatically:
 
 **New Feature:**
 ```
-@architect → @builder → @validator → @tester → @scribe
+@architect → @builder → (@validator ∥ @tester) → @scribe
 ```
 
 **Bug Fix:**
 ```
-@builder → @validator → @tester
+@builder → (@validator ∥ @tester)
 ```
 
 **API Change (Critical!):**
 ```
-@architect → @api-guardian → @builder → @validator → @tester → @scribe
+@architect → @api-guardian → @builder → (@validator ∥ @tester) → @scribe
 ```
 
 **Refactoring:**
 ```
-@architect → @builder → @validator → @tester
+@architect → @builder → (@validator ∥ @tester)
 ```
+
+**Note:** Since v5.6.0, quality gates run in PARALLEL (∥ symbol) for 40% faster validation.
 
 **Release:**
 ```
@@ -258,7 +260,7 @@ Nothing gets forgotten. The hook remembers for you.
 claude --dangerously-skip-permissions
 ```
 
-**Step 2:** Copy the entire content from [`INSTALL-V5.0.md`](./INSTALL-V5.0.md) and paste it.
+**Step 2:** Copy the entire content from [`CCGM_Prompt_Install_v5.8.2.md`](./CCGM_Prompt_Install_v5.8.2.md) and paste it.
 
 **Step 3:** Watch. Claude will:
 - Clone the repository
@@ -271,7 +273,31 @@ claude --dangerously-skip-permissions
 
 ### Manual Install
 
-See [`MANUAL-INSTALL-V5.0.md`](./MANUAL-INSTALL-V5.0.md) for step-by-step instructions.
+See [`CCGM_Prompt_ManualInstall_v5.8.2.md`](./CCGM_Prompt_ManualInstall_v5.8.2.md) for step-by-step instructions.
+
+---
+
+## Prompt Files
+
+CC_GodMode includes ready-to-use prompts for different scenarios:
+
+| Prompt File | Purpose | When to Use |
+|-------------|---------|-------------|
+| [`CCGM_Prompt_Install_v5.8.2.md`](./CCGM_Prompt_Install_v5.8.2.md) | One-shot installation | First-time setup with `--dangerously-skip-permissions` |
+| [`CCGM_Prompt_ManualInstall_v5.8.2.md`](./CCGM_Prompt_ManualInstall_v5.8.2.md) | Step-by-step installation | When you prefer manual control |
+| [`CCGM_Prompt_ProjectSetup_v5.8.2.md`](./CCGM_Prompt_ProjectSetup_v5.8.2.md) | Inject orchestrator into project | Adding CC_GodMode to existing project's CLAUDE.md |
+| [`CCGM_Prompt_Restart_v5.8.2.md`](./CCGM_Prompt_Restart_v5.8.2.md) | Context recovery | After `/compact` when Claude "forgets" orchestrator mode |
+
+### Quick Reference
+
+**First Installation:**
+- Use `CCGM_Prompt_Install_v5.8.2.md` (automated) or `CCGM_Prompt_ManualInstall_v5.8.2.md` (manual)
+
+**Adding to New Project:**
+- Copy content from `CCGM_Prompt_ProjectSetup_v5.8.2.md` into your project's CLAUDE.md
+
+**After /compact or Long Sessions:**
+- Paste `CCGM_Prompt_Restart_v5.8.2.md` to restore orchestrator mode
 
 ---
 
@@ -358,7 +384,7 @@ These documents transform implicit knowledge into explicit contracts, making the
 
 Claude Code's `/compact` can cause memory loss. When the orchestrator starts implementing instead of delegating:
 
-1. Open [`RESTART-V5.0.md`](./RESTART-V5.0.md)
+1. Open [`CCGM_Prompt_Restart_v5.8.2.md`](./CCGM_Prompt_Restart_v5.8.2.md)
 2. Copy the restart prompt
 3. Paste into chat
 4. Orchestrator mode restored
@@ -366,8 +392,9 @@ Claude Code's `/compact` can cause memory loss. When the orchestrator starts imp
 **Signs you need restart:**
 - Claude writes code instead of calling agents
 - Claude forgets @api-guardian for API changes
-- Claude skips quality gates
+- Claude skips quality gates (@validator or @tester)
 - Claude pushes without permission
+- Claude writes reports to wrong folder (should be `reports/v[VERSION]/`)
 
 ---
 

@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.8.2] - 2026-01-08
+
+**"The Naming Convention Release" - Proper Versioned Prompt Files**
+
+> *In which prompt files finally get their version numbers. After multiple releases where INSTALL-V5.0.md was stuck at v5.0 despite being at v5.8.1, we standardize all prompt file naming with version numbers in filenames. Now every user-facing prompt clearly shows which CC_GodMode version it belongs to. Plus: All workflows now properly show the parallel gates symbol (∥) introduced in v5.6.0, and CLAUDE.md gets the official naming convention documented.*
+
+### Changed
+
+- **Prompt File Naming Convention** - All user-facing prompts now version-tagged
+  - `INSTALL-V5.0.md` → `CCGM_Prompt_Install_v5.8.2.md`
+  - `MANUAL-INSTALL-V5.0.md` → `CCGM_Prompt_ManualInstall_v5.8.2.md`
+  - `PROJECT-SETUP-V5.0.md` → `CCGM_Prompt_ProjectSetup_v5.8.2.md`
+  - `RESTART-V5.0.md` → `CCGM_Prompt_Restart_v5.8.2.md`
+  - Format: `CCGM_Prompt_[Name]_v[VERSION].md`
+  - Ensures users always know which CC_GodMode version the prompt belongs to
+
+### Fixed
+
+- **Parallel Gates Symbol** - v5.6.0 feature finally documented everywhere
+  - All workflow diagrams now show `∥` for parallel @validator/@tester execution
+  - Consistent with 40% faster validation introduced in v5.6.0
+  - Fixed in all prompt files and workflow documentation
+
+- **Report Paths** - Corrected to version-based structure
+  - All references now point to `reports/v[VERSION]/` pattern
+  - Aligns with v4.1.0 Version-First Workflow
+
+### Documentation
+
+- **README.md Enhanced** - New "Prompt Files" section
+  - Table overview of all 4 user-facing prompts
+  - Clear guidance on when to use each prompt
+  - All links updated to new filenames
+
+- **CLAUDE.md** - Prompt File Naming Convention added
+  - Documented as MANDATORY for all future updates
+  - 5-step update process for version increments
+  - Ensures consistency across all user-facing documentation
+
+### Impact
+
+- **User Experience**: No more confusion about prompt file versions
+- **Maintenance**: Clear naming makes updates trackable
+- **Consistency**: All prompts aligned with actual CC_GodMode version
+
+---
+
 ## [5.8.1] - 2026-01-08
 
 **"The Auto-Update Release" - Self-Maintaining AI Systems**
