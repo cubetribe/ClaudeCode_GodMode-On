@@ -7,6 +7,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.8.1] - 2026-01-08
+
+**"The Auto-Update Release" - Self-Maintaining AI Systems**
+
+> *In which the AI learns to update itself. After every release requiring manual file copying, v5.8.1 introduces the Auto-Update System. One prompt, one command, complete update. Backup before changes, rollback on failure, selective downloads for efficiency. The system that builds itself can now maintain itself. Plus: CLAUDE.md finally knows it's v5.8.0, INSTALL docs are complete, and that obsolete ROADMAP is properly archived. Small fixes, big impact.*
+
+### Added
+
+- **Auto-Update System** - Self-maintaining installation
+  - `scripts/auto-update.js` (648 lines) - Core update logic
+    - `--check`: Check for available updates
+    - `--update`: Apply updates with automatic backup
+    - `--dry-run`: Preview changes without applying
+    - `--rollback`: Restore from backup
+  - `UPDATE-CHECK.md` - User prompt for easy updates
+  - Features:
+    - GitHub API integration (no MCP required)
+    - Selective downloads (only changed files)
+    - Automatic backup to `~/.claude.bak/`
+    - Protected files (never touches settings.json, mcp.json)
+    - Cross-platform (macOS, Linux, Windows)
+    - Zero external dependencies (pure Node.js)
+
+### Fixed
+
+- **CLAUDE.md Updated to v5.8.0** - Was still showing v5.6.0
+  - Added Meta-Decision Logic section
+  - Added Architecture Decision Records section
+  - Added RARE Responsibility Matrix section
+  - Added Domain-Pack Architecture section
+  - Added Escalation Mechanism section
+  - Updated version references throughout
+
+- **INSTALL-V5.0.md Complete Overhaul** - Was missing v5.6.0-v5.8.0 components
+  - Added all 10 scripts (was incomplete)
+  - Added config file installation step
+  - Added 4 templates installation
+  - Added 4 hooks configuration (was 1)
+  - Added Auto-Update System installation
+  - Added enhanced verification steps
+  - Updated from ~500 to ~750 lines
+
+### Changed
+
+- **ROADMAP-V5.0.md Archived** - Moved to `archive/ROADMAP-V5.0-HISTORICAL.md`
+  - Was showing "PLANNING" status for v5.0 features
+  - Misleading since we're at v5.8.1
+  - Preserved for historical reference
+
+### Documentation
+
+- New files:
+  - `scripts/auto-update.js` - Auto-update core logic
+  - `UPDATE-CHECK.md` - User-facing update prompt
+  - `reports/v5.8.0/auto-update-architecture.md` - Design document
+  - `reports/v5.8.0/auto-update-implementation.md` - Implementation report
+  - `reports/v5.8.0/local-installation-test.md` - Installation test results
+  - `archive/ROADMAP-V5.0-HISTORICAL.md` - Archived roadmap
+
+### Quality Assurance
+
+- Local installation tested: 85% production ready
+- All v5.8.0 features verified working
+- Syntax validation: All scripts pass `node -c`
+- Cross-platform compatibility confirmed
+
+---
+
 ## [5.8.0] - 2026-01-08
 
 **"The Governance & Domain-Pack Release" - AI Systems That Know Their Limits**

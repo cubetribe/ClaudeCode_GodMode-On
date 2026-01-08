@@ -1,8 +1,42 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 5.1.0
+> **Version:** 5.8.0
 > **Type:** Self-Installing System
 > **One-Shot:** Copy this entire prompt into Claude Code and it will set up everything automatically.
+
+---
+
+## What's New in v5.8.0
+
+### New Features
+
+**Auto-Update System**
+- Automatic version checking against GitHub
+- Update notifications on session start
+- Easy one-command update process
+
+**Enhanced Hooks**
+- UserPromptSubmit: Intelligent task type detection and complexity assessment
+- SessionStart: Comprehensive MCP health checks and system diagnostics
+- SubagentStop: Agent output validation and quality scoring
+
+**Domain-Specific Configuration**
+- Domain config schema for specialized project setups
+- Domain pack loader for consistent configurations
+- ADR templates for architecture decision documentation
+
+**Improved Scripts**
+- Escalation handler for complex task routing
+- Enhanced prompt analysis with workflow suggestions
+- Parallel quality gates for faster validation
+
+### System Requirements
+
+- Node.js 18+ (required)
+- Claude Code CLI (latest version recommended)
+- Git (for installation)
+- 100MB free disk space
+- Internet connection for MCP server installation
 
 ---
 
@@ -51,12 +85,14 @@ Before you execute anything, give the user the following message:
 ║                                                                           ║
 ║   1. 📦 Download the CC_GodMode repository from GitHub                    ║
 ║   2. 🤖 Install 7 specialized AI agents                                   ║
-║   3. 🔧 Set up hook scripts (automatic quality checks)                    ║
-║   4. 🧠 Install the Memory MCP Server (for persistent knowledge)          ║
-║   5. ⚙️  Adjust the configuration                                          ║
-║   6. ✅ Verify everything and clean up                                    ║
+║   3. 🔧 Set up 10 hook scripts (automatic quality checks & analysis)      ║
+║   4. 📋 Install config files and templates                                ║
+║   5. 🧠 Install the Memory MCP Server (for persistent knowledge)          ║
+║   6. ⚙️  Configure 4 automatic hooks                                       ║
+║   7. 🚀 Set up auto-update system                                         ║
+║   8. ✅ Verify everything and clean up                                    ║
 ║                                                                           ║
-║   ⏱️  This will take approximately 2-5 minutes.                            ║
+║   ⏱️  This will take approximately 3-7 minutes.                            ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -193,7 +229,39 @@ Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
 
 **Note:** On Windows, `chmod` is not needed.
 
-### Step 6: Install Orchestrator Template
+**Expected scripts:**
+- `check-api-impact.js`
+- `parallel-quality-gates.js`
+- `mcp-health-check.js`
+- `analyze-prompt.js`
+- `escalation-handler.js`
+- `domain-pack-loader.js`
+- `validate-agent-output.js`
+- `auto-update.js`
+- `session-start.js`
+- `test-phase2-integration.js`
+
+---
+
+### Step 6: Install Config Files
+
+**macOS / Linux:**
+```bash
+mkdir -p ~/.claude/config
+cp /tmp/CC_GodMode_install/config/domain-config.schema.json ~/.claude/config/
+ls -la ~/.claude/config/
+```
+
+**Windows (PowerShell):**
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\config"
+Copy-Item "$env:TEMP\CC_GodMode_install\config\domain-config.schema.json" "$env:USERPROFILE\.claude\config\" -Force
+Get-ChildItem "$env:USERPROFILE\.claude\config\"
+```
+
+---
+
+### Step 7: Install Orchestrator Template
 
 Copy the orchestrator template for projects:
 
@@ -202,6 +270,8 @@ Copy the orchestrator template for projects:
 mkdir -p ~/.claude/templates
 cp /tmp/CC_GodMode_install/PROJECT-SETUP-V5.0.md ~/.claude/templates/
 cp /tmp/CC_GodMode_install/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
+cp /tmp/CC_GodMode_install/templates/adr-template.md ~/.claude/templates/
+cp /tmp/CC_GodMode_install/UPDATE-CHECK.md ~/.claude/templates/
 ```
 
 **Windows (PowerShell):**
@@ -209,13 +279,38 @@ cp /tmp/CC_GodMode_install/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\templates"
 Copy-Item "$env:TEMP\CC_GodMode_install\PROJECT-SETUP-V5.0.md" "$env:USERPROFILE\.claude\templates\" -Force
 Copy-Item "$env:TEMP\CC_GodMode_install\CLAUDE.md" "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" -Force
+Copy-Item "$env:TEMP\CC_GodMode_install\templates\adr-template.md" "$env:USERPROFILE\.claude\templates\" -Force
+Copy-Item "$env:TEMP\CC_GodMode_install\UPDATE-CHECK.md" "$env:USERPROFILE\.claude\templates\" -Force
 ```
 
 **Important:** These templates will be copied to each project later!
 
+**Expected templates:**
+- `PROJECT-SETUP-V5.0.md` - Project setup guide
+- `CLAUDE-ORCHESTRATOR.md` - Main orchestrator configuration
+- `adr-template.md` - Architecture Decision Records template
+- `UPDATE-CHECK.md` - Auto-update notification template
+
 ---
 
-### Step 7: Install Memory MCP Server
+### Step 8: Install Auto-Update System
+
+**macOS / Linux:**
+```bash
+cp /tmp/CC_GodMode_install/scripts/auto-update.js ~/.claude/scripts/
+chmod +x ~/.claude/scripts/auto-update.js
+```
+
+**Windows (PowerShell):**
+```powershell
+Copy-Item "$env:TEMP\CC_GodMode_install\scripts\auto-update.js" "$env:USERPROFILE\.claude\scripts\" -Force
+```
+
+**Note:** The auto-update system checks for new versions on GitHub and notifies you.
+
+---
+
+### Step 9: Install Memory MCP Server
 
 This command is the same on all platforms:
 
@@ -232,7 +327,7 @@ claude mcp list
 
 ---
 
-### Step 8: Configure Hooks
+### Step 10: Configure Hooks
 
 **macOS / Linux** - Create/update `~/.claude/settings.json`:
 
@@ -248,6 +343,24 @@ claude mcp list
             "command": "node ~/.claude/scripts/check-api-impact.js \"$CLAUDE_FILE_PATH\""
           }
         ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "node ~/.claude/scripts/analyze-prompt.js \"$CLAUDE_USER_PROMPT\""
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node ~/.claude/scripts/session-start.js"
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "command": "node ~/.claude/scripts/validate-agent-output.js \"$CLAUDE_SUBAGENT_TYPE\" \"$CLAUDE_SUBAGENT_OUTPUT\""
       }
     ]
   }
@@ -269,6 +382,24 @@ claude mcp list
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "node \"%USERPROFILE%\\.claude\\scripts\\analyze-prompt.js\" \"$CLAUDE_USER_PROMPT\""
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node \"%USERPROFILE%\\.claude\\scripts\\session-start.js\""
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "command": "node \"%USERPROFILE%\\.claude\\scripts\\validate-agent-output.js\" \"$CLAUDE_SUBAGENT_TYPE\" \"$CLAUDE_SUBAGENT_OUTPUT\""
+      }
     ]
   }
 }
@@ -276,9 +407,15 @@ claude mcp list
 
 **Note:** If the file already exists, merge the hooks section carefully.
 
+**Hook Explanations:**
+- **PostToolUse (Write|Edit)**: Checks for API impact after file changes
+- **UserPromptSubmit**: Analyzes user prompts for task type, complexity, and workflow suggestions
+- **SessionStart**: MCP health checks and system diagnostics
+- **SubagentStop**: Validates agent output quality and completeness
+
 ---
 
-### Step 9: Verify Installation
+### Step 11: Verify Installation
 
 **macOS / Linux:**
 ```bash
@@ -291,8 +428,17 @@ ls ~/.claude/agents/
 echo "=== Scripts ==="
 ls ~/.claude/scripts/
 
+echo "=== Config ==="
+ls ~/.claude/config/
+
+echo "=== Templates ==="
+ls ~/.claude/templates/
+
 echo "=== MCP Servers ==="
 claude mcp list
+
+echo "=== Hooks ==="
+cat ~/.claude/settings.json | grep -A 5 "hooks"
 ```
 
 **Windows (PowerShell):**
@@ -306,13 +452,22 @@ Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 Write-Host "=== Scripts ==="
 Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
 
+Write-Host "=== Config ==="
+Get-ChildItem "$env:USERPROFILE\.claude\config\"
+
+Write-Host "=== Templates ==="
+Get-ChildItem "$env:USERPROFILE\.claude\templates\"
+
 Write-Host "=== MCP Servers ==="
 claude mcp list
+
+Write-Host "=== Hooks ==="
+Get-Content "$env:USERPROFILE\.claude\settings.json" | Select-String -Pattern "hooks" -Context 0,5
 ```
 
 ---
 
-### Step 10: Cleanup
+### Step 12: Cleanup
 
 **macOS / Linux:**
 ```bash
@@ -326,7 +481,7 @@ Remove-Item -Recurse -Force "$env:TEMP\CC_GodMode_install"
 
 ---
 
-### Step 11: Test Orchestrator Mode
+### Step 13: Test Orchestrator Mode
 
 After installation, test by typing:
 
@@ -351,11 +506,13 @@ After completing all steps, provide this summary to the user:
 ║                                                                           ║
 ║   📊 INSTALLATION REPORT                                                  ║
 ║                                                                           ║
-║   Version:      [VERSION from VERSION file]                               ║
+║   Version:      5.8.0                                                     ║
 ║   Agents:       [X]/7 installed                                           ║
-║   Scripts:      [X]/X installed                                           ║
+║   Scripts:      [X]/10 installed                                          ║
+║   Config:       [X]/1 installed                                           ║
+║   Templates:    [X]/4 installed                                           ║
 ║   MCP Server:   memory [✅ OK / ❌ ERROR]                                  ║
-║   Hooks:        [✅ Configured / ⏭️ Skipped]                               ║
+║   Hooks:        [✅ 4 Configured / ⏭️ Skipped]                             ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -381,6 +538,18 @@ After completing all steps, provide this summary to the user:
 ║   ┌─────────────────────────────────────────────────────────────────────┐ ║
 ║   │  claude                                                             │ ║
 ║   │  > "New Feature: User Authentication with JWT"                      │ ║
+║   └─────────────────────────────────────────────────────────────────────┘ ║
+║                                                                           ║
+║   📂 Report Structure (Version-Based)                                    ║
+║   ┌─────────────────────────────────────────────────────────────────────┐ ║
+║   │  reports/                                                           │ ║
+║   │  └── vX.X.X/                   ← Version-based folders             │ ║
+║   │      ├── 00-architect-report.md                                    │ ║
+║   │      ├── 01-api-guardian-report.md                                 │ ║
+║   │      ├── 02-builder-report.md                                      │ ║
+║   │      ├── 03-validator-report.md                                    │ ║
+║   │      ├── 04-tester-report.md                                       │ ║
+║   │      └── 05-scribe-report.md                                       │ ║
 ║   └─────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
@@ -452,12 +621,52 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## What Gets Installed
 
-| Component | macOS/Linux | Windows |
-|-----------|-------------|---------|
-| 7 Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
-| Hook Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
-| Memory MCP | Claude MCP registry | Claude MCP registry |
-| Settings | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` |
+| Component | macOS/Linux | Windows | Count |
+|-----------|-------------|---------|-------|
+| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 7 |
+| Hook Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 10 |
+| Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
+| Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 4 |
+| Memory MCP | Claude MCP registry | Claude MCP registry | 1 |
+| Settings | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` | 1 |
+
+**Details:**
+
+**Agents (7):**
+- architect.md
+- api-guardian.md
+- builder.md
+- validator.md
+- tester.md
+- scribe.md
+- github-manager.md
+
+**Scripts (10):**
+- check-api-impact.js
+- parallel-quality-gates.js
+- mcp-health-check.js
+- analyze-prompt.js
+- escalation-handler.js
+- domain-pack-loader.js
+- validate-agent-output.js
+- auto-update.js
+- session-start.js
+- test-phase2-integration.js
+
+**Config (1):**
+- domain-config.schema.json
+
+**Templates (4):**
+- PROJECT-SETUP-V5.0.md
+- CLAUDE-ORCHESTRATOR.md
+- adr-template.md
+- UPDATE-CHECK.md
+
+**Hooks (4):**
+- PostToolUse (Write|Edit) - API Impact Check
+- UserPromptSubmit - Prompt Analysis
+- SessionStart - MCP Health & Diagnostics
+- SubagentStop - Agent Output Validation
 
 ---
 
@@ -469,7 +678,25 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 rm ~/.claude/agents/{architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
 
 # Remove scripts
-rm ~/.claude/scripts/check-*.js
+rm ~/.claude/scripts/check-api-impact.js
+rm ~/.claude/scripts/parallel-quality-gates.js
+rm ~/.claude/scripts/mcp-health-check.js
+rm ~/.claude/scripts/analyze-prompt.js
+rm ~/.claude/scripts/escalation-handler.js
+rm ~/.claude/scripts/domain-pack-loader.js
+rm ~/.claude/scripts/validate-agent-output.js
+rm ~/.claude/scripts/auto-update.js
+rm ~/.claude/scripts/session-start.js
+rm ~/.claude/scripts/test-phase2-integration.js
+
+# Remove config
+rm ~/.claude/config/domain-config.schema.json
+
+# Remove templates
+rm ~/.claude/templates/PROJECT-SETUP-V5.0.md
+rm ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
+rm ~/.claude/templates/adr-template.md
+rm ~/.claude/templates/UPDATE-CHECK.md
 
 # Remove MCP server
 claude mcp remove memory
@@ -489,7 +716,25 @@ Remove-Item "$env:USERPROFILE\.claude\agents\scribe.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\github-manager.md"
 
 # Remove scripts
-Remove-Item "$env:USERPROFILE\.claude\scripts\check-*.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\check-api-impact.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\parallel-quality-gates.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\mcp-health-check.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\analyze-prompt.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\escalation-handler.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\domain-pack-loader.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\validate-agent-output.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\auto-update.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\session-start.js"
+Remove-Item "$env:USERPROFILE\.claude\scripts\test-phase2-integration.js"
+
+# Remove config
+Remove-Item "$env:USERPROFILE\.claude\config\domain-config.schema.json"
+
+# Remove templates
+Remove-Item "$env:USERPROFILE\.claude\templates\PROJECT-SETUP-V5.0.md"
+Remove-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md"
+Remove-Item "$env:USERPROFILE\.claude\templates\adr-template.md"
+Remove-Item "$env:USERPROFILE\.claude\templates\UPDATE-CHECK.md"
 
 # Remove MCP server
 claude mcp remove memory

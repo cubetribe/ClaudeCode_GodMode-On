@@ -417,9 +417,90 @@ The orchestrator coordinates parallel execution using `scripts/parallel-quality-
 
 ---
 
+## Meta-Decision Logic (v5.8.0)
+
+The orchestrator uses meta-decision rules to automatically adapt workflows:
+
+| Rule | Trigger | Action |
+|------|---------|--------|
+| securityOverride | auth, jwt, token, password | Force @validator security check |
+| breakingChangeEscalation | breaking change, deprecate | Require @architect review |
+| performanceCriticalPath | performance, optimize, slow | Add performance metrics |
+| emergencyHotfix | hotfix, urgent, critical | Streamlined workflow |
+| documentationOnlyOptimization | docs only, readme, changelog | Skip @builder, direct to @scribe |
+
+**Script:** `scripts/analyze-prompt.js` (META_DECISION_LAYER)
+
+---
+
+## Architecture Decision Records (v5.8.0)
+
+All significant decisions are logged in `DECISIONS.md` using ADR format:
+
+```
+ADR-XXX: [Title]
+- Status: Proposed | Accepted | Deprecated
+- Context: Why was this decision needed?
+- Decision: What was decided?
+- Consequences: What are the trade-offs?
+```
+
+**Location:** Project root `DECISIONS.md`
+**Template:** `templates/adr-template.md`
+
+---
+
+## RARE Responsibility Matrix (v5.8.0)
+
+Agent responsibilities follow the RARE model (AI-adapted RACI):
+
+| Role | Definition | Example |
+|------|------------|---------|
+| **R**esponsible | Makes the decision | @architect designs |
+| **A**ccountable | Quality gate | @validator approves |
+| **Re**commends | Provides input | analyze-prompt.js suggests |
+| **E**xecutes | Implements | @builder codes |
+
+**Full Matrix:** `docs/policies/RARE_MATRIX.md`
+
+---
+
+## Domain-Pack Architecture (v5.8.0)
+
+Customize CC_GodMode for specific domains without modifying core:
+
+**Resolution Order:** Project > Global > Core
+```
+./domains/wordpress/agents/builder.md    ← Project-level (highest priority)
+~/.claude/domains/wordpress/agents/      ← Global domain pack
+~/.claude/agents/builder.md              ← Core agent (fallback)
+```
+
+**Script:** `scripts/domain-pack-loader.js`
+**Spec:** `docs/policies/DOMAIN_PACK_SPEC.md`
+
+---
+
+## Escalation Mechanism (v5.8.0)
+
+Three-tier error handling (disabled by default):
+
+```
+Tier 1: Agent Self-Resolution (automatic retry)
+        ↓ (if fails 3x)
+Tier 2: Orchestrator Resolution (alternate agent/skip)
+        ↓ (if unresolvable)
+Tier 3: Human Escalation (present options to user)
+```
+
+**Script:** `scripts/escalation-handler.js`
+**Enable:** Set `enabled: true` in config
+
+---
+
 ## Version
 
-**CC_GodMode v5.6.0 - The High-Priority Improvements Release**
+**CC_GodMode v5.8.0 - The Governance & Domain-Pack Release**
 
 ### Core Features (v4.1.0 Foundation)
 - Version-First Workflow (determine version before work starts)
@@ -466,6 +547,28 @@ The orchestrator coordinates parallel execution using `scripts/parallel-quality-
 - System diagnostics
 - Optimization suggestions
 - Proactive guidance
+
+### v5.8.0 New Features
+
+**Governance Features**
+- Meta-Decision Logic (5 rules)
+- DECISIONS.md ADR Logging
+- RARE Responsibility Matrix
+- Architecture Decision Records
+
+**Domain-Pack Architecture**
+- Domain-Pack Architecture
+- Domain-Specific Quality Gates
+- Three-tier resolution order (Project > Global > Core)
+- Script: `scripts/domain-pack-loader.js`
+- Spec: `docs/policies/DOMAIN_PACK_SPEC.md`
+
+**Escalation Mechanism**
+- Three-tier error handling (disabled by default)
+- Agent Self-Resolution (Tier 1)
+- Orchestrator Resolution (Tier 2)
+- Human Escalation (Tier 3)
+- Script: `scripts/escalation-handler.js`
 
 ### Performance Metrics
 - Startup time: +8 seconds (one-time cost)
