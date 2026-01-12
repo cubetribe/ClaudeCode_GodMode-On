@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 5.10.0
+> **Version:** 5.11.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine

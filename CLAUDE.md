@@ -227,10 +227,10 @@ Report with findings + sources
 ```
 
 **Examples:**
-- `CC-GodMode-Prompts/CCGM_Prompt_Restart.md` → Version 5.10.0 in header
-- `CC-GodMode-Prompts/CCGM_Prompt_Install.md` → Version 5.10.0 in header
-- `CC-GodMode-Prompts/CCGM_Prompt_ProjectSetup.md` → Version 5.10.0 in header
-- `CC-GodMode-Prompts/CCGM_Prompt_ManualInstall.md` → Version 5.10.0 in header
+- `CC-GodMode-Prompts/CCGM_Prompt_Restart.md` → Version 5.11.0 in header
+- `CC-GodMode-Prompts/CCGM_Prompt_Install.md` → Version 5.11.0 in header
+- `CC-GodMode-Prompts/CCGM_Prompt_ProjectSetup.md` → Version 5.11.0 in header
+- `CC-GodMode-Prompts/CCGM_Prompt_ManualInstall.md` → Version 5.11.0 in header
 
 **Why?**
 - Cleaner filenames (no version clutter)
