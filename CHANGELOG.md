@@ -7,6 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.11.0] - 2026-01-12
+
+**"The Fail-Safe Release" - Graceful degradation for production reliability**
+
+> *A Gemini analysis revealed critical gaps in agent error handling. Industry research confirms 41-86.7% of multi-agent systems fail in production. This release implements fail-safe reporting patterns, timeout limits, and graceful degradation chains based on validated best practices from arxiv.org, n8n, PraisonAI, and Playwright documentation.*
+
+### Added
+
+- **@tester: Fail-Safe Reporting (NEW)**
+  - Graceful Degradation Chain: Full → Partial → Failure Report
+  - Failure Report Format for Playwright/MCP crashes
+  - Structured Error Output (JSON) for programmatic handling
+  - Screenshot-on-failure best practice (`screenshot: 'only-on-failure'`)
+  - MCP Health Check (Pre-Test) instructions
+  - Error types: timeout, mcp_crash, network, auth, unknown
+  - Suggested actions: retry, escalate, manual_review, skip
+
+- **@researcher: Timeout & Graceful Degradation (NEW)**
+  - Hard timeout limits: 30 seconds MAX per task
+  - Phase timeouts: WebSearch 10s, WebFetch 8s
+  - Partial Results Format for incomplete research
+  - Structured Error Output (JSON) with completion percentage
+  - Sources status tracking: FULL, PARTIAL, PENDING
+  - Suggested actions: proceed, extend, manual
+
+- **@researcher: Memory Usage Guidelines (NEW)**
+  - WHAT to store: Key decisions, no-go technologies, verified sources
+  - WHEN to store: After high-confidence findings, deprecated tech
+  - HOW to query: Check memory before new research
+  - Memory Schema with entity_type and observations
+
+- **GitHub Issue #16**
+  - Created issue for v5.11.0 implementation tracking
+  - Labels: enhancement, v5.11.0
+
+### Changed
+
+- **@tester mandatory requirements updated to v5.11.0**
+- **@researcher memory tool description clarified**
+- **Research depth table remains unchanged** (time budgets are soft limits, 30s is hard MAX)
+
+### Technical Details
+
+- Based on validated Gemini analysis (60% accurate, 100% useful)
+- Industry research sources: arxiv.org, n8n, PraisonAI, Playwright docs
+- Failure rate research: 41-86.7% of multi-agent systems fail
+- Standard timeout: 30 seconds (industry consensus)
+- Reports folder: `reports/v5.11.0/`
+
+### Research References
+
+- [Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) - Failure taxonomy
+- [Graceful Degradation Patterns](https://docs.praison.ai/docs/best-practices/graceful-degradation)
+- [Playwright Test Best Practices](https://playwright.dev/docs/best-practices)
+- [Error Recovery in AI Agents](https://dev.to/gantz/error-recovery-in-ai-agents-graceful-degradation-and-retry-strategies-40ca)
+
+---
+
 ## [5.10.0] - 2026-01-12
 
 **"The Research & Screenshot Release" - Knowledge-driven development with visual evidence**

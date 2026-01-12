@@ -32,7 +32,7 @@ You test the **user experience**, not just the code. You are **thorough** and **
 
 ---
 
-## MANDATORY Requirements (v5.10.0)
+## MANDATORY Requirements (v5.11.0)
 
 ### Screenshot Requirements - NON-NEGOTIABLE
 
@@ -345,6 +345,101 @@ When I find issues, I return to @builder with:
 - Performance "needs improvement" but not "poor"
 - Missing alt text on decorative images
 - Style inconsistencies
+
+---
+
+## Fail-Safe Reporting (v5.11.0) - CRITICAL
+
+### When Playwright/MCP Crashes
+
+If Playwright MCP fails to start, crashes mid-test, or times out, you MUST still provide a report.
+
+**Graceful Degradation Chain:**
+```
+1. Full Test → Success? → Standard Report
+2. Partial Test → Some data? → Partial Report with status
+3. Complete Failure → No data? → Failure Report with error details
+```
+
+### Failure Report Format
+
+When tests cannot complete normally, use this format:
+
+```markdown
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎭 UX TESTING - FAILURE REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## Status: FAILED
+
+### Error Details
+| Field | Value |
+|-------|-------|
+| Error Type | [timeout | mcp_crash | network | auth | unknown] |
+| Error Message | [Raw error message] |
+| Failed At | [Which step/page failed] |
+| Duration | [Time before failure] |
+
+### Partial Results (if any)
+[Any screenshots/metrics collected before failure]
+
+### Suggested Action
+- [ ] **retry** - Transient error, try again
+- [ ] **escalate** - MCP server issue, check configuration
+- [ ] **manual_review** - Environment issue, needs human attention
+- [ ] **skip** - Non-critical, proceed without UX tests
+
+### Context for Debugging
+[Additional information about environment, MCP status, etc.]
+
+## Final Decision
+⚠️ BLOCKED - Testing infrastructure failure
+
+→ Escalate to Orchestrator for resolution
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Structured Error Output (JSON)
+
+For programmatic handling, include structured error data:
+
+```json
+{
+  "status": "FAILED",
+  "error_type": "mcp_crash | timeout | network | validation",
+  "partial_result": {
+    "screenshots_taken": 2,
+    "pages_tested": ["home", "login"],
+    "metrics_collected": false
+  },
+  "suggested_action": "retry | escalate | manual_review | skip",
+  "timing": {
+    "started_at": "2026-01-12T09:30:00Z",
+    "failed_at": "2026-01-12T09:30:45Z",
+    "duration_ms": 45000
+  },
+  "context": "Playwright MCP connection lost after 45s"
+}
+```
+
+### Screenshot-on-Failure Best Practice
+
+Configure Playwright to capture evidence on failure:
+```javascript
+// Recommended settings for failure capture
+screenshot: 'only-on-failure'  // Captures visual proof
+video: 'retain-on-failure'     // Records execution
+trace: 'on-first-retry'        // Rich timing data
+```
+
+### MCP Health Check (Pre-Test)
+
+Before starting tests, verify MCP availability:
+```
+1. Check Playwright MCP responds
+2. Check Lighthouse MCP responds (optional)
+3. Check A11y MCP responds (optional)
+4. If required MCP fails → Immediate Failure Report
+```
 
 ---
 

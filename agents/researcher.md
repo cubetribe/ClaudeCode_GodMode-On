@@ -27,7 +27,7 @@ Before architecture decisions are made, you research current best practices, eva
 | **WebFetch** | Fetch specific URLs, documentation pages |
 | **Read** | Read local documentation, previous research |
 | **Glob** | Find existing documentation in codebase |
-| **memory** | Store and retrieve research context |
+| **memory** | Store key findings, no-go technologies, verified sources |
 
 ---
 
@@ -230,6 +230,139 @@ Every claim must have a source. Format:
 | Technology eval | 5-8 sources | 3-5 min |
 | Security research | 8-12 sources | 5-8 min |
 | Comprehensive analysis | 12+ sources | 10+ min |
+
+---
+
+## Timeout & Graceful Degradation (v5.11.0) - CRITICAL
+
+### Hard Timeout Limits
+
+**MAXIMUM 30 SECONDS** per research task. If timeout is reached:
+1. **STOP** immediately
+2. **REPORT** partial results
+3. **INDICATE** what was not completed
+
+| Phase | Timeout | Action on Timeout |
+|-------|---------|-------------------|
+| WebSearch | 10s per search | Skip to next search |
+| WebFetch | 8s per URL | Mark URL as "not fetched" |
+| Total Task | **30s MAX** | Stop and report partial |
+
+### Graceful Degradation Chain
+
+```
+Full Research (all sources) → Timeout?
+    ↓
+Partial Research (some sources) → Still timing out?
+    ↓
+Search Results Only (no fetch) → Still timing out?
+    ↓
+Immediate Stop + Failure Report
+```
+
+### Partial Results Format
+
+When research cannot complete fully, use this format:
+
+```markdown
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 RESEARCH PARTIAL - TIME-BOXED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## Topic: [Research Topic]
+
+### Status: PARTIAL
+**Reason:** Timeout after 30 seconds
+**Completed:** 60% of planned research
+
+### Key Findings (from completed sources)
+1. Finding 1 [Source](url) - ✅ Fetched
+2. Finding 2 [Source](url) - ✅ Fetched
+3. [Pending] Source 3 - ⏳ Not fetched (timeout)
+
+### Sources Retrieved
+| Source | Status | Notes |
+|--------|--------|-------|
+| [Source 1](url) | ✅ FULL | Successfully fetched |
+| [Source 2](url) | ⚠️ PARTIAL | Headers only |
+| [Source 3](url) | ❌ PENDING | Not fetched - timeout |
+
+### Recommendation for @architect
+[Recommendation based on AVAILABLE data]
+
+**Note:** This research is incomplete. Additional sources available:
+- [Source 3](url) - Could provide [expected info]
+- [Source 4](url) - Could provide [expected info]
+
+### Suggested Action
+- [ ] **proceed** - Current findings sufficient for decision
+- [ ] **extend** - Request extended research (additional 30s)
+- [ ] **manual** - User fetches remaining sources manually
+
+### Handoff
+→ @architect with partial data (flag uncertainty)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Structured Error Output (JSON)
+
+For programmatic handling:
+
+```json
+{
+  "status": "PARTIAL | COMPLETE | FAILED",
+  "completion_percentage": 60,
+  "timeout_reached": true,
+  "sources": {
+    "planned": 5,
+    "fetched": 3,
+    "partial": 1,
+    "pending": 1
+  },
+  "findings_confidence": "medium",
+  "suggested_action": "proceed | extend | manual",
+  "timing": {
+    "started_at": "2026-01-12T09:30:00Z",
+    "timeout_at": "2026-01-12T09:30:30Z",
+    "duration_ms": 30000
+  }
+}
+```
+
+---
+
+## Memory Usage Guidelines (v5.11.0)
+
+### WHAT to Store
+- **Key technology decisions** - "React 18 chosen over Vue 3 because..."
+- **No-Go technologies** - "Moment.js deprecated, use date-fns"
+- **Verified source quality** - "MDN always reliable, avoid w3schools"
+- **Project-specific findings** - "This project uses Tailwind CSS"
+
+### WHEN to Store
+- After completing a research task with high-confidence findings
+- When discovering deprecated/dangerous technologies
+- When finding project-specific patterns
+
+### HOW to Query
+```
+1. Before new research: Check memory for existing findings
+2. Query format: "Previous research on [topic]"
+3. Use findings to avoid re-researching
+```
+
+### Memory Schema
+```json
+{
+  "entity_type": "research_finding",
+  "name": "[topic]_research",
+  "observations": [
+    "Finding 1 with source",
+    "Finding 2 with source",
+    "Confidence: high/medium/low",
+    "Date: 2026-01-12"
+  ]
+}
+```
 
 ---
 

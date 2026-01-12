@@ -223,7 +223,7 @@ Report with findings + sources
 
 **Version Header in File:** Every prompt file must have a version header at the top:
 ```markdown
-> **Version:** 5.10.0
+> **Version:** 5.11.0
 ```
 
 **Examples:**
@@ -239,12 +239,12 @@ Report with findings + sources
 - Auto-update system can update prompts automatically
 
 **When updating prompts:**
-1. Update version header in the file: `> **Version:** 5.10.0`
+1. Update version header in the file: `> **Version:** 5.11.0`
 2. Update content if needed
 3. Auto-update system will sync files to `~/.claude/CC-GodMode-Prompts/`
 4. Update CHANGELOG.md to document changes
 
-**Current Version:** v5.10.0
+**Current Version:** v5.11.0
 
 **Active Prompt Files:**
 - `CC-GodMode-Prompts/CCGM_Prompt_Restart.md` - Context recovery after `/compact`
@@ -566,9 +566,23 @@ Tier 3: Human Escalation (present options to user)
 
 ## Version
 
-**CC_GodMode v5.10.0 - The Research & Screenshot Release**
+**CC_GodMode v5.11.0 - The Fail-Safe Release**
 
-### v5.10.0 New Features
+### v5.11.0 New Features
+
+**@tester: Fail-Safe Reporting (NEW)**
+- Graceful Degradation Chain: Full → Partial → Failure Report
+- Failure Report Format for Playwright/MCP crashes
+- Structured Error Output (JSON) for programmatic handling
+- Screenshot-on-failure best practice
+- MCP Health Check (Pre-Test) instructions
+
+**@researcher: Timeout & Graceful Degradation (NEW)**
+- Hard timeout: 30 seconds MAX per task
+- Partial Results Format for incomplete research
+- Memory Usage Guidelines (WHAT/WHEN/HOW to store)
+
+### v5.10.0 Features
 
 **@researcher Agent (NEW)**
 - Dedicated Knowledge Discovery Specialist
