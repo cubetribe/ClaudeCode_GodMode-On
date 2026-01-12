@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 5.11.0
+> **Version:** 5.11.1
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine

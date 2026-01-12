@@ -1,6 +1,6 @@
 # CC_GodMode Quick Start Guide
 
-> **Version:** 5.11.0
+> **Version:** 5.11.1
 
 ## First Time Installation?
 

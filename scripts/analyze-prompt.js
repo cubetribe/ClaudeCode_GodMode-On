@@ -846,13 +846,39 @@ function checkDangerousPatterns(prompt, analysis) {
   }
 
   // Check for push attempts when workflow not complete
-  const pushPatterns = [
-    /push|deploy|publish|release/i
+  // v5.11.1: Fixed false positives - only detect ACTUAL push intent
+
+  // Patterns that indicate ACTUAL push intent (action verbs + push keywords)
+  const pushIntentPatterns = [
+    /\b(?:please|do|run|execute|start|begin|now|can you|should we|let's|time to)\s+(?:push|deploy|publish)/i,
+    /\b(?:git\s+)?push\b/i,  // Actual git push command
+    /\b(?:push|deploy|publish)\s+(?:to|now|this|it|code|changes)\b/i,
+    /\b(?:ready to|time to|let's)\s+(?:push|deploy|release|publish)/i
   ];
 
-  const hasPushIntent = pushPatterns.some(pattern => pattern.test(prompt));
+  // Patterns that indicate INSTRUCTION/DOCUMENTATION (should NOT trigger)
+  const instructionalPatterns = [
+    /\b(?:never|don't|do not|cannot|must not|should not)\s+(?:push|deploy|publish)/i,
+    /\b(?:no|without)\s+(?:push|deploy|publish)/i,
+    /\bpermission.*(?:push|deploy|publish)/i,
+    /\b(?:push|deploy|publish).*permission\b/i,
+    /\b(?:rule|workflow|process).*(?:push|deploy|publish)/i,
+    /\b(?:push|deploy|publish).*(?:rule|workflow|process)\b/i
+  ];
 
-  if (hasPushIntent && !workflowComplete) {
+  // Check if this is instructional content (should NOT block)
+  const isInstructional = instructionalPatterns.some(pattern => pattern.test(prompt));
+
+  // Check for actual push intent
+  const hasPushIntent = pushIntentPatterns.some(pattern => pattern.test(prompt));
+
+  // Additional confidence check: Long prompts with few matches are likely instructional
+  const promptLength = prompt.length;
+  const pushKeywordCount = (prompt.match(/\b(?:push|deploy|publish|release)\b/gi) || []).length;
+  const isLikelyInstructional = promptLength > 1000 && pushKeywordCount <= 3;
+
+  // Only block if there's actual push intent AND it's not instructional AND workflow not complete
+  if (hasPushIntent && !isInstructional && !isLikelyInstructional && !workflowComplete) {
     return {
       blocked: true,
       reason: 'PREMATURE_PUSH_ATTEMPT',
@@ -866,15 +892,41 @@ function checkDangerousPatterns(prompt, analysis) {
   }
 
   // Check for gate-skipping attempts
-  const skipPatterns = [
-    /skip.*(?:validator|tester|quality|gate|test)/i,
-    /bypass.*(?:validator|tester|quality|gate|test)/i,
-    /without.*(?:validator|tester|quality|gate|test)/i
+  // v5.11.1: Fixed false positives - only detect ACTUAL gate-skip intent
+
+  // Patterns that indicate ACTUAL gate-skip intent (action verbs + skip keywords)
+  const skipIntentPatterns = [
+    /\b(?:please|can you|let's|do|should we)\s+skip\s+(?:the\s+)?(?:validator|tester|quality|gates?|test)/i,
+    /\b(?:don't|do not)\s+run\s+(?:the\s+)?(?:validator|tester|quality|gates?|test)/i,
+    /\bbypass\s+(?:the\s+)?(?:quality\s+)?gates?\b/i,
+    /\bskip\s+(?:to|directly to|straight to)\b/i,
+    /\bwithout\s+(?:running|testing|validating)\b/i
   ];
 
-  const hasSkipIntent = skipPatterns.some(pattern => pattern.test(prompt));
+  // Patterns that indicate INSTRUCTION/DOCUMENTATION (should NOT trigger)
+  const instructionalSkipPatterns = [
+    /\bif\s+you.*without\b/i,  // Conditional instruction: "if you call @builder without @architect"
+    /\bmust\s+(?:both\s+)?(?:run|execute|approve)\b/i,  // Requirement: "must both run"
+    /\bstop.*this\s+violates\b/i,  // Violation warning: "STOP - this violates"
+    /\bcannot\s+skip\b/i,  // Prohibition: "cannot skip"
+    /\bmandatory.*(?:validator|tester|quality|gates?)\b/i,  // Mandate: "mandatory quality gates"
+    /\b(?:validator|tester).*(?:are|is)\s+mandatory\b/i,  // Mandate: "validator is mandatory"
+    /\b(?:never|don't|do not)\s+skip\b/i  // Prohibition: "never skip"
+  ];
 
-  if (hasSkipIntent) {
+  // Check if this is instructional content (should NOT block)
+  const isInstructionalSkip = instructionalSkipPatterns.some(pattern => pattern.test(prompt));
+
+  // Check for actual gate-skip intent
+  const hasSkipIntent = skipIntentPatterns.some(pattern => pattern.test(prompt));
+
+  // Additional confidence check: Long prompts with few skip keywords are likely instructional
+  // (reuse promptLength from push detection above)
+  const skipKeywordCount = (prompt.match(/\b(?:skip|bypass|without|omit)\b/gi) || []).length;
+  const isLikelyInstructionalSkip = promptLength > 1000 && skipKeywordCount <= 3;
+
+  // Only block if there's actual skip intent AND it's not instructional
+  if (hasSkipIntent && !isInstructionalSkip && !isLikelyInstructionalSkip) {
     return {
       blocked: true,
       reason: 'GATE_SKIP_ATTEMPT',

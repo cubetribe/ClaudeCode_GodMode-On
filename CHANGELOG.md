@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [5.11.1] - 2026-01-12
+
+### Fixed
+- **UserPromptSubmit Hook False Positives** - The `analyze-prompt.js` script was incorrectly blocking the Context Restore prompt and other instructional text
+  - Push detection: Updated to distinguish actual push intent from documentation containing "push" keywords
+  - Gate-skip detection: Updated with same three-layer logic (intent patterns, instructional exclusions, confidence heuristic)
+  - Context Restore prompt now works without triggering false positives
+
+### Technical Details
+- Replaced simple keyword matching with three-layer detection:
+  1. Intent patterns (require action verbs before keywords)
+  2. Instructional patterns (detect documentation context)
+  3. Confidence heuristic (long text + few keywords = likely instructional)
+
+---
+
 ## [5.11.0] - 2026-01-12
 
 **"The Fail-Safe Release" - Graceful degradation for production reliability**

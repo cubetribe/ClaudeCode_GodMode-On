@@ -1,6 +1,6 @@
 # CC_GodMode Restart Prompt
 
-> **Version:** 5.11.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
+> **Version:** 5.11.1 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
 > and ProjectActivation completed **Frequency:** As-needed (after /compact or
 > context loss)
 
