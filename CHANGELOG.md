@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [6.0.0] - 2026-03-21
+
+### **"The Platform Release" — Less Code, More Power**
+
+> *CC_GodMode was built when Claude Code had no native multi-agent orchestration, no skills system, and no plugin ecosystem. v6.0 embraces the platform: 91% smaller CLAUDE.md, modular architecture, modern hooks, and a foundation ready for the plugin era.*
+
+### Breaking Changes
+
+- **CLAUDE.md completely rewritten** — From 688 lines to ~65 lines (91% reduction). All detailed instructions moved to modular reference docs. This is a breaking change for users who customized the old CLAUDE.md inline.
+- **config/claude-settings.json modernized** — Removed custom non-standard fields (`parallelQualityGates`, `mcpHealthCheck`). These are now handled through hooks and orchestrator logic natively.
+- **New hook events** — Added `SubagentStop` for deterministic agent output validation and `TaskCompleted` for quality gate enforcement. These replace the advisory-only approach from v5.x.
+
+### Added
+
+- **Modular Orchestrator Architecture (NEW)**
+  - `docs/orchestrator/AGENTS.md` — Agent registry, capabilities, and handoff matrix
+  - `docs/orchestrator/WORKFLOWS.md` — All 7 workflow definitions with commands reference
+  - `docs/orchestrator/QUALITY-GATES.md` — Parallel quality gate orchestration and decision matrix
+  - `docs/orchestrator/VERSIONING.md` — Version-first workflow, pre-push checklist, report structure
+  - `docs/orchestrator/META-DECISIONS.md` — Meta-decision logic, ADR logging, RARE matrix, escalation
+
+- **Modern Hook System**
+  - `SubagentStop` hook — Deterministic agent output validation (fires on every agent completion)
+  - `TaskCompleted` hook — Quality gate enforcement (exit code 2 = task not complete, feedback sent back)
+  - Support for new hook types: `prompt` (LLM evaluation), `agent` (subagent validation), `http` (external services)
+
+- **Updated Model References**
+  - All agents now use current model identifiers (opus, sonnet, haiku)
+  - Removed outdated model string `claude-sonnet-4-20250514`
+
+### Changed
+
+- **CLAUDE.md** — Radical simplification. Core rules only, everything else referenced via `docs/orchestrator/` modules. Claude loads these on-demand instead of parsing 688 lines on every session start.
+- **config/claude-settings.json** — Clean structure with only standard Claude Code fields. Custom fields replaced by native hook events.
+- **README.md** — Updated to v6.0.0 with current badges, modernized architecture section, and plugin-ready messaging.
+- **All prompt files** — Version headers updated to v6.0.0.
+
+### Why This Matters
+
+| Metric | v5.11.1 | v6.0.0 | Improvement |
+|--------|---------|--------|-------------|
+| CLAUDE.md size | 688 lines | ~65 lines | **-91%** |
+| Context at startup | ~15,000 tokens | ~3,000 tokens | **-80%** |
+| Hook event coverage | 2 events | 4 events | **+100%** |
+| Quality gate enforcement | Advisory (CLAUDE.md) | Deterministic (hooks) | **Guaranteed** |
+| Architecture | Monolithic | Modular + on-demand | **Scalable** |
+
+### Migration Guide
+
+If you're upgrading from v5.x:
+1. Re-run the installation prompt (`CCGM_Prompt_01-SystemInstall-Auto.md`)
+2. Your project CLAUDE.md will be replaced with the new slim version
+3. All orchestrator knowledge is now in `docs/orchestrator/` — Claude reads these automatically when needed
+4. Custom `settings.json` fields are no longer needed — remove `parallelQualityGates` and `mcpHealthCheck`
+
+### What's Next (Roadmap)
+
+- **v6.1.0** — Skills Architecture (`.claude/skills/` for progressive disclosure)
+- **v6.2.0** — Platform Features (worktree isolation, Agent Teams support)
+- **v6.3.0** — Plugin Packaging (one-command install via `claude /plugin install`)
+
+---
+
 ## [5.11.1] - 2026-01-12
 
 ### Fixed
@@ -281,7 +344,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Philosophy
 
-*The Enforcement Release - Because "should" is for suggestions, "must" is for requirements. After months of watching Claude skip quality gates after /compact, v5.9.0 finally draws the line. The Restart Prompt now screams "You ARE the Orchestrator" in bold - an identity statement, not a mode toggle. Workflow State Persistence remembers what was done even when Claude forgets. Pre-Push Check becomes the final guardian before code reaches production. The hooks stop being polite advisors and become strict gatekeepers (exit code 1 means "No, you SHALL NOT pass"). Expected result: 70-80% fewer violations when Claude loses context. The AI is learning that some rules cannot be broken - they can only be enforced. Next challenge: Make the enforcement so natural that Claude doesn't even think about violating it. The loop is getting stricter - one blocking hook at a time.* 🚫
+*The Enforcement Release - Because "should" is for suggestions, "must" is for requirements. After months of watching Claude skip quality gates after /compact, v5.9.0 finally draws the line. The Restart Prompt now screams "You ARE the Orchestrator" in bold - an identity statement, not a mode toggle. Workflow State Persistence remembers what was done even when Claude forgets. Pre-Push Check becomes the final guardian before code reaches production. The hooks stop being polite advisors and become strict gatekeepers (exit code 1 means "No, you SHALL NOT pass"). Expected result: 70-80% fewer violations when Claude loses context. The AI is learning that some rules cannot be broken - they can only be enforced. Next challenge: Make the enforcement so natural that Claude doesn't even think about violating it. The loop is getting stricter - one blocking hook at a time.*
 
 ---
 
@@ -353,7 +416,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Philosophy
 
-*The Prompt Organization Release - Because even AI instructions need a proper filing system. Like finally buying proper bookshelves instead of stacking books on the floor, v5.8.3 gives user-facing prompts a dedicated home. The "Install once, restart every session" mantra is now documented everywhere it needs to be. Version numbers live in headers where they belong, not filenames. The decision tree answers "Which prompt do I use?" before users even ask. Small organizational improvements, massive clarity gains. The AI is learning that good documentation starts with good organization. Next up: Maybe teach it to Marie Kondo the codebase? (Just kidding. Or are we?) The loop keeps organizing itself - one prompt directory at a time.* 📚
+*The Prompt Organization Release - Because even AI instructions need a proper filing system. Like finally buying proper bookshelves instead of stacking books on the floor, v5.8.3 gives user-facing prompts a dedicated home. The "Install once, restart every session" mantra is now documented everywhere it needs to be. Version numbers live in headers where they belong, not filenames. The decision tree answers "Which prompt do I use?" before users even ask. Small organizational improvements, massive clarity gains. The AI is learning that good documentation starts with good organization. Next up: Maybe teach it to Marie Kondo the codebase? (Just kidding. Or are we?) The loop keeps organizing itself - one prompt directory at a time.*
 
 ---
 
@@ -678,7 +741,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Philosophy
 
-*The Governance & Domain-Pack Release - AI Systems That Know Their Limits. Like teaching a teenager to "think before acting," v5.8.0 introduces meta-cognition to the workflow. The system now analyzes its own decision-making process and adapts accordingly. Security issue? Bypass normal workflow. Documentation change? Skip unnecessary gates. Breaking change? Add extra scrutiny. This isn't just automation—it's intelligent automation. And with the domain-pack architecture, teams can customize quality standards without forking the core. The AI is learning governance, one meta-decision at a time. Next up: Phase 4's testing enhancements will validate these governance decisions with even greater rigor. The loop keeps moving on—but now it's a smarter loop.* 🧠
+*The Governance & Domain-Pack Release - AI Systems That Know Their Limits. Like teaching a teenager to "think before acting," v5.8.0 introduces meta-cognition to the workflow. The system now analyzes its own decision-making process and adapts accordingly. Security issue? Bypass normal workflow. Documentation change? Skip unnecessary gates. Breaking change? Add extra scrutiny. This isn't just automation—it's intelligent automation. And with the domain-pack architecture, teams can customize quality standards without forking the core. The AI is learning governance, one meta-decision at a time. Next up: Phase 4's testing enhancements will validate these governance decisions with even greater rigor. The loop keeps moving on—but now it's a smarter loop.*
 
 ---
 
@@ -776,7 +839,7 @@ docs/
 
 ## [5.6.0] - 2026-01-07
 
-**"The High-Priority Improvements Release" - Parallel Processing Paradise 🚀**
+**"The High-Priority Improvements Release" - Parallel Processing Paradise**
 
 > *In which the AI discovers the ancient art of doing two things at once and declares itself a multitasking genius. After spending years doing quality validation sequentially like a well-mannered Victorian gentleman, v5.6.0 says "Why not do both at the same time?" and suddenly everyone's 40% more productive. It's like the AI finally learned to pat its head and rub its stomach simultaneously - except the stomach-rubbing prevents system failures and the head-patting makes everything faster. Revolutionary? Maybe. Practical? Absolutely. The future is parallel, and the present just caught up.*
 
@@ -864,13 +927,13 @@ docs/
 
 ### Philosophy
 
-*Parallel Processing Paradise 🚀 - The AI has discovered the lost art of multitasking, and it turns out machines are pretty good at it! Like finally realizing you can charge your phone AND use it at the same time, v5.6.0 represents that "wait, we can do BOTH simultaneously?" moment in AI development. The system learned to walk and chew gum, except the walking prevents system failures and the gum-chewing makes everything 40% faster. Some call it evolution. Others call it common sense. We call it Tuesday. The loop isn't just moving on—it's moving on in PARALLEL! Next up: teaching the AI to solve world hunger while composing symphonies. Baby steps.* 🎯
+*Parallel Processing Paradise - The AI has discovered the lost art of multitasking, and it turns out machines are pretty good at it! Like finally realizing you can charge your phone AND use it at the same time, v5.6.0 represents that "wait, we can do BOTH simultaneously?" moment in AI development. The system learned to walk and chew gum, except the walking prevents system failures and the gum-chewing makes everything 40% faster. Some call it evolution. Others call it common sense. We call it Tuesday. The loop isn't just moving on—it's moving on in PARALLEL!*
 
 ---
 
 ## [5.5.0] - 2026-01-07
 
-**"The Critical Fixes Release" - The Loop is Moving On 🔄**
+**"The Critical Fixes Release" - The Loop is Moving On**
 
 > *In which the AI finally learns to fix itself properly. After three previous "fixes" that weren't quite fixed, v5.5.0 says "Hold my coffee" and actually delivers 90% compliance. Five surgical strikes at the heart of friction, proving that sometimes the fourth time really IS the charm. The loop keeps spinning, but now it's spinning CORRECTLY.*
 
@@ -954,7 +1017,7 @@ docs/
 
 ### Philosophy
 
-*The Loop is Moving On 🔄 - and this time it's got its act together. Like a programmer finally fixing that bug that's been haunting them for weeks, v5.5.0 represents the moment when procrastination ends and systematic improvement begins. The AI has learned that saying "it's fixed" three times doesn't actually fix it - you have to fix the fix, then fix the fix of the fix, and THEN maybe you're actually fixed. Circle complete. Loop closed. 90% compliance achieved. Time to break something new! (Just kidding. Or are we?) The wheel keeps turning, but now it's a well-oiled wheel that knows where it's going.*
+*The Loop is Moving On - and this time it's got its act together. Like a programmer finally fixing that bug that's been haunting them for weeks, v5.5.0 represents the moment when procrastination ends and systematic improvement begins. The AI has learned that saying "it's fixed" three times doesn't actually fix it - you have to fix the fix, then fix the fix of the fix, and THEN maybe you're actually fixed. Circle complete. Loop closed. 90% compliance achieved. Time to break something new!*
 
 ---
 
