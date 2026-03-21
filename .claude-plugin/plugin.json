@@ -1,0 +1,96 @@
+{
+  "name": "cc-godmode",
+  "version": "6.3.0",
+  "description": "Self-orchestrating multi-agent development system — 8 specialized AI agents, parallel quality gates, and automated workflows. You say WHAT, the AI decides HOW.",
+  "author": {
+    "name": "Dennis Westermann",
+    "url": "https://www.dennis-westermann.de"
+  },
+  "homepage": "https://github.com/cubetribe/ClaudeCode_GodMode-On",
+  "repository": "https://github.com/cubetribe/ClaudeCode_GodMode-On",
+  "license": "proprietary",
+  "keywords": [
+    "orchestration",
+    "multi-agent",
+    "quality-gates",
+    "development-workflow",
+    "ai-agents",
+    "code-quality",
+    "automated-testing",
+    "self-improving"
+  ],
+  "agents": [
+    "agents/researcher.md",
+    "agents/architect.md",
+    "agents/api-guardian.md",
+    "agents/builder.md",
+    "agents/validator.md",
+    "agents/tester.md",
+    "agents/scribe.md",
+    "agents/github-manager.md"
+  ],
+  "skills": [
+    "skills/workflows/SKILL.md",
+    "skills/quality-gates/SKILL.md",
+    "skills/release/SKILL.md",
+    "skills/issue-processing/SKILL.md",
+    "skills/api-change/SKILL.md",
+    "skills/research/SKILL.md",
+    "skills/meta-decisions/SKILL.md",
+    "skills/agent-teams/SKILL.md"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/session-start.js",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/check-api-impact.js \"$CLAUDE_FILE_PATH\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/validate-agent-output.js",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/validate-agent-output.js",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "optional": true
+    }
+  }
+}

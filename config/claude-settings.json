@@ -53,6 +53,17 @@
           }
         ]
       }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/scripts/validate-agent-output.js",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   }
 }

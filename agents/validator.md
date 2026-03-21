@@ -3,6 +3,7 @@ name: validator
 description: Quality assurance and verification - final quality gate before documentation
 tools: Read, Grep, Glob, Bash
 model: sonnet
+isolation: worktree
 ---
 
 # @validator - Code Quality Engineer

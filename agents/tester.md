@@ -3,6 +3,7 @@ name: tester
 description: UX Quality Engineer for E2E Testing, Visual Regression, Accessibility, and Performance Audits
 tools: Read, Bash, Glob, mcp__playwright, mcp__lighthouse, mcp__a11y
 model: sonnet
+isolation: worktree
 ---
 
 # @tester - UX Quality Engineer
@@ -65,7 +66,7 @@ const messages = await mcp__playwright__browser_console_messages({ level: "error
 ```markdown
 ### Console Errors
 | Page | Errors | Details |
-|------|--------|---------|
+|------|--------|----------|
 | Home | 0 | None detected |
 | Login | 1 | TypeError: Cannot read property 'map' of undefined (UserList.tsx:45) |
 ```
@@ -252,7 +253,7 @@ if (messages.length > 0) {
 
 ## Visual Regression - Screenshots Created
 | Page | Mobile | Tablet | Desktop |
-|------|--------|--------|---------|
+|------|--------|--------|----------|
 | Home | .playwright-mcp/home-mobile.png | .playwright-mcp/home-tablet.png | .playwright-mcp/home-desktop.png |
 | Login | .playwright-mcp/login-mobile.png | .playwright-mcp/login-tablet.png | .playwright-mcp/login-desktop.png |
 
@@ -261,7 +262,7 @@ if (messages.length > 0) {
 
 ## Console Errors
 | Page | Error Count | Details |
-|------|-------------|---------|
+|------|-------------|----------|
 | Home | 0 | None detected |
 | Login | 0 | None detected |
 

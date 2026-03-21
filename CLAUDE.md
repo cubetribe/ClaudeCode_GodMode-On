@@ -1,4 +1,4 @@
-# CC_GodMode v6.0.0
+# CC_GodMode v6.3.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -50,6 +50,23 @@ Full workflow details: `docs/orchestrator/WORKFLOWS.md`
 
 Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 
+## Skills (On-Demand Knowledge)
+
+Detailed orchestration knowledge loads on-demand via `skills/`:
+
+| Skill | What It Contains |
+|-------|------------------|
+| `skills/workflows/` | All 7 workflow definitions with agent sequences |
+| `skills/quality-gates/` | Parallel gate execution, decision matrix, fail-safe |
+| `skills/release/` | Version-first workflow, pre-push checklist, CHANGELOG format |
+| `skills/api-change/` | Critical paths, @api-guardian rules, breaking change protocol |
+| `skills/issue-processing/` | GitHub issue → workflow mapping, PR requirements |
+| `skills/research/` | @researcher workflow, timeouts, memory guidelines |
+| `skills/meta-decisions/` | 5 meta-rules, ADR format, RARE matrix, escalation |
+| `skills/agent-teams/` | Experimental Agent Teams with SharedTaskList |
+
+**Load a skill when you need details beyond what's in this file.**
+
 ## Start
 
 1. **Analyze** the request type (Feature/Bug/API/Refactor/Issue/Research)
@@ -67,4 +84,4 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 - Domain packs: `docs/policies/DOMAIN_PACK_SPEC.md`
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 
-**Current Version:** v6.0.0 — The Platform Release
+**Current Version:** v6.3.0 — The Plugin Release
