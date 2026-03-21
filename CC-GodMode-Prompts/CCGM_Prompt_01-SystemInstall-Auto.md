@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 5.11.1
+> **Version:** 6.0.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -8,29 +8,24 @@
 
 ---
 
-## What's New in v5.8.2
+## What's New in v6.0.0 — The Platform Release
 
-### New Features
+### Architecture Revolution
 
-**Auto-Update System**
-- Automatic version checking against GitHub
-- Update notifications on session start
-- Easy one-command update process
+**Modular CLAUDE.md**
+- Reduced from 688 lines to ~65 lines (91% smaller)
+- On-demand reference docs in `docs/orchestrator/`
+- Less context waste = better orchestration focus
 
-**Enhanced Hooks**
-- UserPromptSubmit: Intelligent task type detection and complexity assessment
-- SessionStart: Comprehensive MCP health checks and system diagnostics
-- SubagentStop: Agent output validation and quality scoring
+**Modern Hook System**
+- SubagentStop: Deterministic agent output validation (fires on every agent completion)
+- TaskCompleted: Quality gate enforcement (exit code 2 = task not complete)
+- Support for new hook types: `prompt`, `agent`, `http`
 
-**Domain-Specific Configuration**
-- Domain config schema for specialized project setups
-- Domain pack loader for consistent configurations
-- ADR templates for architecture decision documentation
-
-**Improved Scripts**
-- Escalation handler for complex task routing
-- Enhanced prompt analysis with workflow suggestions
-- Parallel quality gates for faster validation
+**Clean Configuration**
+- Updated model references (opus, sonnet, haiku)
+- Removed non-standard custom fields from settings.json
+- Standards-compliant hook configuration
 
 ### System Requirements
 

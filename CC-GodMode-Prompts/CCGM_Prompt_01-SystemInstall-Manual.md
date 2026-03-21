@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 5.11.1
+> **Version:** 6.0.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -242,7 +242,7 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 ## What gets installed where?
 
 | Component | macOS/Linux | Windows |
-|------------|-------------|---------|
+|------------|-------------|----------|
 | Agents (7) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
 | Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
 | Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` |
