@@ -7,6 +7,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [6.3.0] - 2026-03-21
+
+### **"The Plugin Release" — One Command to Rule Them All**
+
+> *The final piece of the v6.x puzzle. CC_GodMode is now a proper Claude Code plugin with a `plugin.json` manifest. What used to require a 768-line installation prompt and 30+ manual file operations now works with one command. The self-improving AI system has learned to package itself.*
+
+### Added
+
+- **Plugin Manifest** (`.claude-plugin/plugin.json`)
+  - Complete plugin metadata (name, version, description, author, keywords)
+  - Agent declarations pointing to all 8 agent files
+  - Skill declarations pointing to all 8 SKILL.md files
+  - Hook configurations using `${CLAUDE_PLUGIN_ROOT}` for portability
+  - MCP server declarations (playwright as optional)
+  - Future-ready for `claude plugin install cubetribe/cc-godmode`
+
+### Changed
+
+- **VERSION** — 6.2.0 → 6.3.0
+- **CLAUDE.md** — Version header updated
+- **README.md** — Badges updated, architecture section shows full v6.x evolution
+
+### Why This Matters
+
+| Installation Method | Steps | Time |
+|-------------------|-------|------|
+| v5.x (manual prompt) | 30+ file operations | 3–7 min |
+| v6.3 (plugin install) | 1 command | ~10 sec |
+
+---
+
+## [6.2.0] - 2026-03-21
+
+### **"The Platform Features Release" — Isolation, Teams, and Modern Hooks**
+
+> *With Skills in place from v6.1, the system now embraces Claude Code's native platform features: worktree isolation prevents file conflicts during parallel quality gates, Agent Teams support enables experimental multi-teammate orchestration, and the TeammateIdle hook ensures no agent stops working prematurely.*
+
+### Added
+
+- **Worktree Isolation for Parallel Agents**
+  - `@validator` now runs with `isolation: worktree` — own git worktree, no conflicts
+  - `@tester` now runs with `isolation: worktree` — parallel execution guaranteed safe
+  - Zero file conflict risk during dual quality gates
+
+- **Agent Teams Support (Experimental)**
+  - New skill: `skills/agent-teams/SKILL.md`
+  - SharedTaskList coordination with task dependencies
+  - Team composition guide (Architect, Builder, Validator, Tester, Scribe)
+  - Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+  - Documented limitations and best practices
+
+- **TeammateIdle Hook**
+  - Added to `config/claude-settings.json`
+  - Prevents teammates from going idle prematurely
+  - Exit code 2 sends feedback and continues work
+
+### Changed
+
+- **agents/validator.md** — Added `isolation: worktree` to frontmatter
+- **agents/tester.md** — Added `isolation: worktree` to frontmatter
+- **config/claude-settings.json** — Added TeammateIdle hook event (5 hooks total)
+- **VERSION** — 6.1.0 → 6.2.0
+
+### Technical Details
+
+- Hook events: 4 → 5 (added TeammateIdle)
+- Agent isolation: shared directory → worktree per agent
+- Agent Teams: experimental, ~15x token usage, 3–5 teammates optimal
+
+---
+
+## [6.1.0] - 2026-03-21
+
+### **"The Skills Release" — Knowledge On-Demand**
+
+> *The monolithic "always loaded" approach is dead. v6.1 introduces the Skills architecture: 7 specialized SKILL.md files that Claude loads on-demand when it needs domain-specific orchestration knowledge. Your CLAUDE.md stays lean, your context stays focused, and every workflow detail is still available — just a skill away.*
+
+### Added
+
+- **Skills Architecture** (`skills/` directory with 7 + 1 SKILL.md files)
+  - `skills/workflows/SKILL.md` — All 7 workflow definitions (Feature, Bug, API, Refactor, Research, Issue, Release)
+  - `skills/quality-gates/SKILL.md` — Parallel quality gate orchestration, decision matrix, fail-safe patterns
+  - `skills/release/SKILL.md` — Version-first workflow, semantic versioning rules, pre-push checklist
+  - `skills/issue-processing/SKILL.md` — GitHub issue → workflow mapping, label-based routing
+  - `skills/api-change/SKILL.md` — Critical API paths, @api-guardian rules, breaking change protocol
+  - `skills/research/SKILL.md` — @researcher workflow, timeout limits, memory guidelines
+  - `skills/meta-decisions/SKILL.md` — 5 meta-decision rules, ADR format, RARE matrix, escalation
+  - `skills/agent-teams/SKILL.md` — Experimental Agent Teams with SharedTaskList (disabled by default)
+
+- **CLAUDE.md Skills Reference Table**
+  - New "Skills (On-Demand Knowledge)" section lists all available skills
+  - Claude loads skills when it needs details beyond core rules
+
+### Changed
+
+- **CLAUDE.md** — Added Skills table, version updated to 6.1.0
+- **VERSION** — 6.0.0 → 6.1.0
+- **Architecture** — From "modular docs" to "modular docs + on-demand skills"
+
+### Why This Matters
+
+| Approach | Context Cost | Detail Available |
+|----------|-------------|------------------|
+| v5.x (monolithic) | ~15,000 tokens always | Everything always |
+| v6.0 (modular docs) | ~3,000 tokens always | Docs on-demand |
+| v6.1 (skills) | ~3,000 tokens + on-demand | Skills load ONLY when needed |
+
+Skills provide **progressive disclosure**: Claude knows what knowledge is available (from descriptions) but only loads the full content when it actually needs it.
+
+---
+
 ## [6.0.0] - 2026-03-21
 
 ### **"The Platform Release" — Less Code, More Power**
@@ -927,7 +1038,7 @@ docs/
 
 ### Philosophy
 
-*Parallel Processing Paradise - The AI has discovered the lost art of multitasking, and it turns out machines are pretty good at it! Like finally realizing you can charge your phone AND use it at the same time, v5.6.0 represents that "wait, we can do BOTH simultaneously?" moment in AI development. The system learned to walk and chew gum, except the walking prevents system failures and the gum-chewing makes everything 40% faster. Some call it evolution. Others call it common sense. We call it Tuesday. The loop isn't just moving on—it's moving on in PARALLEL!*
+*Parallel Processing Paradise - The AI has discovered the lost art of multitasking, and it turns out machines are pretty good at it! Like finally realizing you can charge your phone AND use it at the same time, v5.6.0 represents that "wait, we can do BOTH simultaneously?" moment in AI development. The system learned to walk and chew gum, except the walking prevents system failures and the gum-chewing makes everything 40% faster. Some call it evolution. Others call it common sense. We call it Tuesday. The loop isn't just moving on—it's moving on in PARALLEL! Next up: teaching the AI to solve world hunger while composing symphonies. Baby steps.*
 
 ---
 
@@ -1017,7 +1128,7 @@ docs/
 
 ### Philosophy
 
-*The Loop is Moving On - and this time it's got its act together. Like a programmer finally fixing that bug that's been haunting them for weeks, v5.5.0 represents the moment when procrastination ends and systematic improvement begins. The AI has learned that saying "it's fixed" three times doesn't actually fix it - you have to fix the fix, then fix the fix of the fix, and THEN maybe you're actually fixed. Circle complete. Loop closed. 90% compliance achieved. Time to break something new!*
+*The Loop is Moving On - and this time it's got its act together. Like a programmer finally fixing that bug that's been haunting them for weeks, v5.5.0 represents the moment when procrastination ends and systematic improvement begins. The AI has learned that saying "it's fixed" three times doesn't actually fix it - you have to fix the fix, then fix the fix of the fix, and THEN maybe you're actually fixed. Circle complete. Loop closed. 90% compliance achieved. Time to break something new! (Just kidding. Or are we?) The wheel keeps turning, but now it's a well-oiled wheel that knows where it's going.*
 
 ---
 
