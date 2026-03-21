@@ -1,6 +1,6 @@
 # CC_GodMode Quick Start Guide
 
-> **Version:** 5.11.1
+> **Version:** 6.0.0
 
 ## First Time Installation?
 
@@ -20,7 +20,7 @@ Open Claude in your project. The Orchestrator is now active!
 ## Already Installed?
 
 | Situation | Use This Prompt |
-|-----------|-----------------|
+|-----------|----------------|
 | New project to activate | `02-ProjectActivation` |
 | Context lost after /compact | `99-ContextRestore` |
 | Check for updates | `98-Maintenance` |
@@ -43,32 +43,32 @@ Open Claude in your project. The Orchestrator is now active!
 
 ```
 FIRST TIME?
-    │
-    ├─ YES ──► 01-SystemInstall (Auto or Manual)
-    │              │
-    │              ▼
-    │          02-ProjectActivation
-    │              │
-    │              ▼
-    │          Work with Orchestrator
-    │              │
-    │          ┌───┴───┐
-    │          │       │
-    │          ▼       ▼
-    │      Context   Update?
-    │      lost?        │
-    │          │        ▼
-    │          ▼    98-Maintenance
-    │      99-ContextRestore
-    │
-    └─ NO ───► Already installed?
-                   │
-               ┌───┴───┐
-               │       │
-               ▼       ▼
+    |
+    +- YES --> 01-SystemInstall (Auto or Manual)
+    |              |
+    |              v
+    |          02-ProjectActivation
+    |              |
+    |              v
+    |          Work with Orchestrator
+    |              |
+    |          +---+---+
+    |          |       |
+    |          v       v
+    |      Context   Update?
+    |      lost?        |
+    |          |        v
+    |          v    98-Maintenance
+    |      99-ContextRestore
+    |
+    +- NO --> Already installed?
+                   |
+               +---+---+
+               |       |
+               v       v
            New      Update?
-           project?    │
-               │       ▼
-               ▼   98-Maintenance
+           project?    |
+               |       v
+               v   98-Maintenance
            02-ProjectActivation
 ```

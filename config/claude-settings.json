@@ -1,5 +1,5 @@
 {
-  "model": "claude-sonnet-4-20250514",
+  "model": "sonnet",
   "permissions": {
     "allowedTools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
     "deny": [
@@ -31,19 +31,28 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/scripts/validate-agent-output.js",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/scripts/validate-agent-output.js",
+            "timeout": 30
+          }
+        ]
+      }
     ]
-  },
-  "parallelQualityGates": {
-    "enabled": true,
-    "timeout": 600000,
-    "fallbackToSequential": true,
-    "description": "v5.6.0: Parallel execution of @validator and @tester for 40% faster validation"
-  },
-  "mcpHealthCheck": {
-    "enabled": true,
-    "tier1Timeout": 5000,
-    "tier2Timeout": 2000,
-    "tier3Timeout": 500,
-    "description": "v5.6.0: Three-tier MCP health validation system"
   }
 }
