@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 6.0.0
+> **Version:** 6.3.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -549,7 +549,7 @@ After completing all steps, provide this summary to the user:
 ║   Then start Claude in this project:                                     ║
 ║   ┌─────────────────────────────────────────────────────────────────────┐ ║
 ║   │  claude                                                             │ ║
-║   │  > "New Feature: User Authentication with JWT"                      │ ║
+║   │  > "New Feature: User Authentication with JWT"                      ║
 ║   └─────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                           ║
 ║   📂 Report Structure (Version-Based)                                    ║

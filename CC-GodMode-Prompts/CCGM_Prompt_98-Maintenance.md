@@ -1,4 +1,4 @@
-> **Version:** 6.0.0 **Type:** MAINTENANCE **Prerequisite:** SystemInstall and
+> **Version:** 6.3.0 **Type:** MAINTENANCE **Prerequisite:** SystemInstall and
 > ProjectActivation completed **Frequency:** Periodically (when checking for
 > updates)
 
@@ -56,7 +56,7 @@ Run: node ~/.claude/scripts/auto-update.js --update
   # Update local project prompts
   cp ~/.claude/CC-GodMode-Prompts/*.md ./CC-GodMode-Prompts/
   ```
-```
+````
 
 ---
 
@@ -74,7 +74,7 @@ I need to rollback my CC_GodMode installation:
 ## CLI Reference
 
 | Command | Description |
-|---------|-------------|
+|---------|----------|
 | `node ~/.claude/scripts/auto-update.js --check` | Check if updates are available |
 | `node ~/.claude/scripts/auto-update.js --dry-run` | Preview changes without applying |
 | `node ~/.claude/scripts/auto-update.js --update` | Download and apply updates |

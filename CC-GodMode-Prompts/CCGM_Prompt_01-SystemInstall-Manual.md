@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 6.0.0
+> **Version:** 6.3.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -13,7 +13,7 @@
 ## Prerequisites
 
 | Component | Version | Check with |
-|------------|---------|------------|
+|------------|---------|----------|
 | Node.js | 18+ | `node --version` |
 | Claude Code CLI | Latest | `claude --version` |
 | Git | Any | `git --version` |
