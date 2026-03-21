@@ -6,9 +6,10 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-5.10.0-blue)](./CHANGELOG.md)
-[![State of the Art](https://img.shields.io/badge/2026%20Compliance-93%25-green)](./reports/)
+[![Version](https://img.shields.io/badge/Version-6.0.0-blue)](./CHANGELOG.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Modular-green)](./docs/orchestrator/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Specialists-purple)](./agents/)
+[![CLAUDE.md](https://img.shields.io/badge/CLAUDE.md-65%20Lines-orange)](./CLAUDE.md)
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./CHANGELOG.md)
 
 </div>
@@ -110,12 +111,14 @@ The difference?
 
 ---
 
-## The Architecture
+## The Architecture (v6.0)
+
+**v6.0 introduced modular architecture.** The monolithic 688-line CLAUDE.md is now 65 lines with on-demand reference docs.
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
 ├── agents/                         ← 8 agents, globally available
-│   ├── researcher.md               ← NEW v5.10.0
+│   ├── researcher.md
 │   ├── architect.md
 │   ├── api-guardian.md
 │   ├── builder.md
@@ -124,28 +127,30 @@ The difference?
 │   ├── scribe.md
 │   └── github-manager.md
 ├── scripts/                        ← Hook scripts
+│   ├── session-start.js
+│   ├── validate-agent-output.js
 │   └── check-api-impact.js
-├── templates/                      ← Project templates
-│   ├── CLAUDE-ORCHESTRATOR.md
-│   └── CC-GodMode-Prompts/CCGM_Prompt_ProjectSetup.md
-└── settings.json                   ← Hooks configuration
+└── settings.json                   ← Hooks (SessionStart, PostToolUse,
+                                       SubagentStop, TaskCompleted)
 ```
 
 ```
 your-project/                       ← YOUR PROJECT
-├── CLAUDE.md                       ← Orchestrator (auto-loaded!)
+├── CLAUDE.md                       ← Orchestrator (~65 lines, auto-loaded!)
 ├── VERSION                         ← Single source of truth
 ├── CHANGELOG.md                    ← Version history
-├── reports/                        ← Agent outputs
-│   └── v5.10.0/                    ← Grouped by version
-│       ├── 00-researcher-report.md ← NEW v5.10.0
-│       ├── 01-architect-report.md
-│       └── ...
-└── .playwright-mcp/                ← Screenshot output (v5.10.0)
-    └── [page]-[viewport].png
+├── docs/orchestrator/              ← NEW v6.0: Modular reference docs
+│   ├── AGENTS.md                   ← Agent registry & handoff matrix
+│   ├── WORKFLOWS.md                ← All 7 workflow definitions
+│   ├── QUALITY-GATES.md            ← Parallel gate orchestration
+│   ├── VERSIONING.md               ← Version-first & pre-push rules
+│   └── META-DECISIONS.md           ← Meta-logic, ADR, RARE, escalation
+├── reports/                        ← Agent outputs (gitignored)
+│   └── vX.X.X/                     ← Grouped by version
+└── .playwright-mcp/                ← Screenshot output
 ```
 
-**The trick:** `CLAUDE.md` is automatically loaded by Claude Code. No copy-paste. No activation. Just... works.
+**The trick:** `CLAUDE.md` is automatically loaded by Claude Code. The 65 lines contain core rules. Detailed docs load on-demand — less context waste, more focus.
 
 ---
 
@@ -486,19 +491,19 @@ The loop continues.
 
 ## Version
 
-**CC_GodMode v5.10.0 - The Research & Screenshot Release**
+**CC_GodMode v6.0.0 — The Platform Release**
 
-- **NEW:** @researcher agent for dedicated web research
-- **NEW:** Mandatory screenshot creation in @tester (3 viewports)
-- **NEW:** Console error capture and Core Web Vitals reporting
-- Meta-decision logic for intelligent workflow adaptation
-- Governance features (DECISIONS.md ADR log, RARE Matrix)
-- Domain-pack architecture for industry-specific validation
-- State-of-the-Art 2026 compliance: 93%
+- **NEW:** Modular architecture — CLAUDE.md reduced from 688 to ~65 lines (-91%)
+- **NEW:** On-demand reference docs in `docs/orchestrator/` (progressive context loading)
+- **NEW:** Modern hooks — SubagentStop + TaskCompleted for deterministic quality gates
+- **NEW:** Support for hook types: `prompt`, `agent`, `http` (beyond just `command`)
+- **UPDATED:** Model references to current identifiers (opus, sonnet, haiku)
+- **UPDATED:** Clean settings.json (removed non-standard custom fields)
 - 8 specialized agents with clear boundaries
-- Dual quality gates (40% faster since v5.6.0)
+- Dual quality gates (parallel execution)
 - Hook-based API detection
 - Version-first workflow
+- Roadmap: Skills Architecture (v6.1) -> Platform Features (v6.2) -> Plugin Packaging (v6.3)
 
 See [CHANGELOG.md](./CHANGELOG.md) for the full story.
 
