@@ -6,10 +6,10 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-6.0.0-blue)](./CHANGELOG.md)
-[![Architecture](https://img.shields.io/badge/Architecture-Modular-green)](./docs/orchestrator/)
+[![Version](https://img.shields.io/badge/Version-6.3.0-blue)](./CHANGELOG.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Specialists-purple)](./agents/)
-[![CLAUDE.md](https://img.shields.io/badge/CLAUDE.md-65%20Lines-orange)](./CLAUDE.md)
+[![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./CHANGELOG.md)
 
 </div>
@@ -111,9 +111,9 @@ The difference?
 
 ---
 
-## The Architecture (v6.0)
+## The Architecture (v6.3)
 
-**v6.0 introduced modular architecture.** The monolithic 688-line CLAUDE.md is now 65 lines with on-demand reference docs.
+**v6.0 introduced modular architecture. v6.1 added Skills. v6.2 added worktree isolation. v6.3 added Plugin packaging.**
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
@@ -390,7 +390,7 @@ The CLAUDE.md is auto-loaded. Orchestrator mode is active.
 Enhanced capabilities through Model Context Protocol:
 
 | Server | Agent | Purpose | Required? |
-|:-------|:------|:--------|:----------|
+|:-------|:------|:--------|:-----------|
 | **memory** | @researcher, @architect, @scribe | Persistent knowledge | ✅ Installed |
 | **playwright** | @tester | Browser automation, E2E, **screenshots** | Recommended |
 | **github** | @github-manager | Issues, PRs, Releases | Recommended |
@@ -473,7 +473,7 @@ A: @validator = code quality (TypeScript, tests, security). @tester = UX quality
 **Q: Can I skip @tester?**
 A: For backend-only changes, yes. For anything UI-related, no.
 
-**Q: Can agents push without my permission?**
+**Q: Can agents push without your permission?**
 A: No. "NEVER git push without permission" is enforced across all agents.
 
 **Q: Is this just... AI improving AI?**
@@ -491,19 +491,16 @@ The loop continues.
 
 ## Version
 
-**CC_GodMode v6.0.0 — The Platform Release**
+**CC_GodMode v6.3.0 — The Plugin Release**
 
-- **NEW:** Modular architecture — CLAUDE.md reduced from 688 to ~65 lines (-91%)
-- **NEW:** On-demand reference docs in `docs/orchestrator/` (progressive context loading)
-- **NEW:** Modern hooks — SubagentStop + TaskCompleted for deterministic quality gates
-- **NEW:** Support for hook types: `prompt`, `agent`, `http` (beyond just `command`)
-- **UPDATED:** Model references to current identifiers (opus, sonnet, haiku)
-- **UPDATED:** Clean settings.json (removed non-standard custom fields)
-- 8 specialized agents with clear boundaries
-- Dual quality gates (parallel execution)
-- Hook-based API detection
-- Version-first workflow
-- Roadmap: Skills Architecture (v6.1) -> Platform Features (v6.2) -> Plugin Packaging (v6.3)
+- **v6.0:** Modular architecture — CLAUDE.md reduced from 688 to ~75 lines (-89%)
+- **v6.1:** Skills Architecture — 7 on-demand SKILL.md files for progressive disclosure
+- **v6.2:** Platform Features — Worktree isolation for parallel agents, Agent Teams support, TeammateIdle hook
+- **v6.3:** Plugin Packaging — `plugin.json` manifest for one-command installation
+- 8 specialized agents with model selection and worktree isolation
+- Dual quality gates (parallel execution in isolated worktrees)
+- 5 hook events (SessionStart, PostToolUse, SubagentStop, TaskCompleted, TeammateIdle)
+- Version-first workflow with automated pre-push checks
 
 See [CHANGELOG.md](./CHANGELOG.md) for the full story.
 
