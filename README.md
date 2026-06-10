@@ -6,9 +6,9 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-6.3.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-6.4.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
-[![Agents](https://img.shields.io/badge/Agents-8%20Specialists-purple)](./agents/)
+[![Agents](https://img.shields.io/badge/Agents-9%20Specialists-purple)](./agents/)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./CHANGELOG.md)
 
@@ -22,7 +22,7 @@ It started simple: One developer, mass sleep deprivation, and a vision.
 
 **Phase 1:** Manual labor. Researching best practices. Reading docs. Testing prompts. Failing. Iterating. Building agent after agent. Workflow after workflow. Week after week.
 
-**Phase 2:** The system works. 8 specialized AI agents orchestrating themselves. Features get built. Bugs get fixed. Documentation writes itself. *"This is pretty good,"* I thought.
+**Phase 2:** The system works. Specialized AI agents orchestrating themselves. Features get built. Bugs get fixed. Documentation writes itself. *"This is pretty good,"* I thought.
 
 **Phase 3:** January 6th, 2026. A thought: *"What if I use the system... to improve the system?"*
 
@@ -73,7 +73,7 @@ The difference?
 
 ## The Agents
 
-8 specialists. Each with their own expertise. Each knowing exactly what they do—and what they don't.
+9 specialists. Each with their own expertise. Each knowing exactly what they do—and what they don't.
 
 | Agent | Role | Specialty |
 |:------|:-----|:----------|
@@ -83,6 +83,7 @@ The difference?
 | `@builder` | Senior Developer | Implementation, following @architect's specifications |
 | `@validator` | Code Quality Gate | TypeScript, unit tests, security, consumer verification |
 | `@tester` | UX Quality Gate | E2E tests, visual regression, accessibility, performance *(Enhanced v5.10.0)* |
+| `@security` | Security Quality Gate | Secrets, injection, authz, crypto, dependency audit *(NEW v6.4.0)* |
 | `@scribe` | Technical Writer | Documentation, changelog, version management |
 | `@github-manager` | GitHub Manager | Issues, PRs, releases, CI/CD orchestration |
 
@@ -111,19 +112,20 @@ The difference?
 
 ---
 
-## The Architecture (v6.3)
+## The Architecture (v6.4)
 
-**v6.0 introduced modular architecture. v6.1 added Skills. v6.2 added worktree isolation. v6.3 added Plugin packaging.**
+**v6.0 introduced modular architecture. v6.1 added Skills. v6.2 added worktree isolation. v6.3 added Plugin packaging. v6.4 added a verified installer and the @security gate.**
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
-├── agents/                         ← 8 agents, globally available
+├── agents/                         ← 9 agents, globally available
 │   ├── researcher.md
 │   ├── architect.md
 │   ├── api-guardian.md
 │   ├── builder.md
 │   ├── validator.md
 │   ├── tester.md
+│   ├── security.md
 │   ├── scribe.md
 │   └── github-manager.md
 ├── scripts/                        ← Hook scripts
@@ -281,7 +283,7 @@ claude --dangerously-skip-permissions
 
 **Step 3:** Watch. Claude will:
 - Clone the repository
-- Install 8 agents globally
+- Install 9 agents globally
 - Set up hook scripts
 - Install Memory MCP Server
 - Configure and verify
@@ -464,7 +466,7 @@ Claude Code's `/compact` can cause memory loss. When the orchestrator starts imp
 
 ## FAQ
 
-**Q: Why 8 agents?**
+**Q: Why 9 agents?**
 A: Separation of concerns. Each agent has ONE job. No overlap. No confusion.
 
 **Q: What's the difference between @validator and @tester?**
@@ -491,13 +493,14 @@ The loop continues.
 
 ## Version
 
-**CC_GodMode v6.3.0 — The Plugin Release**
+**CC_GodMode v6.4.0 — The Install Parity Release**
 
 - **v6.0:** Modular architecture — CLAUDE.md reduced from 688 to ~75 lines (-89%)
 - **v6.1:** Skills Architecture — 7 on-demand SKILL.md files for progressive disclosure
 - **v6.2:** Platform Features — Worktree isolation for parallel agents, Agent Teams support, TeammateIdle hook
 - **v6.3:** Plugin Packaging — `plugin.json` manifest for one-command installation
-- 8 specialized agents with model selection and worktree isolation
+- **v6.4:** Install Parity — idempotent installer + verifier, skills actually installed, doc-compliant agents, prototype-mode skill
+- 9 specialized agents with model selection and worktree isolation
 - Dual quality gates (parallel execution in isolated worktrees)
 - 5 hook events (SessionStart, PostToolUse, SubagentStop, TaskCompleted, TeammateIdle)
 - Version-first workflow with automated pre-push checks

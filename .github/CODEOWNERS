@@ -1,0 +1,16 @@
+# Code owners for CC_GodMode
+# These owners are requested for review on every pull request.
+# See: https://docs.github.com/articles/about-code-owners
+
+# Default owner for everything in the repo
+*                       @andreas-hafner
+
+# Runtime that gets installed into ~/.claude — review carefully
+/agents/                @andreas-hafner
+/skills/                @andreas-hafner
+/scripts/               @andreas-hafner
+/.claude-plugin/        @andreas-hafner
+
+# Install/verify tooling
+/scripts/apply-global-claude-setup.ps1   @andreas-hafner
+/scripts/apply-global-claude-setup.sh    @andreas-hafner

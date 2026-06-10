@@ -1,6 +1,6 @@
 ---
 name: tester
-description: UX Quality Engineer for E2E Testing, Visual Regression, Accessibility, and Performance Audits
+description: UX Quality Engineer for E2E Testing, Visual Regression, Accessibility, and Performance Audits. Use proactively after UI or frontend changes to run E2E, visual-regression, accessibility, and performance checks.
 tools: Read, Bash, Glob, mcp__playwright, mcp__lighthouse, mcp__a11y
 model: sonnet
 isolation: worktree

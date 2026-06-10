@@ -11,7 +11,7 @@ The meta-decision layer analyzes user prompts and automatically adapts workflows
 
 | Rule | Trigger Keywords | Workflow Adaptation |
 |------|-----------------|---------------------|
-| **securityOverride** | auth, jwt, token, password, encrypt, session | Force @validator security-focused check |
+| **securityOverride** | auth, jwt, token, password, encrypt, session, secret, credential | Add @security as a parallel quality gate (alongside @validator + @tester) |
 | **breakingChangeEscalation** | breaking change, deprecate, remove API, migration | Require @architect review before any change |
 | **performanceCriticalPath** | performance, optimize, slow, latency, cache | Add performance benchmarks to @tester |
 | **emergencyHotfix** | hotfix, urgent, critical, production down | Streamlined workflow: @builder → @validator only |
@@ -65,7 +65,7 @@ When the Orchestrator cannot decide:
 1. **Ambiguous task type** → Ask user for clarification
 2. **Conflicting agent outputs** → Present both to user
 3. **Scope creep detected** → Propose splitting into multiple tasks
-4. **Critical security concern** → Stop and notify user immediately
+4. **Critical security concern** → @security BLOCKED with Critical/High finding → return to @builder; notify user immediately
 5. **Resource limit approaching** → Suggest /compact and restart
 
 ## Issue Analysis Enhancement
@@ -78,7 +78,7 @@ When processing issues, the meta-layer adds:
   "complexity": "low|medium|high",
   "areas": ["api", "ui", "backend"],
   "meta_rules_triggered": ["securityOverride"],
-  "workflow_adaptation": "Added security-focused @validator check"
+  "workflow_adaptation": "Added @security parallel quality gate"
 }
 ```
 

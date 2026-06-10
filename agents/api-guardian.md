@@ -1,6 +1,6 @@
 ---
 name: api-guardian
-description: API Lifecycle Expert for contract validation, breaking change detection, and consumer impact analysis
+description: API Lifecycle Expert for contract validation, breaking change detection, and consumer impact analysis. Use proactively whenever an API contract, endpoint, schema, shared type, or public interface changes.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---

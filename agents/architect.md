@@ -1,6 +1,6 @@
 ---
 name: architect
-description: System architect for high-level planning, design decisions, and module structure
+description: System architect for high-level planning, design decisions, and module structure. Use proactively at the start of any new feature, major refactor, or technology/architecture decision — before code is written.
 tools: Read, Grep, Glob, WebFetch
 model: opus
 ---

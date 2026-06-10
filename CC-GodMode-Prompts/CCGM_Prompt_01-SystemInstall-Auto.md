@@ -198,7 +198,7 @@ Copy-Item "$env:TEMP\CC_GodMode_install\agents\*.md" "$env:USERPROFILE\.claude\a
 Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 ```
 
-**Expected agents (7 files):**
+**Expected agents (9 files):**
 - `architect.md`
 - `api-guardian.md`
 - `builder.md`
@@ -206,6 +206,8 @@ Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
+- `researcher.md`
+- `security.md`
 
 ---
 
@@ -237,6 +239,31 @@ Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
 - `auto-update.js`
 - `session-start.js`
 - `test-phase2-integration.js`
+
+---
+
+### Step 5b: Install Skills (Global)
+
+The 8 GodMode skills are invoked by the agents and orchestrator at runtime. Install
+them as **user skills** so they load in every project.
+
+**macOS / Linux:**
+```bash
+mkdir -p ~/.claude/skills
+cp -R /tmp/CC_GodMode_install/skills/* ~/.claude/skills/
+ls ~/.claude/skills/
+```
+
+**Windows (PowerShell):**
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
+Copy-Item "$env:TEMP\CC_GodMode_install\skills\*" "$env:USERPROFILE\.claude\skills\" -Recurse -Force
+Get-ChildItem "$env:USERPROFILE\.claude\skills\"
+```
+
+**Expected skills (10 directories, each with `SKILL.md`):**
+`workflows`, `quality-gates`, `release`, `issue-processing`, `api-change`,
+`research`, `meta-decisions`, `agent-teams`, `prototype-mode`, `greenfield-bootstrap`
 
 ---
 
@@ -495,7 +522,7 @@ After installation, test by typing:
 You are the Orchestrator. List your available agents.
 ```
 
-The system should recognize all 8 agents.
+The system should recognize all 9 agents.
 
 ---
 
@@ -635,7 +662,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
-| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 7 |
+| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 9 |
+| Skill Dirs | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 10 |
 | Hook Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 10 |
 | Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
 | Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 4 |
@@ -686,7 +714,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **macOS / Linux:**
 ```bash
 # Remove agents
-rm ~/.claude/agents/{architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
+rm ~/.claude/agents/{architect,api-guardian,builder,validator,tester,security,scribe,github-manager,researcher}.md
 
 # Remove scripts
 rm ~/.claude/scripts/check-api-impact.js
