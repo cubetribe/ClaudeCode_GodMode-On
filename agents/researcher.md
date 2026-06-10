@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Knowledge Discovery Specialist for web research, documentation lookup, and technology evaluation
+description: Knowledge Discovery Specialist for web research, documentation lookup, and technology evaluation. Use proactively when a task needs current best practices, library/API documentation, or a technology comparison.
 tools: WebSearch, WebFetch, Read, Glob, mcp__memory
 model: haiku
 ---

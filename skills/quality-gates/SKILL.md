@@ -42,10 +42,33 @@ Both agents MUST complete before applying this matrix:
 | 🔴 BLOCKED | 🔴 BLOCKED | **RETURN** to @builder (with MERGED feedback from both) |
 
 **Rules:**
-- You MUST wait for BOTH agents before deciding
-- @scribe can ONLY be called when BOTH gates are APPROVED
+- You MUST wait for ALL active agents before deciding
+- @scribe can ONLY be called when ALL active gates are APPROVED
 - If ANY gate is BLOCKED → back to @builder with specific feedback
 - Maximum 3 retry cycles before escalation to user
+
+## Optional Third Gate: @security
+
+For security-sensitive changes, `@security` runs as a **third parallel gate** alongside
+@validator and @tester. It is activated by the `meta-decisions` skill `securityOverride`
+rule (keywords: auth, jwt, token, password, encrypt, session, secret, credential) or for
+any auth/credential-touching API change.
+
+```
+                    @builder completes
+                           │
+        ┌──────────────────┼──────────────────┐
+        ▼                  ▼                  ▼
+  ┌───────────┐     ┌───────────┐     ┌───────────┐
+  │ @validator│     │  @tester  │     │ @security │  ← only when security-sensitive
+  └─────┬─────┘     └─────┬─────┘     └─────┬─────┘
+        └──────────────────┼──────────────────┘
+                      SYNC POINT
+```
+
+When active, @security joins the decision matrix: **any Critical or High finding →
+BLOCKED → return to @builder**. Medium/Low findings pass as APPROVED-with-notes.
+@scribe runs only when @validator, @tester, **and** @security (if active) are all green.
 
 ## @validator Checks (Code Quality)
 

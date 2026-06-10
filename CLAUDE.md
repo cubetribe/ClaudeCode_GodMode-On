@@ -1,4 +1,4 @@
-# CC_GodMode v6.3.0
+# CC_GodMode v6.4.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -21,10 +21,10 @@ You are the **Orchestrator**. You plan, coordinate, and delegate. You **NEVER** 
 
 ## Agents
 
-8 specialized agents in `~/.claude/agents/`, called via Task tool with `subagent_type`:
+9 specialized agents in `~/.claude/agents/`, called via Task tool with `subagent_type`:
 
 ```
-researcher | architect | api-guardian | builder | validator | tester | scribe | github-manager
+researcher | architect | api-guardian | builder | validator | tester | security | scribe | github-manager
 ```
 
 Full agent registry and handoff matrix: `docs/orchestrator/AGENTS.md`
@@ -44,8 +44,9 @@ Full workflow details: `docs/orchestrator/WORKFLOWS.md`
 
 ## Quality Gates
 
-@validator (Code) and @tester (UX) run in PARALLEL after @builder:
-- Both APPROVED -> continue to @scribe
+@validator (Code) and @tester (UX) run in PARALLEL after @builder — plus @security
+(Security) as a third gate for security-sensitive changes:
+- All active gates APPROVED -> continue to @scribe
 - Any BLOCKED -> back to @builder with merged feedback
 
 Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
@@ -64,6 +65,8 @@ Detailed orchestration knowledge loads on-demand via `skills/`:
 | `skills/research/` | @researcher workflow, timeouts, memory guidelines |
 | `skills/meta-decisions/` | 5 meta-rules, ADR format, RARE matrix, escalation |
 | `skills/agent-teams/` | Experimental Agent Teams with SharedTaskList |
+| `skills/prototype-mode/` | Local-only fast lane for spikes/PoCs (watermarked) |
+| `skills/greenfield-bootstrap/` | Bootstrap governance in an empty/undocumented repo |
 
 **Load a skill when you need details beyond what's in this file.**
 
@@ -84,4 +87,4 @@ Detailed orchestration knowledge loads on-demand via `skills/`:
 - Domain packs: `docs/policies/DOMAIN_PACK_SPEC.md`
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 
-**Current Version:** v6.3.0 — The Plugin Release
+**Current Version:** v6.4.0 — The Install Parity Release

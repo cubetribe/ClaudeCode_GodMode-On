@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [6.4.0] - 2026-06-10
+
+### **"The Install Parity Release" — Verified Setup & Doc Compliance**
+
+> *Makes the runtime install reproducible and verifiable: one idempotent installer
+> that also verifies, the previously-missing skills are now actually installed, and
+> every agent/plugin definition is aligned with the official Claude Code
+> documentation.*
+
+### Added
+
+- **Idempotent installer + verifier** — `scripts/apply-global-claude-setup.ps1`
+  (Windows) and `scripts/apply-global-claude-setup.sh` (macOS/Linux). Installs
+  agents, scripts, **skills**, and templates into `~/.claude`, writes a
+  `.cc-godmode-version` marker, and archives replaced files under
+  `~/.claude/backups/install-archives/<timestamp>/`. A `-Check` / `--check` mode
+  verifies the installed runtime against the repository. Does **not** touch
+  `settings.json` hooks or MCP servers.
+- **`@security` agent** (`agents/security.md`) — a read-only security quality gate
+  (secrets, injection, authz, crypto, dependency audit) that runs in parallel with
+  `@validator` and `@tester` for security-sensitive changes; Critical/High findings
+  block and return to `@builder`. Wired into the `workflows`, `quality-gates`, and
+  `meta-decisions` skills and the agent registry. Brings the system to **9 agents**.
+- **`prototype-mode` skill** (`skills/prototype-mode/SKILL.md`) — a local-only fast
+  lane for spikes and proofs-of-concept with minimal governance, a mandatory
+  `PROTOTYPE ONLY` watermark, and a migration checklist for promoting to production.
+- **`greenfield-bootstrap` skill** (`skills/greenfield-bootstrap/SKILL.md`) —
+  establishes minimal repo-local governance (CLAUDE.md, README, VERSION, structure)
+  before the normal pipeline runs in an empty or undocumented workspace.
+- **CI/security baseline** — `.github/CODEOWNERS` and `.github/dependabot.yml`
+  (GitHub Actions + npm).
+
+### Changed
+
+- **Install procedures fixed** — the Manual and Auto system-install prompts now
+  install the skills into `~/.claude/skills` (previously omitted, so agents
+  referenced skills that were never installed), correct the agent count (now 9,
+  adds `researcher` and `security`), and recommend the new installer/verifier script.
+- **Agent descriptions** — all 8 agents gained proactive-delegation triggers
+  ("Use proactively when …") per the official subagents guidance, improving
+  auto-delegation accuracy.
+- **`plugin.json`** — `repository` is now an object (`{type, url}`) per the plugin
+  manifest schema; `prototype-mode` added to the bundled skills; version → 6.4.0.
+- **VERSION** — 6.3.0 → 6.4.0.
+
+### Notes
+
+- Reviewed against official Claude Code docs (subagents, skills, plugins, hooks,
+  model selection). Agent `tools` allowlists and `model` aliases were already
+  doc-compliant and left unchanged.
+
+---
+
 ## [6.3.0] - 2026-03-21
 
 ### **"The Plugin Release" — One Command to Rule Them All**

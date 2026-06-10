@@ -2,7 +2,7 @@
 
 ## Agent Registry
 
-All 8 agents are installed globally in `~/.claude/agents/` and available system-wide.
+All 9 agents are installed globally in `~/.claude/agents/` and available system-wide.
 
 **DO NOT create local agent files!** Call agents via the **Task tool** with `subagent_type`:
 
@@ -14,6 +14,7 @@ All 8 agents are installed globally in `~/.claude/agents/` and available system-
 | @builder | `"builder"` | Code Implementation | – | sonnet |
 | @validator | `"validator"` | Code Quality Gate | – | sonnet |
 | @tester | `"tester"` | UX Quality Gate (Screenshots, E2E) | Playwright, Lighthouse, A11y | sonnet |
+| @security | `"security"` | Security Quality Gate (secrets, injection, authz, deps) | – | opus |
 | @scribe | `"scribe"` | Documentation & Changelog | memory | sonnet |
 | @github-manager | `"github-manager"` | Issues, PRs, Releases, CI/CD | GitHub | sonnet |
 
@@ -24,8 +25,9 @@ All 8 agents are installed globally in `~/.claude/agents/` and available system-
 | @researcher | User/Orchestrator | @architect (optional research phase) |
 | @architect | User/Orchestrator/@researcher | @api-guardian or @builder |
 | @api-guardian | @architect | @builder |
-| @builder | @architect, @api-guardian | @validator AND @tester (PARALLEL) |
-| @validator | @builder | SYNC POINT (waits for @tester) |
-| @tester | @builder | SYNC POINT (waits for @validator) |
-| @scribe | @validator + @tester (both approved) | @github-manager (for release) |
+| @builder | @architect, @api-guardian | @validator AND @tester (+@security if security-sensitive), PARALLEL |
+| @validator | @builder | SYNC POINT (waits for other gates) |
+| @tester | @builder | SYNC POINT (waits for other gates) |
+| @security | @builder, @api-guardian | SYNC POINT (waits for other gates); BLOCK → @builder |
+| @scribe | @validator + @tester (+@security) all approved | @github-manager (for release) |
 | @github-manager | @scribe, @tester, User | Done |

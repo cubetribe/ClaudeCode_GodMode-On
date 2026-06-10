@@ -10,6 +10,29 @@
 
 ---
 
+## Recommended: one-command install
+
+The steps below are the fully manual path. For most users the idempotent installer is faster and safer (it backs up existing files and can verify the result):
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\apply-global-claude-setup.ps1          # install / refresh ~/.claude
+.\scripts\apply-global-claude-setup.ps1 -Check   # verify the installed runtime
+```
+
+**macOS / Linux:**
+```bash
+./scripts/apply-global-claude-setup.sh           # install / refresh ~/.claude
+./scripts/apply-global-claude-setup.sh --check   # verify the installed runtime
+```
+
+The installer copies **agents, scripts, skills, and templates** into `~/.claude`, writes a
+`.cc-godmode-version` marker, and archives any replaced files under
+`~/.claude/backups/install-archives/<timestamp>/`. It does **not** modify your
+`settings.json` hooks or MCP servers — those remain Steps 6–8 below.
+
+---
+
 ## Prerequisites
 
 | Component | Version | Check with |
@@ -28,6 +51,7 @@
 ```bash
 mkdir -p ~/.claude/agents
 mkdir -p ~/.claude/scripts
+mkdir -p ~/.claude/skills
 mkdir -p ~/.claude/templates
 ```
 
@@ -35,6 +59,7 @@ mkdir -p ~/.claude/templates
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\scripts"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\templates"
 ```
 
@@ -56,7 +81,7 @@ git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode
 
 ---
 
-### Step 3: Install agents (7 files)
+### Step 3: Install agents (9 files)
 
 **macOS / Linux:**
 ```bash
@@ -76,6 +101,8 @@ Copy-Item "$env:TEMP\CC_GodMode\agents\*.md" "$env:USERPROFILE\.claude\agents\" 
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
+- `researcher.md`
+- `security.md`
 
 ---
 
@@ -91,6 +118,28 @@ chmod +x ~/.claude/scripts/*.js
 ```powershell
 Copy-Item "$env:TEMP\CC_GodMode\scripts\*.js" "$env:USERPROFILE\.claude\scripts\" -Force
 ```
+
+---
+
+### Step 4b: Install skills (10 skills)
+
+The 8 GodMode skills are what the agents and orchestrator invoke at runtime. Without
+them the agents reference skills that are not present. Install them as **user skills**
+so they load in every project.
+
+**macOS / Linux:**
+```bash
+cp -R /tmp/CC_GodMode/skills/* ~/.claude/skills/
+```
+
+**Windows (PowerShell):**
+```powershell
+Copy-Item "$env:TEMP\CC_GodMode\skills\*" "$env:USERPROFILE\.claude\skills\" -Recurse -Force
+```
+
+**Expected skill directories** (each with a `SKILL.md`):
+`workflows`, `quality-gates`, `release`, `issue-processing`, `api-change`,
+`research`, `meta-decisions`, `agent-teams`, `prototype-mode`, `greenfield-bootstrap`
 
 ---
 
@@ -199,6 +248,9 @@ ls ~/.claude/agents/
 echo "=== Scripts ==="
 ls ~/.claude/scripts/
 
+echo "=== Skills ==="
+ls ~/.claude/skills/
+
 echo "=== Templates ==="
 ls ~/.claude/templates/
 
@@ -206,9 +258,16 @@ echo "=== MCP Server ==="
 claude mcp list
 ```
 
+Or simply run the verifier:
+```bash
+./scripts/apply-global-claude-setup.sh --check    # macOS / Linux
+.\scripts\apply-global-claude-setup.ps1 -Check    # Windows
+```
+
 **Expected result:**
-- 7 agent files
+- 9 agent files
 - at least 1 script (`check-api-impact.js`)
+- 10 skill directories (each with `SKILL.md`)
 - 2 templates (`CLAUDE-ORCHESTRATOR.md`, `CCGM_Prompt_02-ProjectActivation.md`)
 - MCP: `memory`, optional: `playwright`, `github`, `lighthouse`, `a11y`
 
@@ -243,8 +302,9 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 
 | Component | macOS/Linux | Windows |
 |------------|-------------|----------|
-| Agents (7) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
+| Agents (9) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
 | Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
+| Skills (10) | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
 | Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` |
 | Hooks | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` |
 | MCP Server | `~/.claude/mcp.json` | `%USERPROFILE%\.claude\mcp.json` |
@@ -256,7 +316,7 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 **macOS / Linux:**
 ```bash
 # Remove agents
-rm ~/.claude/agents/{architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
+rm ~/.claude/agents/{architect,api-guardian,builder,validator,tester,security,scribe,github-manager,researcher}.md
 
 # Remove scripts
 rm ~/.claude/scripts/check-*.js
@@ -324,7 +384,7 @@ chmod +x ~/.claude/scripts/*.js
 
 ## Version
 
-CC_GodMode **v5.0**
+CC_GodMode **v6.4.0**
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 

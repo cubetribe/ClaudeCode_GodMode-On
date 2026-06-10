@@ -1,6 +1,6 @@
 ---
 name: validator
-description: Quality assurance and verification - final quality gate before documentation
+description: Quality assurance and verification - final quality gate before documentation. Use proactively after implementation to check types, cross-file consistency, linting, and tests.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 isolation: worktree

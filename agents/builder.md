@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Implements code according to specifications from @architect and @api-guardian
+description: Implements code according to specifications from @architect and @api-guardian. Use proactively to write or modify implementation code once a design or API contract is agreed.
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---

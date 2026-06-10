@@ -19,7 +19,12 @@ Thumbs.db
 # Meta-Orchestration Design Work (experimental - separate repos)
 /Orchester-Design/
 
-# Agent definitions must be tracked (these are the agent prompts, not reports)
+# Agent definitions must be tracked (these are the agent prompts, not reports).
+# Re-include the directory too: the legacy /Agents/ rule above shadows the lowercase
+# agents/ source dir on case-insensitive filesystems (Windows/macOS), which otherwise
+# silently ignores newly added agent files (a file cannot be re-included while its
+# parent directory is excluded).
+!agents/
 !agents/*.md
 
 # Node

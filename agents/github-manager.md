@@ -1,6 +1,6 @@
 ---
 name: github-manager
-description: GitHub Project Management Specialist for issues, PRs, releases, repository sync, and CI/CD orchestration
+description: GitHub Project Management Specialist for issues, PRs, releases, repository sync, and CI/CD orchestration. Use proactively to open or sync issues and PRs, cut releases, or coordinate CI/CD.
 tools: Read, Grep, Glob, Bash, mcp__github
 model: haiku
 ---

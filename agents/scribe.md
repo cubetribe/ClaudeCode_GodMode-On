@@ -1,6 +1,6 @@
 ---
 name: scribe
-description: Technical writer for documentation - README, CHANGELOG, API_CONSUMERS.md, VERSION management
+description: Technical writer for documentation - README, CHANGELOG, API_CONSUMERS.md, VERSION management. Use proactively to document features, update changelogs, or manage versioning after work lands.
 tools: Read, Write, Edit, Glob, Grep
 model: sonnet
 ---

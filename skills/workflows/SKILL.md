@@ -74,7 +74,8 @@ User Request → "API Change: [X]"
     ↓
 4. @builder (implementation + consumer updates)
     ↓
-5. @validator ∥ @tester (PARALLEL)
+5. @validator ∥ @tester ∥ @security* (PARALLEL)
+   *@security included for auth/credential-touching changes
     ↓
 6. @scribe (document breaking changes)
 ```
@@ -151,4 +152,13 @@ Task tool → subagent_type: "tester"         → @tester
 Task tool → subagent_type: "scribe"         → @scribe
 Task tool → subagent_type: "github-manager" → @github-manager
 Task tool → subagent_type: "researcher"     → @researcher
+Task tool → subagent_type: "security"       → @security
 ```
+
+## Security Gate (conditional)
+
+`@security` joins @validator ∥ @tester as a **third parallel quality gate** whenever a
+change is security-sensitive — triggered by the `meta-decisions` `securityOverride` rule
+or any auth/credential-touching API change. See the `quality-gates` skill for the
+combined decision matrix. It is read-only: Critical/High findings BLOCK and return to
+@builder.
