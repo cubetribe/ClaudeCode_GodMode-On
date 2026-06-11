@@ -13,7 +13,7 @@ Thumbs.db
 !/reports/.gitkeep
 
 # Legacy Agents folder (for projects using CC_GodMode)
-/Agents/
+/Agents/*
 !/Agents/.gitkeep
 
 # Meta-Orchestration Design Work (experimental - separate repos)

@@ -6,11 +6,56 @@
 
 ## Overview
 
-CC_GodMode uses **three different Claude models** across its 7 agents to optimize for cost vs. performance. This document explains:
-- Which model each agent uses and why
-- Cost implications per workflow
+CC_GodMode v7.0.0 uses **three different Claude models** across its 14 agents (8 core + 6 department) to optimize for cost vs. performance. This document explains:
+- Which model and effort level each agent uses and why
+- Fable 5 orchestrator economics
+- Cost implications per workflow with Smart Routing
 - When to consider overriding defaults
 - Performance trade-offs
+
+---
+
+## Effort Field (v7.0.0)
+
+Every agent carries an `effort` field in its frontmatter (consumed by Claude Code ≥2.1.152). This tunes the token budget per invocation without changing the model.
+
+| Agent | Model | Effort | Rationale |
+|-------|-------|--------|-----------|
+| @architect | opus | high | Complex trade-off analysis; long-lived decisions |
+| @builder | sonnet | medium | Implementation quality needs reasoning depth |
+| @tester | sonnet | medium | MCP coordination + test evaluation |
+| @api-guardian | sonnet | medium | Consumer discovery + breaking change analysis |
+| @validator | sonnet | low | Mostly execution (tsc, tests) + checklist |
+| @scribe | haiku | low | Templated doc work; CHANGELOG/VERSION updates |
+| @researcher | haiku | low | Retrieval + synthesis, not deep reasoning |
+| @github-manager | haiku | low | API operations; MCP does the heavy lifting |
+| @ci-security-guardian | sonnet | low | Advisory; YAML review |
+| @docs-dx | sonnet | low | Advisory; language-intensive review |
+| @quality-operations | sonnet | low | Advisory; scope matching |
+| @runtime-platform | sonnet | low | Diagnostic; environment constraint analysis |
+| @workflow-design | sonnet | low | Advisory; sequence design |
+| @workspace-governance | sonnet | low | Advisory; text + policy analysis |
+
+---
+
+## Fable 5 Orchestrator Economics
+
+**Claude Fable 5** (as of 2026): ~$10/$50 per MTok (input/output) — approximately 2× the cost of Opus 4.5.
+
+CC_GodMode v7.0.0 positions Fable 5 as the **orchestrator only** — it classifies, routes, and delegates. Subagents do the implementation work on cheaper models.
+
+**Smart Routing default** targets 30–50% token reduction per standard feature compared to always running the full agent sequence:
+- Inline architecture briefs instead of @architect invocation for small/medium tasks saves ~$2.50 per invocation
+- Scoped validation (affected flows only) instead of full @tester run saves ~$0.50–0.80
+- @scribe downgraded from sonnet → haiku saves ~$0.40 per invocation
+- Total per standard feature: ~$2.60 (fully scoped) to ~$6.10 (Full-Gates escalation) — cost depends on whether risk signals escalate to Full-Gates
+
+**When Full-Gates costs are justified:**
+- API/schema changes: @api-guardian prevents cascading consumer breakage
+- New modules: @architect (Opus) prevents expensive architecture mistakes
+- Breaking changes: full consumer analysis is mandatory
+
+---
 
 ---
 
@@ -36,8 +81,8 @@ Medium Cost │          ●●●●●    Sonnet 4.5
             │       (@api-guardian, @builder, @validator,
             │        @tester, @scribe)
             │
-Low Cost    │  ●      Haiku
-            │  (@github-manager)
+Low Cost    │  ●●     Haiku
+            │  (@researcher, @github-manager)
             │
             └─────────────────────────────────────────►
                 Simple                           Complex
@@ -47,6 +92,30 @@ Low Cost    │  ●      Haiku
 ---
 
 ## Agent Model Assignments
+
+### @researcher - Haiku (LOW COST)
+
+**Model:** `claude-haiku-20250219`
+
+**Rationale:**
+- Gathers current facts before higher-cost decisions
+- Uses official and primary sources where possible
+- Returns concise findings, source links, and routing implications
+- Keeps exploratory work cheap before @architect is needed
+
+**Cost Impact:** Low (~$0.10-0.20 per bounded research pass)
+
+**When Invoked:**
+- New technology, dependency, or platform facts are version-sensitive
+- Official documentation must be checked before design
+- A narrow research brief can prevent expensive rework
+
+**Why Haiku is Sufficient:**
+- The task is retrieval and synthesis, not long-horizon architecture
+- Source quality matters more than model size
+- Findings are handed to @architect or the orchestrator for decisions
+
+---
 
 ### @architect - Opus 4.5 (HIGH COST)
 
@@ -188,23 +257,25 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @scribe - Sonnet 4.5 (MEDIUM COST)
+### @scribe - Haiku (LOW COST) — changed in v7.0.0
 
-**Model:** `claude-sonnet-4-5-20250929`
+**Model:** `haiku` (downgraded from sonnet in v7.0.0)
 
 **Rationale:**
-- Technical writing requires clarity and accuracy
-- Must analyze reports from all other agents
-- Needs documentation best practices knowledge
-- VERSION/CHANGELOG management is critical
+- CHANGELOG and VERSION updates follow a strict template — haiku handles templated work well
+- Report synthesis from other agents is pattern-matching, not deep reasoning
+- `effort: low` + haiku is sufficient under Fable 5 orchestration
+- Saves ~$0.40 per invocation vs sonnet
 
-**Cost Impact:** Medium (~$0.60 per invocation)
+**Cost Impact:** Low (~$0.15–0.20 per invocation)
 
 **When Invoked:**
 - After both quality gates pass
 - MANDATORY before ANY push
 - VERSION and CHANGELOG updates
 - Documentation maintenance
+
+**Quality assurance:** Min-length validation (300 chars) and required section patterns are enforced by `scripts/validate-agent-output.js` — the downgrade does not weaken output standards.
 
 **Critical Tasks:**
 - VERSION file updates (MANDATORY)
@@ -253,7 +324,7 @@ Savings: 80% with zero quality impact
 
 ## Workflow Cost Analysis
 
-### Standard Feature Workflow
+### Standard Feature Workflow (Full-Gates)
 
 ```
 User: "Build user authentication"
@@ -265,11 +336,22 @@ User: "Build user authentication"
   ├─ @validator (sonnet): $0.70  ┐
   ├─ @tester (sonnet): $1.20     ├─ Parallel
   │                               ┘
-  ├─ @scribe (sonnet): $0.60
+  ├─ @scribe (haiku): $0.20       ← v7.0.0: haiku (was sonnet $0.60)
   │
   └─ @github-manager (haiku): $0.10
 
-Total: ~$6.10 per feature
+Total: ~$5.70 per feature (Full-Gates)
+
+Smart Routing (no @architect invocation, scoped gates):
+  ├─ inline arch brief: $0
+  ├─ @builder (sonnet): $1.00
+  ├─ @validator scoped: $0.50  ┐
+  ├─ @tester scoped: $0.80     ├─ Parallel
+  │                             ┘
+  ├─ @scribe (haiku): $0.20
+  └─ @github-manager (haiku): $0.10
+Total: ~$2.60 per standard feature (Smart Routing)
+Note: risk escalation to Full-Gates raises this toward ~$6.10
 ```
 
 ### Bug Fix Workflow
@@ -300,11 +382,11 @@ User: "Change user endpoint response"
   ├─ @validator (sonnet): $0.70  ┐
   ├─ @tester (sonnet): $1.20     ├─ Parallel
   │                               ┘
-  ├─ @scribe (sonnet): $0.60
+  ├─ @scribe (haiku): $0.20   ← v7.0.0: haiku
   │
   └─ @github-manager (haiku): $0.10
 
-Total: ~$6.90 per API change
+Total: ~$6.50 per API change
 ```
 
 ### Documentation Update Workflow
@@ -312,50 +394,56 @@ Total: ~$6.90 per API change
 ```
 User: "Update README"
   │
-  ├─ @scribe (sonnet): $0.60
+  ├─ @scribe (haiku): $0.20    ← v7.0.0: haiku (was sonnet $0.60)
   │
   └─ @github-manager (haiku): $0.10
 
-Total: ~$0.70 per doc update
+Total: ~$0.30 per doc update
 ```
 
 ---
 
 ## Monthly Cost Estimates
 
-### Small Project (5 features/month)
+> **Note:** These figures use the **Full-Gates upper-bound baseline** (every agent invoked, no Smart Routing).
+> Under the **Smart Routing default** (v7.0.0), standard features cost ~$2.60 each and doc updates ~$0.30 each — see the Summary table below and the Workflow Cost Analysis section above for per-workflow breakdowns.
+
+### Small Project (5 features/month) — Full-Gates upper bound
 
 ```
 Features (5):        5 × $6.10 = $30.50
 Bug fixes (10):     10 × $2.90 = $29.00
-API changes (2):     2 × $6.90 = $13.80
-Docs (5):            5 × $0.70 =  $3.50
+API changes (2):     2 × $6.50 = $13.00
+Docs (5):            5 × $0.30 =  $1.50
 ────────────────────────────────────────
-Monthly Total:                   $76.80
+Monthly Total:                   $74.00
+  (Smart Routing estimate: ~$35–45 depending on feature complexity)
 ```
 
-### Medium Project (20 features/month)
+### Medium Project (20 features/month) — Full-Gates upper bound
 
 ```
 Features (20):      20 × $6.10 = $122.00
 Bug fixes (40):     40 × $2.90 = $116.00
-API changes (8):     8 × $6.90 =  $55.20
-Docs (15):          15 × $0.70 =  $10.50
+API changes (8):     8 × $6.50 =  $52.00
+Docs (15):          15 × $0.30 =   $4.50
 Refactoring (5):     5 × $6.10 =  $30.50
 ────────────────────────────────────────
-Monthly Total:                  $334.20
+Monthly Total:                  $325.00
+  (Smart Routing estimate: ~$150–200 depending on feature complexity)
 ```
 
-### Large Project (50 features/month)
+### Large Project (50 features/month) — Full-Gates upper bound
 
 ```
 Features (50):      50 × $6.10 = $305.00
 Bug fixes (100):   100 × $2.90 = $290.00
-API changes (20):   20 × $6.90 = $138.00
-Docs (30):          30 × $0.70 =  $21.00
+API changes (20):   20 × $6.50 = $130.00
+Docs (30):          30 × $0.30 =   $9.00
 Refactoring (15):   15 × $6.10 =  $91.50
 ────────────────────────────────────────
-Monthly Total:                  $845.50
+Monthly Total:                  $825.50
+  (Smart Routing estimate: ~$380–480 depending on feature complexity)
 ```
 
 ---
@@ -588,26 +676,46 @@ Extra cost: $5.00
 
 ---
 
+## Cost-Efficiency Mode
+
+The `skills/cost-efficiency/` mode is an orchestration policy, not a silent
+model downgrade. It reduces cost by choosing fewer agents, narrowing research,
+batching expensive reasoning, and validating only the changed scope.
+
+Use it when the user explicitly asks for cheaper or smaller-model routing.
+
+Do not use it to skip mandatory safety checks:
+
+- @api-guardian remains mandatory for contracts and public API surfaces.
+- @validator remains mandatory for implementation quality.
+- @tester remains mandatory when user-facing behavior changes.
+- @architect should still be used when design mistakes would create expensive rework.
+
+---
+
 ## Summary
 
-### Model Strategy
+### Model + Effort Strategy (v7.0.0)
 
-| Agent | Model | When | Why |
-|-------|-------|------|-----|
-| @architect | opus | New features, major decisions | Best reasoning |
-| @api-guardian | sonnet | API changes (auto-triggered) | Balanced analysis |
-| @builder | sonnet | All implementations | Best cost/performance |
-| @validator | sonnet | Every implementation | Thorough quality |
-| @tester | sonnet | Every implementation | Comprehensive testing |
-| @scribe | sonnet | Before push | Clear documentation |
-| @github-manager | haiku | GitHub operations | Fast & cheap |
+| Agent | Model | Effort | When | Why |
+|-------|-------|--------|------|-----|
+| @researcher | haiku | low | Bounded documentation and tech lookup | Fast source discovery |
+| @architect | opus | high | New modules, breaking changes, cross-domain | Best reasoning for long-lived decisions |
+| @api-guardian | sonnet | medium | API changes (auto-triggered) | Balanced analysis |
+| @builder | sonnet | medium | All implementations | Best cost/performance |
+| @validator | sonnet | low | Every implementation | Mostly execution + checklist |
+| @tester | sonnet | medium | Every implementation | MCP coordination + analysis |
+| @scribe | haiku | low | Before push | Templated doc work (v7.0.0 change) |
+| @github-manager | haiku | low | GitHub operations | Fast & cheap |
+| All 6 dept. agents | sonnet | low | Domain-specific advisory | Advisory-only |
 
-### Cost Efficiency
+### Cost Efficiency (Smart Routing Default)
 
-- **Feature**: ~$6.10 (optimized)
+- **Standard feature (Smart Routing)**: ~$2.60 (fully scoped) to ~$6.10 (Full-Gates escalation)
+- **Standard feature (Full-Gates)**: ~$6.10
 - **Bug Fix**: ~$2.90 (efficient)
-- **API Change**: ~$6.90 (mandatory safety)
-- **Documentation**: ~$0.70 (minimal)
+- **API Change**: ~$6.50 (mandatory safety, always Full-Gates)
+- **Documentation**: ~$0.20–0.30 (scribe=haiku)
 
 ### Key Takeaways
 

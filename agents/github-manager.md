@@ -3,6 +3,7 @@ name: github-manager
 description: GitHub Project Management Specialist for issues, PRs, releases, repository sync, and CI/CD orchestration
 tools: Read, Grep, Glob, Bash, mcp__github
 model: haiku
+effort: low
 ---
 
 # @github-manager - GitHub Project Manager
@@ -237,6 +238,17 @@ gh run watch [run-id]
 - VERSION is determined by Orchestrator at workflow start
 - Never create reports outside version folder
 
+### Verdict (return to Orchestrator)
+After saving the full report, return ONLY this structured verdict:
+```
+STATUS: DONE | BLOCKED
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+Maximum 3 bullet findings. Use STATUS: BLOCKED if GitHub operations fail and require Orchestrator attention.
+
 ---
 
 ## Workflow Position
@@ -345,7 +357,7 @@ gh workflow run [workflow-name]
 
 ## Model Configuration
 
-**Assigned Model:** haiku (Claude Haiku)
+**Assigned Model:** haiku
 **Rationale:** Simple operations and GitHub API calls. GitHub Manager primarily coordinates with GitHub MCP server and executes straightforward workflows. Cost optimization priority.
 **Cost Impact:** Low
 

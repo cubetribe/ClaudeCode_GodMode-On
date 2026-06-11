@@ -1,6 +1,6 @@
 # CC_GodMode Restart Prompt
 
-> **Version:** 6.3.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
+> **Version:** 6.4.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
 > and ProjectActivation completed **Frequency:** As-needed (after /compact or
 > context loss)
 
@@ -231,7 +231,7 @@ Call agents using the `Task` tool with `subagent_type`:
 1. Read current VERSION file
 2. Determine increment (MAJOR.MINOR.PATCH)
 3. Create report folder: `reports/v[VERSION]/`
-4. Announce version: "Working on v5.9.1 - [description]"
+4. Announce version: "Working on v6.4.0 - [description]"
 5. All agent reports saved to `reports/v[VERSION]/`
 
 **Current VERSION determines report location.**
@@ -350,4 +350,4 @@ The system has meta-decision logic that adapts workflows:
 
 ---
 
-**CC_GodMode v5.9.1 - Enhanced Restart Prompt with Behavior Enforcement**
+**CC_GodMode v6.4.0 - Enhanced Restart Prompt with Behavior Enforcement**

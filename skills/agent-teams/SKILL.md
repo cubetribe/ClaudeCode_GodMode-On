@@ -6,8 +6,8 @@ disable-model-invocation: true
 
 # Agent Teams Orchestration (Experimental)
 
-> **Status:** Experimental — requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
-> **When to use:** Large features where multiple agents can work truly in parallel
+> **Status:** Experimental and high-cost
+> **When to use:** Large features where multiple teammates can work truly in parallel and the user explicitly accepts the token cost
 
 ## What Are Agent Teams?
 
@@ -81,7 +81,7 @@ pending → in_progress → completed
 | API change (strict sequence required) | NO — sequential workflow needed |
 | Research task | NO — single agent sufficient |
 
-## Limitations (March 2026)
+## Limitations
 
 - No session resumption with in-process teammates
 - Task status can lag
@@ -89,6 +89,9 @@ pending → in_progress → completed
 - No nested teams
 - Token usage: ~15x standard
 - Shutdown can be slow
+
+Use `skills/departments/` first when the problem is ownership and routing. Use
+Agent Teams only when the implementation work itself can safely run in parallel.
 
 ## Best Practices
 

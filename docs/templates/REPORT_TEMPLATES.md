@@ -1,14 +1,37 @@
 # Agent Report Templates
 
-**Version:** v5.7.0
-**Last Updated:** 2026-01-08
+**Version:** v7.0.0
+**Last Updated:** 2026-06-11
 **Validation:** Enforced by `scripts/validate-agent-output.js`
+
+---
+
+## Orchestrator Return Verdict (separate from the on-disk report)
+
+Each agent saves a **full report** to disk (`reports/vX.X.X/NN-<agent>-report.md`) and returns only a structured verdict to the Orchestrator. These are two distinct outputs.
+
+**Verdict shape:**
+```
+STATUS: APPROVED | BLOCKED | DONE
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to full report>
+```
+
+**Rules:**
+- Maximum 3 bullet findings in the verdict.
+- `STATUS: APPROVED` — work passed all gates; proceed.
+- `STATUS: BLOCKED` — issues found; Orchestrator reads full report for details.
+- `STATUS: DONE` — task completed (used by @builder, @scribe, @github-manager, @researcher).
+- The Orchestrator opens the full report **only on BLOCKED** or when explicitly needed.
+- Min-length validation (`scripts/validate-agent-output.js`) checks the **on-disk file**, not the verdict. Thresholds unchanged: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.
 
 ---
 
 ## Overview
 
-This document defines standardized report templates for all 7 CC_GodMode agents. Each template includes:
+This document defines standardized report templates for all 8 CC_GodMode agents. Each template includes:
 - **Frontmatter Schema** - YAML metadata for machine-readable parsing
 - **Required Sections** - Core content blocks that must be present
 - **Required Patterns** - Critical regex patterns for validation

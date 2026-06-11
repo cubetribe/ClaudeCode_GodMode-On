@@ -57,3 +57,20 @@ Use parallel Task tool calls to run both agents simultaneously:
 - A11y compliant (WCAG 2.1 AA)
 - Performance OK (Core Web Vitals: LCP, CLS, INP, FCP)
 - Console errors captured and reported
+
+## Agent Return Contract
+
+Every agent writes a **full report** to `reports/vX.X.X/NN-<agent>-report.md` (validated by `scripts/validate-agent-output.js` — min-length rules check the file, not the return message). The agent's **return message to the Orchestrator** is the structured verdict only:
+
+```
+STATUS: APPROVED | BLOCKED | DONE
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to full report>
+```
+
+Rules:
+- Maximum 3 bullet findings.
+- Orchestrator reads the full report only on BLOCKED or when explicitly needed.
+- Full report min-lengths are unchanged: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.

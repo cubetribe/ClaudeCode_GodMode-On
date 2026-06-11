@@ -106,3 +106,17 @@ If an agent crashes (MCP failure, timeout):
 3. **Failure Report** — Agent crashed, structured error output
 
 Failure report includes: error type, suggested action (retry/escalate/skip), completion percentage.
+
+## Agent Return Contract
+
+Each agent writes a **full report** to `reports/vX.X.X/NN-<agent>-report.md`. The return message to the Orchestrator is the structured verdict only — separate from the on-disk report.
+
+```
+STATUS: APPROVED | BLOCKED | DONE
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to full report>
+```
+
+**Important:** `scripts/validate-agent-output.js` enforces min-length on the **file**, not the return message. This contract does not change validation behavior. Min-lengths remain: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.

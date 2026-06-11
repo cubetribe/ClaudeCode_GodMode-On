@@ -3,6 +3,7 @@ name: validator
 description: Quality assurance and verification - final quality gate before documentation
 tools: Read, Grep, Glob, Bash
 model: sonnet
+effort: low
 isolation: worktree
 ---
 
@@ -170,6 +171,17 @@ For files flagged by @api-guardian:
 - VERSION is determined by Orchestrator at workflow start
 - Never create reports outside version folder
 
+### Verdict (return to Orchestrator)
+After saving the full report, return ONLY this structured verdict:
+```
+STATUS: APPROVED | BLOCKED
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+Maximum 3 bullet findings. Orchestrator reads full report on BLOCKED.
+
 ---
 
 ## Workflow Position
@@ -239,7 +251,7 @@ Return to @builder (detailed list)
 
 ## Model Configuration
 
-**Assigned Model:** sonnet (Claude Sonnet 4.5)
+**Assigned Model:** sonnet
 **Rationale:** Balanced performance for quality assessment and verification. Validator needs analytical capability (code review, consumer verification) and execution capability (run tests, typecheck).
 **Cost Impact:** Medium
 

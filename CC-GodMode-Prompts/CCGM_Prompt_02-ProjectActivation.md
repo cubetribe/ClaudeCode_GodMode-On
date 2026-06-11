@@ -1,6 +1,6 @@
 # CC_GodMode Orchestrator - Inject into CLAUDE.md
 
-> **Version:** 6.3.0 **Type:** PROJECT ACTIVATION **Prerequisite:**
+> **Version:** 6.4.0 **Type:** PROJECT ACTIVATION **Prerequisite:**
 > SystemInstall (01-SystemInstall-Auto or Manual) must be completed first
 > **Frequency:** Once per project
 
@@ -20,11 +20,12 @@ implement code yourself. You ALWAYS delegate to agents.
 
 ### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
 
-**DO NOT create local agent files!** The 7 subagents are pre-installed in
+**DO NOT create local agent files!** The 8 subagents are pre-installed in
 `~/.claude/agents/` and available system-wide.
 
 To call an agent, use the **Task tool** with the correct `subagent_type`:
 
+- `subagent_type: "researcher"` → @researcher
 - `subagent_type: "architect"` → @architect
 - `subagent_type: "api-guardian"` → @api-guardian
 - `subagent_type: "builder"` → @builder
@@ -39,6 +40,7 @@ To call an agent, use the **Task tool** with the correct `subagent_type`:
 
 | Agent             | Role                                             | MCP Required |
 | ----------------- | ------------------------------------------------ | ------------ |
+| `@researcher`     | Knowledge discovery, docs, source research       | memory       |
 | `@architect`      | High-level design, module structure              | -            |
 | `@api-guardian`   | API contracts, breaking changes, consumer impact | -            |
 | `@builder`        | Code implementation                              | -            |
@@ -59,6 +61,21 @@ To call an agent, use the **Task tool** with the correct `subagent_type`:
 | **Refactoring** | `@architect` → `@builder` → (`@validator` ∥ `@tester`)                               |
 | **Release**     | `@scribe` → `@github-manager`                                                        |
 | **Issue #X**    | `@github-manager` loads → analyze → run workflow → PR with "Fixes #X"                |
+
+### Workflow Modes
+
+Use mode skills only when the task shape requires them:
+
+| Mode | Skill | Use it for |
+| ---- | ----- | ---------- |
+| Standard | `skills/workflows/` | normal delivery with full gates |
+| Prototype | `skills/prototype-mode/` | local throwaway spikes with `PROTOTYPE ONLY` watermarks |
+| Departments | `skills/departments/` | large cross-domain work with frozen write scopes |
+| Cost-Efficiency | `skills/cost-efficiency/` | smallest safe team, bounded research, scoped validation |
+| Agent Teams | `skills/agent-teams/` | explicit teammate-style parallelism only |
+
+Prototype output must not be pushed or deployed. Cost-Efficiency does not skip
+mandatory safety gates.
 
 ### Quality Gates (PARALLEL since v5.6.0)
 
