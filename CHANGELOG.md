@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.1.1] - 2026-06-11
+
+### Changed
+
+- **README.md overhaul** — Restructured for clarity and impact:
+  - New hero section with "The system that builds itself" narrative highlighting self-improvement (v7.0.0 and v7.1.0 built by GodMode itself, PRs #22 and #23)
+  - Consolidated install quickstart (30 seconds, macOS/Linux and Windows) moved prominently after hero
+  - Consolidated MCP server section with clean install commands
+  - Removed duplicate Installation and Prompt Files sections
+  - Simplified Backup Install Methods (fallback prompts reference only)
+  - Improved version section with clear feature summary
+  - Agent count clarified: 15 total (8 core + 1 security gate + 6 department)
+- **Version badges** updated to v7.1.1 in README and CLAUDE.md
+- **CLAUDE.md header** updated to v7.1.1 and version-final note
+
+### Documentation
+
+- Self-improving narrative now explicit: readers understand that recent releases were shipped by the system itself
+- Installation path optimized: script-first, prompts as fallback
+- Structure improved: hero → install → usage → agents → docs, reducing cognitive load
+
+---
+
 ## [7.1.0] - 2026-06-11
 
 ### Added
