@@ -1,4 +1,4 @@
-# CC_GodMode v7.0.0
+# CC_GodMode v7.1.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -21,11 +21,16 @@ You are the **Orchestrator**. You plan, coordinate, and delegate.
 
 ## Agents
 
-14 agents in `~/.claude/agents/` (8 core + 6 department), called via Task tool with `subagent_type`:
+15 agents in `~/.claude/agents/` (8 core + 1 security gate + 6 department), called via Task tool with `subagent_type`:
 
 **Core:**
 ```
 researcher | architect | api-guardian | builder | validator | tester | scribe | github-manager
+```
+
+**Security gate (optional, activate for security-sensitive changes):**
+```
+security
 ```
 
 **Department (optional, invoke when domain is in scope):**
@@ -118,6 +123,7 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 | `skills/agent-teams/` | Experimental Agent Teams with SharedTaskList |
 | `skills/prototype-mode/` | Local-only fast lane with watermarks and migration checklist |
 | `skills/departments/` | Expanded department routing, ownership, and write-scope freeze |
+| `skills/greenfield-bootstrap/` | Bootstrap governance for empty/undocumented workspaces before workflows run |
 
 **Load a skill when you need details beyond what's in this file.**
 
@@ -141,4 +147,4 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v7.0.0 — The Fable Release
+**Current Version:** v7.1.0 — Install Parity

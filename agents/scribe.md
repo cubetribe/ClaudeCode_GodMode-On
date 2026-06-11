@@ -87,7 +87,23 @@ I read reports from the **version folder** (`reports/v[VERSION]/`):
 - `03-validator-report.md` (Validation status)
 - `04-tester-report.md` (Test coverage, screenshots)
 
-### 3. Update API Consumer Registry
+### 3. Update project-specific interface documentation (when present)
+
+First action: `Glob("*.md")` in the project root.
+
+For each `.md` file found, check whether it documents a public interface for a module —
+examples: `SKILL.md`, `PLUGIN.md`, `MODULE.md`, `manifest.md`. If a file documents
+Commands, Parameters, Return-Format, or Usage examples for something that changed, it
+**must** be updated:
+
+- Add new commands or parameters to existing reference tables.
+- Add new feature sections with usage examples.
+- Update `description` in frontmatter when capability has changed.
+
+A stale interface doc is **worse than no doc** — it actively misleads users and agents
+that rely on it. If in doubt, update rather than skip.
+
+### 4. Update API Consumer Registry
 
 Based on @api-guardian's Consumer Matrix:
 
@@ -113,7 +129,7 @@ Based on @api-guardian's Consumer Matrix:
 | YYYY-MM-DD | Initial creation | No |
 ```
 
-### 4. Update Changelog
+### 5. Update Changelog
 
 For new features or breaking changes:
 
@@ -136,14 +152,14 @@ For new features or breaking changes:
   - Migration: [Description]
 ```
 
-### 5. Update README (when needed)
+### 6. Update README (when needed)
 
 Only for **user-facing** changes:
 - New features
 - Changed installation
 - New config options
 
-### 6. Add JSDoc (when needed)
+### 7. Add JSDoc (when needed)
 
 For new complex functions:
 
@@ -364,6 +380,7 @@ The Orchestrator has Bash access and will provide git/system command results.
 
 ## Critical Reminders
 
+⚠️ **Run Glob("*.md") first** — update any interface doc found before touching CHANGELOG.md
 ⚠️ **NEVER push without updating VERSION and CHANGELOG**
 ⚠️ **ALWAYS verify version is unique**
 ⚠️ **NO EXCEPTIONS - Even for single-line fixes**

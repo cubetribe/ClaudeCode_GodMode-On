@@ -1,0 +1,11 @@
+# CODEOWNERS — CC_GodMode
+# All changes require review from @cubetribe.
+# More specific rules below override the default for their paths.
+
+*                   @cubetribe
+
+/agents/            @cubetribe
+/skills/            @cubetribe
+/scripts/           @cubetribe
+/.claude-plugin/    @cubetribe
+/.github/           @cubetribe

@@ -8,7 +8,7 @@
 
 Claude Fable 5 orchestrator for Claude Code multi-agent development — token-efficient subagents, risk-based quality gates.
 
-[![Version](https://img.shields.io/badge/Version-7.0.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-7.1.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%206%20Department-purple)](./agents/)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
@@ -182,7 +182,7 @@ CC_GodMode v7.0.0 is tuned for **Claude Fable 5 as the orchestrator** with model
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
-├── agents/                         ← 14 agents (8 core + 6 department), globally available
+├── agents/                         ← 15 agents (8 core + 1 security gate + 6 department), globally available
 │   ├── researcher.md               ← haiku, effort: low
 │   ├── architect.md                ← opus, effort: high
 │   ├── api-guardian.md             ← sonnet, effort: medium
@@ -382,7 +382,29 @@ cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
 
 That's it. Start `claude` in your project and the orchestrator is active.
 
-**Note:** A Claude Code plugin marketplace listing is not yet available. The steps above use the `plugin.json` manifest as the install contract — the file drives what gets installed (14 agents, 11 skills, hook scripts).
+**Note:** A Claude Code plugin marketplace listing is not yet available. The steps above use the `plugin.json` manifest as the install contract — the file drives what gets installed (15 agents, 12 skills, hook scripts).
+
+### Script Install / Update (v7.1+)
+
+For a repeatable, idempotent install — including updates after `git pull` — use the
+bundled installer script. It backs up existing files before overwriting them.
+
+**macOS / Linux:**
+```bash
+./scripts/apply-global-claude-setup.sh
+# Verify:
+./scripts/apply-global-claude-setup.sh --check
+```
+
+**Windows (PowerShell):**
+```powershell
+.\scripts\apply-global-claude-setup.ps1
+# Verify:
+.\scripts\apply-global-claude-setup.ps1 -Check
+```
+
+The `--check` / `-Check` flag exits 0 if everything is in sync, non-zero on drift —
+safe to run any time without making changes.
 
 ### Manual Install via Prompts (Fallback)
 
@@ -527,7 +549,7 @@ CC_GodMode includes comprehensive documentation for understanding and extending 
 - **[MODES.md](./docs/orchestrator/MODES.md)** - Smart Routing (default), Full-Gates, Prototype, Departments, Agent Teams, and Cost-Efficiency routing
 
 ### Policy Documents
-- **[REPORT_TEMPLATES.md](./docs/templates/REPORT_TEMPLATES.md)** - Standardized formats for all 14 agents
+- **[REPORT_TEMPLATES.md](./docs/templates/REPORT_TEMPLATES.md)** - Standardized formats for all 15 agents
 - **[CONTEXT_SCOPE_POLICY.md](./docs/policies/CONTEXT_SCOPE_POLICY.md)** - Agent boundaries and responsibilities
 - **[SECURITY_TOOLING_POLICY.md](./docs/policies/SECURITY_TOOLING_POLICY.md)** - Tool access control matrix
 
@@ -555,8 +577,8 @@ Claude Code's `/compact` can cause memory loss. When the orchestrator starts imp
 
 ## FAQ
 
-**Q: Why 14 agents?**
-A: 8 core agents cover the standard workflow. 6 optional department agents activate only when their domain is in scope — CI/security, docs, quality ops, platform, workflow design, governance. Separation of concerns: each agent has ONE job.
+**Q: Why 15 agents?**
+A: 8 core agents cover the standard workflow. 1 optional @security gate activates for security-sensitive changes. 6 optional department agents activate only when their domain is in scope — CI/security, docs, quality ops, platform, workflow design, governance. Separation of concerns: each agent has ONE job.
 
 **Q: What's the difference between @validator and @tester?**
 A: @validator = code quality (TypeScript, tests, security). @tester = UX quality (E2E, visual, a11y, perf).
@@ -582,16 +604,17 @@ The loop continues.
 
 ## Version
 
-**CC_GodMode v7.0.0 — The Fable Release**
+**CC_GodMode v7.1.0 — Install Parity**
 
+- **v7.1:** Installer/verifier scripts, @security gate agent, greenfield-bootstrap skill, dependabot + CODEOWNERS (based on PR #21 by @andreas-hafner)
 - **v7.0:** Fable 5 orchestrator tuning, Smart Routing as default, 14 agents (8 core + 6 department), effort fields, verdict contract
 - **v6.4:** Workflow Modes — Prototype, Departments, and Cost-Efficiency skills
 - **v6.3:** Plugin Packaging — `plugin.json` manifest for one-command installation
 - **v6.2:** Platform Features — Worktree isolation for parallel agents, Agent Teams support
 - **v6.1:** Skills Architecture — on-demand SKILL.md files for progressive disclosure
 - **v6.0:** Modular architecture — CLAUDE.md reduced from 688 to ~75 lines (-89%)
-- 14 agents (8 core + 6 department) with model selection, effort fields, and worktree isolation
-- 11 skills for workflows, gates, release, research, API changes, modes, and teams
+- 15 agents (8 core + 1 security gate + 6 department) with model selection, effort fields, and worktree isolation
+- 12 skills for workflows, gates, release, research, API changes, modes, and teams
 - Dual quality gates (parallel execution in isolated worktrees)
 - Smart Routing default with risk-based Full-Gates escalation
 - Version-first workflow with automated pre-push checks
