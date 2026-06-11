@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.1.0] - 2026-06-11
+
+### Added
+
+- **Installer scripts** `scripts/apply-global-claude-setup.sh` (macOS/Linux) and
+  `scripts/apply-global-claude-setup.ps1` (Windows): idempotent install with
+  timestamped backups, `--check` / `-Check` verification flag, and CLAUDE_HOME
+  validation (must be absolute path, non-empty, not filesystem root).
+- **`@security` agent** (`agents/security.md`): optional parallel security-review gate
+  for secrets, injection, auth/authz, crypto, and dependency vulnerabilities.
+  Runs alongside @validator and @tester; BLOCKS on Critical/High findings.
+- **`skills/greenfield-bootstrap/`**: new skill for bootstrapping governance in empty
+  or undocumented workspaces before CC_GodMode workflows run.
+- **`.github/dependabot.yml`**: weekly Dependabot updates for GitHub Actions and npm.
+- **`.github/CODEOWNERS`**: default owner `@cubetribe` for all paths; explicit rules
+  for `/agents/`, `/skills/`, `/scripts/`, `/.claude-plugin/`, `/.github/`.
+
+### Fixed
+
+- **@scribe interface-doc discovery** (`agents/scribe.md`): new Step 3 "Update
+  project-specific interface documentation (when present)" — `Glob("*.md")` in
+  project root before touching CHANGELOG; interface docs (SKILL.md, PLUGIN.md, etc.)
+  must be updated before any other doc step. Fixes #20.
+- **chmod hardening** in `.sh` installer: removed blanket `chmod +x *.js`; exec-bits
+  now preserved from source via `cp -p` for agents, scripts, skills, and templates.
+- **CLAUDE_HOME validation** in both `.sh` and `.ps1` installers: exits with a clear
+  error message if the value is empty, a relative path, or the filesystem/drive root.
+
+Based on contributions by @andreas-hafner in PR #21.
+
+---
+
 ## [7.0.0] - 2026-06-11
 
 ### **"The Fable Release" — Fable 5 Orchestration, Effort Routing, and Smart Defaults**

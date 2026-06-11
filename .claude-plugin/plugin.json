@@ -1,7 +1,7 @@
 {
   "name": "cc-godmode",
-  "version": "7.0.0",
-  "description": "Self-orchestrating multi-agent development system powered by Claude Fable 5 — 14 agents (8 core + 6 department), Smart Routing default, token-efficient subagents, risk-based quality gates. You say WHAT, the AI decides HOW.",
+  "version": "7.1.0",
+  "description": "Self-orchestrating multi-agent development system powered by Claude Fable 5 — 15 agents (8 core + 1 security gate + 6 department), Smart Routing default, token-efficient subagents, risk-based quality gates. You say WHAT, the AI decides HOW.",
   "author": {
     "name": "Dennis Westermann",
     "url": "https://www.dennis-westermann.de"
@@ -33,6 +33,7 @@
     "agents/tester.md",
     "agents/scribe.md",
     "agents/github-manager.md",
+    "agents/security.md",
     "agents/ci-security-guardian.md",
     "agents/docs-dx.md",
     "agents/quality-operations.md",
@@ -51,7 +52,8 @@
     "skills/agent-teams/SKILL.md",
     "skills/prototype-mode/SKILL.md",
     "skills/departments/SKILL.md",
-    "skills/cost-efficiency/SKILL.md"
+    "skills/cost-efficiency/SKILL.md",
+    "skills/greenfield-bootstrap/SKILL.md"
   ],
   "hooks": {
     "SessionStart": [
