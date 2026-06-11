@@ -1,6 +1,6 @@
 # CC_GodMode Quick Start Guide
 
-> **Version:** 7.0.0
+> **Version:** 7.1.1
 
 ## Daily Usage
 
@@ -17,33 +17,39 @@ automatically when Claude Code starts in your project — you just describe the 
 
 ---
 
-## Installation
+## Installation (30 seconds)
 
-### Plugin Install (Recommended)
+### Script Install (Recommended)
 
 ```bash
-# Clone and install
+# Clone and run the setup script
 git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
 cd ClaudeCode_GodMode-On
-cp agents/*.md ~/.claude/agents/
-cp -R skills/* ~/.claude/skills/
-cp scripts/*.js ~/.claude/scripts/ && chmod +x ~/.claude/scripts/*.js
-cp CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
-claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
 
-# Activate in your project
-cd /your/project
+# macOS / Linux:
+./scripts/apply-global-claude-setup.sh
+./scripts/apply-global-claude-setup.sh --check   # Verify
+
+# Windows (PowerShell):
+.\scripts\apply-global-claude-setup.ps1
+.\scripts\apply-global-claude-setup.ps1 -Check   # Verify
+```
+
+### Then Activate Your Project
+
+```bash
+cd your-project
 cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
 claude
 ```
 
-### Prompts Fallback (Manual)
+### Fallback: Manual Prompts
 
-Use install prompts for a guided setup. Choose ONE:
-- **Automated:** `CCGM_Prompt_01-SystemInstall-Auto.md` — paste into Claude with `--dangerously-skip-permissions`
-- **Manual:** `CCGM_Prompt_01-SystemInstall-Manual.md` — step-by-step instructions
+If the script doesn't work:
+- **Automated:** `CCGM_Prompt_01-SystemInstall-Auto.md` — paste with `--dangerously-skip-permissions`
+- **Manual:** `CCGM_Prompt_01-SystemInstall-Manual.md` — step-by-step walkthrough
 
-Then activate your project: `CCGM_Prompt_02-ProjectActivation.md`
+Then activate: `CCGM_Prompt_02-ProjectActivation.md`
 
 ---
 

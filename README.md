@@ -6,16 +6,55 @@
 
 **You're looking at the answer.**
 
-Claude Fable 5 orchestrator for Claude Code multi-agent development — token-efficient subagents, risk-based quality gates.
-
-[![Version](https://img.shields.io/badge/Version-7.1.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-7.1.1-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
-[![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%206%20Department-purple)](./agents/)
+[![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./agents/)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
 [![Fable 5 Ready](https://img.shields.io/badge/Fable%205-Ready-brightgreen)](./docs/AGENT_MODEL_SELECTION.md)
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./CHANGELOG.md)
 
 </div>
+
+---
+
+## The System That Builds Itself
+
+Welcome to the machine shop. Except the machines are building themselves — and they're getting better at it.
+
+**CC_GodMode v7.0.0 and v7.1.0 weren't built by hand.** They were planned, architected, implemented, validated, documented, and shipped by the exact agents defined in this repo. PRs [#22](https://github.com/cubetribe/ClaudeCode_GodMode-On/pull/22) and [#23](https://github.com/cubetribe/ClaudeCode_GodMode-On/pull/23) are proof. The orchestrator delegated to @architect for design, @builder for implementation, @validator and @tester for quality gates, and @scribe for documentation. Then it created the PR itself.
+
+That's not marketing copy. That's what happened.
+
+---
+
+## Install in 30 Seconds
+
+CC_GodMode is a Claude Code plugin that transforms your development workflow into a self-orchestrating multi-agent system. Here's how to set it up:
+
+**macOS / Linux:**
+```bash
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
+./scripts/apply-global-claude-setup.sh
+./scripts/apply-global-claude-setup.sh --check   # Verify installation
+```
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
+.\scripts\apply-global-claude-setup.ps1
+.\scripts\apply-global-claude-setup.ps1 -Check   # Verify installation
+```
+
+Then activate in any project:
+```bash
+cd your-project
+cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
+claude
+```
+
+Done. The orchestrator is active.
 
 ---
 
@@ -104,9 +143,9 @@ The difference?
 
 ## The Agents
 
-14 specialists (8 core + 6 department). Each with their own expertise, model assignment, and effort tuning.
+15 specialists (8 core + 1 security gate + 6 department). Each with their own expertise, model assignment, and effort tuning.
 
-**Core agents** — always available:
+**Core agents** (8) — always available:
 
 | Agent | Role | Specialty |
 |:------|:-----|:----------|
@@ -119,7 +158,13 @@ The difference?
 | `@scribe` | Technical Writer | Documentation, changelog, version management |
 | `@github-manager` | GitHub Manager | Issues, PRs, releases, CI/CD orchestration |
 
-**Department agents** — optional, activate when their domain is in scope:
+**Security gate** (1) — optional, activate for security-sensitive changes:
+
+| Agent | Domain | Mode |
+|:------|:-------|:-----|
+| `@security` | Secrets, injection, auth/authz, crypto, dependencies | Read + Write (security-focused) |
+
+**Department agents** (6) — optional, activate when their domain is in scope:
 
 | Agent | Domain | Mode |
 |:------|:-------|:-----|
@@ -178,7 +223,7 @@ CC_GodMode v7.0.0 is tuned for **Claude Fable 5 as the orchestrator** with model
 
 ## The Architecture (v7.0)
 
-**v6.0 modular architecture. v6.1 Skills. v6.2 worktree isolation. v6.3 Plugin packaging. v6.4 Workflow Modes. v7.0 Fable 5 orchestrator + Smart Routing default + 14 agents.**
+**v6.0 modular architecture. v6.1 Skills. v6.2 worktree isolation. v6.3 Plugin packaging. v6.4 Workflow Modes. v7.0 Fable 5 orchestrator + Smart Routing default. v7.1 @security gate + installer scripts → 15 agents.**
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
@@ -240,7 +285,7 @@ CC_GodMode uses a **dual-location model** for agents:
 │                                                                      │
 │   CC_GodMode/                         ~/.claude/                     │
 │   └── agents/           ──INSTALL──►  └── agents/                   │
-│       ├── architect.md  (14 files)        ├── architect.md          │
+│       ├── architect.md  (15 files)        ├── architect.md          │
 │       ├── builder.md                      ├── builder.md            │
 │       ├── validator.md                    ├── validator.md          │
 │       ├── ...8 core...                    ├── ...8 core...          │
@@ -355,172 +400,53 @@ Nothing gets forgotten. The hook remembers for you.
 
 ---
 
-## Installation
+## Recommended MCP Servers
 
-### Direct Install (Recommended)
-
-CC_GodMode includes a `.claude-plugin/plugin.json` manifest that describes what gets installed. The steps below copy the files directly:
+Enhanced capabilities through Model Context Protocol (installed in the setup script, but optional):
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
-cd ClaudeCode_GodMode-On
-
-# 2. Install agents, skills, and hooks globally
-cp agents/*.md ~/.claude/agents/
-cp -R skills/* ~/.claude/skills/
-cp scripts/*.js ~/.claude/scripts/ && chmod +x ~/.claude/scripts/*.js
-cp CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
-
-# 3. Install Memory MCP
+# Memory (recommended for agents)
 claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
 
-# 4. Activate in your project
-cd /your/project
-cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
-```
-
-That's it. Start `claude` in your project and the orchestrator is active.
-
-**Note:** A Claude Code plugin marketplace listing is not yet available. The steps above use the `plugin.json` manifest as the install contract — the file drives what gets installed (15 agents, 12 skills, hook scripts).
-
-### Script Install / Update (v7.1+)
-
-For a repeatable, idempotent install — including updates after `git pull` — use the
-bundled installer script. It backs up existing files before overwriting them.
-
-**macOS / Linux:**
-```bash
-./scripts/apply-global-claude-setup.sh
-# Verify:
-./scripts/apply-global-claude-setup.sh --check
-```
-
-**Windows (PowerShell):**
-```powershell
-.\scripts\apply-global-claude-setup.ps1
-# Verify:
-.\scripts\apply-global-claude-setup.ps1 -Check
-```
-
-The `--check` / `-Check` flag exits 0 if everything is in sync, non-zero on drift —
-safe to run any time without making changes.
-
-### Manual Install via Prompts (Fallback)
-
-If you prefer a guided, copy-paste install:
-
-**Automated (one prompt):** Start Claude with `claude --dangerously-skip-permissions`, then paste the full content of [`CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md`](./CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md). Claude handles all 30+ file operations automatically.
-
-**Manual (step-by-step):** See [`CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Manual.md`](./CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Manual.md).
-
----
-
-## Prompt Files
-
-CC_GodMode includes ready-to-use prompts for different scenarios:
-
-| Prompt File | Purpose | When to Use |
-|-------------|---------|-------------|
-| [`CCGM_Prompt_01-SystemInstall-Auto.md`](./CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md) | One-shot automated installation | First-time setup with `--dangerously-skip-permissions` |
-| [`CCGM_Prompt_01-SystemInstall-Manual.md`](./CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Manual.md) | Step-by-step manual installation | When you prefer manual control |
-| [`CCGM_Prompt_02-ProjectActivation.md`](./CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md) | Activate orchestrator in existing workspace | When CC_GodMode is installed and you are starting on an existing project |
-| [`CCGM_Prompt_98-Maintenance.md`](./CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md) | Check and apply updates | Periodically, to pull in agent and skill improvements |
-| [`CCGM_Prompt_99-ContextRestore.md`](./CC-GodMode-Prompts/CCGM_Prompt_99-ContextRestore.md) | Context recovery | After `/compact` or when the orchestrator stops delegating |
-
-### When to Use Which Prompt
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         PROMPT DECISION TREE                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  Is CC_GodMode installed globally (~/.claude/)?                             │
-│     │                                                                       │
-│     ├── NO → Use CCGM_Prompt_01-SystemInstall-Auto.md (one-time setup)     │
-│     │                                                                       │
-│     └── YES → Does your project have CLAUDE.md?                            │
-│                  │                                                          │
-│                  ├── NO → Use CCGM_Prompt_02-ProjectActivation.md           │
-│                  │                                                          │
-│                  └── YES → Just type GodMode: <your request>               │
-│                              CLAUDE.md auto-loads the orchestrator.         │
-│                              Use 99-ContextRestore only if the              │
-│                              orchestrator stops delegating.                 │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-## Troubleshooting: Context Recovery
-
-When CLAUDE.md is present the orchestrator is active from session start. Use `CCGM_Prompt_99-ContextRestore.md` after `/compact` or if the orchestrator stops delegating — not as a routine startup step.
-
-**Signs you need context recovery:**
-- Claude writes code instead of calling agents
-- Claude forgets to call @api-guardian for API changes
-- Claude skips quality gates (@validator or @tester)
-- Claude pushes without asking permission
-
-### Quick Reference
-
-| Scenario | Action |
-|----------|--------|
-| **First time ever** | `CCGM_Prompt_01-SystemInstall-Auto.md` |
-| **New project (CC_GodMode already installed)** | `CCGM_Prompt_02-ProjectActivation.md` |
-| **Normal session (CLAUDE.md present)** | Just type `GodMode: <your request>` |
-| **After /compact or orchestrator confused** | `CCGM_Prompt_99-ContextRestore.md` |
-| **Periodic updates** | `CCGM_Prompt_98-Maintenance.md` |
-
-**TL;DR:** Install once, activate per project, then just type GodMode.
-
----
-
-## Activate in Your Project
-
-After installation, for each project:
-
-**macOS / Linux:**
-```bash
-cd your-project
-cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
-claude
-```
-
-**Windows:**
-```powershell
-cd your-project
-Copy-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" ".\CLAUDE.md"
-claude
-```
-
-The CLAUDE.md is auto-loaded. Orchestrator mode is active.
-
----
-
-## MCP Servers
-
-Enhanced capabilities through Model Context Protocol:
-
-| Server | Agent | Purpose | Required? |
-|:-------|:------|:--------|:-----------|
-| **memory** | @researcher, @architect, @scribe | Persistent knowledge | ✅ Installed |
-| **playwright** | @tester | Browser automation, E2E, **screenshots** | Recommended |
-| **github** | @github-manager | Issues, PRs, Releases | Recommended |
-| **lighthouse** | @tester | Performance audits | Optional |
-| **a11y** | @tester | Accessibility testing | Optional |
-
-```bash
-# Install recommended MCPs
+# Browser automation & screenshots (required for @tester)
 claude mcp add playwright -- npx @playwright/mcp@latest
-claude mcp add lighthouse -- npx lighthouse-mcp
-claude mcp add a11y -- npx a11y-mcp
 
-# GitHub MCP (requires token)
+# GitHub (recommended for @github-manager)
 export GITHUB_TOKEN="your_token"
 claude mcp add github -e GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_TOKEN \
   -- docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN \
   ghcr.io/github/github-mcp-server
+
+# Performance audits (optional)
+claude mcp add lighthouse -- npx lighthouse-mcp
+
+# Accessibility testing (optional)
+claude mcp add a11y -- npx a11y-mcp
 ```
+
+---
+
+## Backup Install Methods (Fallback)
+
+If the script doesn't work on your system, you have fallback options:
+
+**Manual prompt install (guided, copy-paste):**
+1. [`CCGM_Prompt_01-SystemInstall-Auto.md`](./CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md) — One-shot automated (requires `--dangerously-skip-permissions`)
+2. [`CCGM_Prompt_01-SystemInstall-Manual.md`](./CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Manual.md) — Step-by-step (manual control)
+
+For updates and troubleshooting:
+- [`CCGM_Prompt_98-Maintenance.md`](./CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md) — Pull agent and skill improvements
+- [`CCGM_Prompt_99-ContextRestore.md`](./CC-GodMode-Prompts/CCGM_Prompt_99-ContextRestore.md) — Restore orchestrator after `/compact`
+
+**When you need context recovery:**
+
+The orchestrator is active when `CLAUDE.md` is present. Use the context-restore prompt if:
+- Claude writes code instead of delegating
+- Claude forgets to call @api-guardian for API changes
+- Claude skips quality gates
+- Claude tries to push without permission
+
+Otherwise, just type `GodMode: <your request>`.
 
 ---
 
@@ -555,25 +481,6 @@ CC_GodMode includes comprehensive documentation for understanding and extending 
 
 These documents transform implicit knowledge into explicit contracts, making the system more maintainable and predictable.
 
----
-
-## Context Recovery
-
-Claude Code's `/compact` can cause memory loss. When the orchestrator starts implementing instead of delegating:
-
-1. Open [`CC-GodMode-Prompts/CCGM_Prompt_99-ContextRestore.md`](./CC-GodMode-Prompts/CCGM_Prompt_99-ContextRestore.md)
-2. Copy the restart prompt
-3. Paste into chat
-4. Orchestrator mode restored
-
-**Signs you need restart:**
-- Claude writes code instead of calling agents
-- Claude forgets @api-guardian for API changes
-- Claude skips quality gates (@validator or @tester)
-- Claude pushes without permission
-- Claude writes reports to wrong folder (should be `reports/v[VERSION]/`)
-
----
 
 ## FAQ
 
@@ -604,22 +511,22 @@ The loop continues.
 
 ## Version
 
-**CC_GodMode v7.1.0 — Install Parity**
+**CC_GodMode v7.1.1 — Docs Polish**
 
-- **v7.1:** Installer/verifier scripts, @security gate agent, greenfield-bootstrap skill, dependabot + CODEOWNERS (based on PR #21 by @andreas-hafner)
-- **v7.0:** Fable 5 orchestrator tuning, Smart Routing as default, 14 agents (8 core + 6 department), effort fields, verdict contract
-- **v6.4:** Workflow Modes — Prototype, Departments, and Cost-Efficiency skills
-- **v6.3:** Plugin Packaging — `plugin.json` manifest for one-command installation
-- **v6.2:** Platform Features — Worktree isolation for parallel agents, Agent Teams support
-- **v6.1:** Skills Architecture — on-demand SKILL.md files for progressive disclosure
-- **v6.0:** Modular architecture — CLAUDE.md reduced from 688 to ~75 lines (-89%)
-- 15 agents (8 core + 1 security gate + 6 department) with model selection, effort fields, and worktree isolation
-- 12 skills for workflows, gates, release, research, API changes, modes, and teams
-- Dual quality gates (parallel execution in isolated worktrees)
-- Smart Routing default with risk-based Full-Gates escalation
-- Version-first workflow with automated pre-push checks
+Latest releases:
+- **v7.1.1:** README overhaul, self-improving narrative, consolidated install quickstart, improved docs structure
+- **v7.1.0:** Installer/verifier scripts, @security gate agent, greenfield-bootstrap skill, dependabot + CODEOWNERS
+- **v7.0.0:** Fable 5 orchestrator, Smart Routing default, 15 agents (8 core + 1 security + 6 dept), effort fields, verdict contract
 
-See [CHANGELOG.md](./CHANGELOG.md) for the full story.
+What's in the box:
+- **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning
+- **12 skills** for workflows, quality gates, release, research, API changes, modes, teams, and bootstrap
+- **Dual quality gates** (parallel execution for speed)
+- **Smart Routing by default** (30–50% token savings vs. old always-Full-Gates)
+- **Full-Gates escalation** for high-risk work: API/schema changes, security, release artifacts, new modules
+- **Version-first workflow** with automated checks
+
+See [CHANGELOG.md](./CHANGELOG.md) for the full history.
 
 ---
 

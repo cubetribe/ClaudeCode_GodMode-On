@@ -1,4 +1,4 @@
-# CC_GodMode v7.1.0
+# CC_GodMode v7.1.1
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -147,4 +147,4 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v7.1.0 — Install Parity
+**Current Version:** v7.1.1 — Docs Polish
