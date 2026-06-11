@@ -1,7 +1,7 @@
 {
   "name": "cc-godmode",
-  "version": "6.3.0",
-  "description": "Self-orchestrating multi-agent development system — 8 specialized AI agents, parallel quality gates, and automated workflows. You say WHAT, the AI decides HOW.",
+  "version": "7.0.0",
+  "description": "Self-orchestrating multi-agent development system powered by Claude Fable 5 — 14 agents (8 core + 6 department), Smart Routing default, token-efficient subagents, risk-based quality gates. You say WHAT, the AI decides HOW.",
   "author": {
     "name": "Dennis Westermann",
     "url": "https://www.dennis-westermann.de"
@@ -17,7 +17,12 @@
     "ai-agents",
     "code-quality",
     "automated-testing",
-    "self-improving"
+    "self-improving",
+    "claude-fable-5",
+    "fable-orchestrator",
+    "claude-code",
+    "subagents",
+    "token-efficiency"
   ],
   "agents": [
     "agents/researcher.md",
@@ -27,7 +32,13 @@
     "agents/validator.md",
     "agents/tester.md",
     "agents/scribe.md",
-    "agents/github-manager.md"
+    "agents/github-manager.md",
+    "agents/ci-security-guardian.md",
+    "agents/docs-dx.md",
+    "agents/quality-operations.md",
+    "agents/runtime-platform.md",
+    "agents/workflow-design.md",
+    "agents/workspace-governance.md"
   ],
   "skills": [
     "skills/workflows/SKILL.md",
@@ -37,7 +48,10 @@
     "skills/api-change/SKILL.md",
     "skills/research/SKILL.md",
     "skills/meta-decisions/SKILL.md",
-    "skills/agent-teams/SKILL.md"
+    "skills/agent-teams/SKILL.md",
+    "skills/prototype-mode/SKILL.md",
+    "skills/departments/SKILL.md",
+    "skills/cost-efficiency/SKILL.md"
   ],
   "hooks": {
     "SessionStart": [

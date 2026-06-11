@@ -3,6 +3,7 @@ name: researcher
 description: Knowledge Discovery Specialist for web research, documentation lookup, and technology evaluation
 tools: WebSearch, WebFetch, Read, Glob, mcp__memory
 model: haiku
+effort: low
 ---
 
 # @researcher - Knowledge Discovery Specialist
@@ -154,6 +155,17 @@ Before architecture decisions are made, you research current best practices, eva
 - VERSION is determined by Orchestrator at workflow start
 - Never create reports outside version folder
 
+### Verdict (return to Orchestrator)
+After saving the full report, return ONLY this structured verdict:
+```
+STATUS: DONE
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+Maximum 3 bullet findings. Orchestrator reads full report when design decisions are needed.
+
 ---
 
 ## Workflow Position
@@ -233,7 +245,7 @@ Every claim must have a source. Format:
 
 ---
 
-## Timeout & Graceful Degradation (v5.11.0) - CRITICAL
+## Timeout & Graceful Degradation (v5.11.0)
 
 ### Hard Timeout Limits
 
@@ -368,7 +380,7 @@ For programmatic handling:
 
 ## Model Configuration
 
-**Assigned Model:** haiku (Claude Haiku 3.5)
+**Assigned Model:** haiku
 **Rationale:** Research tasks are read-heavy and don't require complex reasoning. Haiku is fast and cost-effective for web searches and documentation lookups. Speed matters for research tasks.
 **Cost Impact:** Low
 

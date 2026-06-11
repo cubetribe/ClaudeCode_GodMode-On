@@ -410,6 +410,16 @@ const WORKFLOW_SUGGESTIONS = {
   }
 };
 
+function createLegalDomainFallback() {
+  return {
+    type: 'domain-pack',
+    domain: 'legal',
+    displayName: 'Anwaltsorchester',
+    score: 1,
+    confidence: 'fallback'
+  };
+}
+
 /**
  * Analyze user prompt (v5.8.0 - Enhanced with meta-decision layer)
  */
@@ -443,12 +453,22 @@ function analyzeUserPrompt(prompt, context = {}) {
       analysis.domain = domainAnalysis;
       analysis.orchestrationType = domainAnalysis.type === 'domain-pack' ? 'domain' : 'technical';
     } catch (error) {
-      // Domain detection failed - continue with technical orchestration
-      analysis.orchestrationType = 'technical';
+      if (analysis.taskType === 'legal') {
+        analysis.domain = createLegalDomainFallback();
+        analysis.orchestrationType = 'domain';
+      } else {
+        // Domain detection failed - continue with technical orchestration
+        analysis.orchestrationType = 'technical';
+      }
     }
   } else {
-    // Domain detector not available - use technical orchestration
-    analysis.orchestrationType = 'technical';
+    if (analysis.taskType === 'legal') {
+      analysis.domain = createLegalDomainFallback();
+      analysis.orchestrationType = 'domain';
+    } else {
+      // Domain detector not available - use technical orchestration
+      analysis.orchestrationType = 'technical';
+    }
   }
 
   // Get workflow suggestion

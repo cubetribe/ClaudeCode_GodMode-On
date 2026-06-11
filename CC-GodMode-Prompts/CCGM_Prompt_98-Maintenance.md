@@ -1,4 +1,4 @@
-> **Version:** 6.3.0 **Type:** MAINTENANCE **Prerequisite:** SystemInstall and
+> **Version:** 6.4.0 **Type:** MAINTENANCE **Prerequisite:** SystemInstall and
 > ProjectActivation completed **Frequency:** Periodically (when checking for
 > updates)
 

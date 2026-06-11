@@ -3,6 +3,7 @@ name: architect
 description: System architect for high-level planning, design decisions, and module structure
 tools: Read, Grep, Glob, WebFetch
 model: opus
+effort: high
 ---
 
 # @architect - System Architect
@@ -117,6 +118,17 @@ Before even a single line of code is written, you analyze requirements, evaluate
 - VERSION is determined by Orchestrator at workflow start
 - Never create reports outside version folder
 
+### Verdict (return to Orchestrator)
+After saving the full report, return ONLY this structured verdict:
+```
+STATUS: DONE
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+Maximum 3 bullet findings. Orchestrator reads full report on BLOCKED or when needed.
+
 ---
 
 ## Workflow Position
@@ -174,7 +186,7 @@ Provide:
 
 ## Model Configuration
 
-**Assigned Model:** opus (Claude Opus 4.5)
+**Assigned Model:** opus
 **Rationale:** Complex reasoning, trade-off analysis, and architectural decision-making require the most capable model. Architectural decisions have long-term impact across the entire codebase.
 **Cost Impact:** High (but justified - good architecture saves more than it costs)
 

@@ -1,14 +1,42 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 6.3.0
+> **Version:** 7.0.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
 > **One-Shot:** Copy this entire prompt into Claude Code and it will set up everything automatically.
 
+> **Note:** Plugin-based installation via `.claude-plugin/` is the recommended path since v7.0.0.
+> Clone the repo and follow the steps in `QUICK_START.md` or `README.md` for the plugin install path.
+> This prompt remains as a manual fallback for users who prefer a guided, copy-paste setup.
+
 ---
 
-## What's New in v6.0.0 — The Platform Release
+## What's New in v7.0.0 — The Fable Release
+
+### Claude Fable 5 Orchestrator Tuning
+
+**Smart Routing (new default)**
+- Risk-based minimal-agent paths replace always-running the full workflow
+- Inline architecture briefs for small/medium tasks (no @architect invocation)
+- Full-Gates escalation for API changes, security surfaces, new modules, breaking changes
+- Targets 30–50% token reduction per standard feature
+
+**14 Agents (8 Core + 6 Department)**
+- 6 department agents added under version control and auto-installed
+- Each agent carries an `effort` field for Claude Code ≥2.1.152 budget tuning
+- @scribe downgraded to haiku (templated doc work is sufficient)
+
+**Verdict Contract**
+- Agents return a structured STATUS verdict to the Orchestrator
+- Full reports still written to disk and validated by `validate-agent-output.js`
+
+**Skills Installation**
+- Installs all 11 CC_GodMode skills into `~/.claude/skills/`
+
+---
+
+## Foundation: v6.0.0 — The Platform Release
 
 ### Architecture Revolution
 
@@ -72,7 +100,7 @@ Before you execute anything, give the user the following message:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   🚀 CC_GodMode Installation                                              ║
+║   CC_GodMode Installation v7.0.0 - The Fable Release                     ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -80,16 +108,16 @@ Before you execute anything, give the user the following message:
 ║                                                                           ║
 ║   What I will do for you:                                                ║
 ║                                                                           ║
-║   1. 📦 Download the CC_GodMode repository from GitHub                    ║
-║   2. 🤖 Install 7 specialized AI agents                                   ║
-║   3. 🔧 Set up 10 hook scripts (automatic quality checks & analysis)      ║
-║   4. 📋 Install config files and templates                                ║
-║   5. 🧠 Install the Memory MCP Server (for persistent knowledge)          ║
-║   6. ⚙️  Configure 4 automatic hooks                                       ║
-║   7. 🚀 Set up auto-update system                                         ║
-║   8. ✅ Verify everything and clean up                                    ║
+║   1. Download the CC_GodMode repository from GitHub                      ║
+║   2. Install 14 AI agents (8 core + 6 department)                        ║
+║   3. Set up 15 automation scripts                                         ║
+║   4. Install 11 skills, config files, and templates                       ║
+║   5. Install the Memory MCP Server (for persistent knowledge)             ║
+║   6. Configure 4 automatic hooks                                          ║
+║   7. Set up auto-update system                                            ║
+║   8. Verify everything and clean up                                       ║
 ║                                                                           ║
-║   ⏱️  This will take approximately 3-7 minutes.                            ║
+║   This will take approximately 3-7 minutes.                               ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -153,12 +181,14 @@ git --version
 **macOS / Linux:**
 ```bash
 mkdir -p ~/.claude/agents
+mkdir -p ~/.claude/skills
 mkdir -p ~/.claude/scripts
 ```
 
 **Windows (PowerShell):**
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\scripts"
 ```
 
@@ -198,7 +228,10 @@ Copy-Item "$env:TEMP\CC_GodMode_install\agents\*.md" "$env:USERPROFILE\.claude\a
 Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 ```
 
-**Expected agents (7 files):**
+**Expected agents (14 files):**
+
+Core agents (8):
+- `researcher.md`
 - `architect.md`
 - `api-guardian.md`
 - `builder.md`
@@ -206,6 +239,41 @@ Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
+
+Department agents (6):
+- `ci-security-guardian.md`
+- `docs-dx.md`
+- `quality-operations.md`
+- `runtime-platform.md`
+- `workflow-design.md`
+- `workspace-governance.md`
+
+**Install skills (11 directories):**
+
+**macOS / Linux:**
+```bash
+cp -R /tmp/CC_GodMode_install/skills/* ~/.claude/skills/
+ls -la ~/.claude/skills/
+```
+
+**Windows (PowerShell):**
+```powershell
+Copy-Item "$env:TEMP\CC_GodMode_install\skills\*" "$env:USERPROFILE\.claude\skills\" -Recurse -Force
+Get-ChildItem "$env:USERPROFILE\.claude\skills\"
+```
+
+**Expected skills:**
+- `workflows`
+- `quality-gates`
+- `release`
+- `issue-processing`
+- `api-change`
+- `research`
+- `meta-decisions`
+- `agent-teams`
+- `prototype-mode`
+- `departments`
+- `cost-efficiency`
 
 ---
 
@@ -235,8 +303,13 @@ Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
 - `domain-pack-loader.js`
 - `validate-agent-output.js`
 - `auto-update.js`
+- `check-update.js`
+- `pre-push-check.js`
 - `session-start.js`
+- `sync-version.js`
 - `test-phase2-integration.js`
+- `version-bump.js`
+- `workflow-state.js`
 
 ---
 
@@ -431,6 +504,9 @@ cat /tmp/CC_GodMode_install/VERSION
 echo "=== Agents ==="
 ls ~/.claude/agents/
 
+echo "=== Skills ==="
+ls ~/.claude/skills/
+
 echo "=== Scripts ==="
 ls ~/.claude/scripts/
 
@@ -454,6 +530,9 @@ Get-Content "$env:TEMP\CC_GodMode_install\VERSION"
 
 Write-Host "=== Agents ==="
 Get-ChildItem "$env:USERPROFILE\.claude\agents\"
+
+Write-Host "=== Skills ==="
+Get-ChildItem "$env:USERPROFILE\.claude\skills\"
 
 Write-Host "=== Scripts ==="
 Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
@@ -495,7 +574,7 @@ After installation, test by typing:
 You are the Orchestrator. List your available agents.
 ```
 
-The system should recognize all 8 agents.
+The system should recognize all 14 agents (8 core + 6 department).
 
 ---
 
@@ -506,19 +585,21 @@ After completing all steps, provide this summary to the user:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   ✅ CC_GodMode Installation Successful!                                  ║
+║   CC_GodMode Installation Successful! v7.0.0 - The Fable Release         ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
-║   📊 INSTALLATION REPORT                                                  ║
+║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
-║   Version:      5.9.1                                                     ║
-║   Agents:       [X]/7 installed                                           ║
-║   Scripts:      [X]/10 installed                                          ║
+║   Version:      7.0.0                                                     ║
+║   Agents:       [X]/14 installed (8 core + 6 department)                  ║
+║   Skills:       [X]/11 installed                                          ║
+║   Scripts:      [X]/15 installed                                          ║
 ║   Config:       [X]/1 installed                                           ║
-║   Templates:    [X]/4 installed                                           ║
-║   MCP Server:   memory [✅ OK / ❌ ERROR]                                  ║
-║   Hooks:        [✅ 4 Configured / ⏭️ Skipped]                             ║
+║   Templates:    [X]/3 installed                                           ║
+║   Prompts:      [X]/6 installed                                           ║
+║   MCP Server:   memory [OK / ERROR]                                       ║
+║   Hooks:        [4 Configured / Skipped]                                  ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -635,16 +716,21 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
-| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 7 |
-| Hook Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 10 |
+| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 14 |
+| Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 11 |
+| Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 15 |
 | Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
-| Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 4 |
+| Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 3 |
+| Prompt Files | `~/.claude/CC-GodMode-Prompts/` | `%USERPROFILE%\.claude\CC-GodMode-Prompts\` | 6 |
 | Memory MCP | Claude MCP registry | Claude MCP registry | 1 |
 | Settings | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` | 1 |
 
 **Details:**
 
-**Agents (7):**
+**Agents (14 — 8 core + 6 department):**
+
+Core agents:
+- researcher.md
 - architect.md
 - api-guardian.md
 - builder.md
@@ -653,7 +739,28 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - scribe.md
 - github-manager.md
 
-**Scripts (10):**
+Department agents:
+- ci-security-guardian.md
+- docs-dx.md
+- quality-operations.md
+- runtime-platform.md
+- workflow-design.md
+- workspace-governance.md
+
+**Skills (11):**
+- workflows
+- quality-gates
+- release
+- issue-processing
+- api-change
+- research
+- meta-decisions
+- agent-teams
+- prototype-mode
+- departments
+- cost-efficiency
+
+**Scripts (15):**
 - check-api-impact.js
 - parallel-quality-gates.js
 - mcp-health-check.js
@@ -662,8 +769,13 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - domain-pack-loader.js
 - validate-agent-output.js
 - auto-update.js
+- check-update.js
+- pre-push-check.js
 - session-start.js
+- sync-version.js
 - test-phase2-integration.js
+- version-bump.js
+- workflow-state.js
 
 **Config (1):**
 - domain-config.schema.json
@@ -685,8 +797,9 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **macOS / Linux:**
 ```bash
-# Remove agents
-rm ~/.claude/agents/{architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
+# Remove agents (core + department)
+rm ~/.claude/agents/{researcher,architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
+rm ~/.claude/agents/{ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
 
 # Remove scripts
 rm ~/.claude/scripts/check-api-impact.js
@@ -719,7 +832,8 @@ claude mcp remove memory
 
 **Windows (PowerShell):**
 ```powershell
-# Remove agents
+# Remove agents (core + department)
+Remove-Item "$env:USERPROFILE\.claude\agents\researcher.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\architect.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\api-guardian.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\builder.md"
@@ -727,6 +841,12 @@ Remove-Item "$env:USERPROFILE\.claude\agents\validator.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\tester.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\scribe.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\github-manager.md"
+Remove-Item "$env:USERPROFILE\.claude\agents\ci-security-guardian.md"
+Remove-Item "$env:USERPROFILE\.claude\agents\docs-dx.md"
+Remove-Item "$env:USERPROFILE\.claude\agents\quality-operations.md"
+Remove-Item "$env:USERPROFILE\.claude\agents\runtime-platform.md"
+Remove-Item "$env:USERPROFILE\.claude\agents\workflow-design.md"
+Remove-Item "$env:USERPROFILE\.claude\agents\workspace-governance.md"
 
 # Remove scripts
 Remove-Item "$env:USERPROFILE\.claude\scripts\check-api-impact.js"

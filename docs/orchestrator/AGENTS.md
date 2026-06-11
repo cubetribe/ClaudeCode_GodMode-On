@@ -15,7 +15,7 @@ All 8 agents are installed globally in `~/.claude/agents/` and available system-
 | @validator | `"validator"` | Code Quality Gate | – | sonnet |
 | @tester | `"tester"` | UX Quality Gate (Screenshots, E2E) | Playwright, Lighthouse, A11y | sonnet |
 | @scribe | `"scribe"` | Documentation & Changelog | memory | sonnet |
-| @github-manager | `"github-manager"` | Issues, PRs, Releases, CI/CD | GitHub | sonnet |
+| @github-manager | `"github-manager"` | Issues, PRs, Releases, CI/CD | GitHub | haiku |
 
 ## Handoff Matrix
 

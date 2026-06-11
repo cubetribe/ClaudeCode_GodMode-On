@@ -57,8 +57,11 @@ const PROTECTED_FILES = [
 
 // Files to update
 const UPDATE_PATHS = [
+  '.claude-plugin/',
   'agents/',
+  'skills/',
   'scripts/',
+  'docs/',
   'CC-GodMode-Prompts/',
   'config/',
   'templates/',

@@ -1,11 +1,16 @@
 ---
 name: workflows
-description: "CC_GodMode workflow definitions — select the right agent sequence for any task type (Feature, Bug, API Change, Refactor, Research, Issue, Release)"
+description: "CC_GodMode Full-Gates workflow definitions — used for high-risk work and when Smart Routing escalates. Default routing is Smart Routing (skills/cost-efficiency/)."
 ---
 
-# Workflow Definitions
+# Full-Gates Workflow Definitions
 
-The Orchestrator selects workflows automatically based on task type.
+**These are the Full-Gates workflows**, used for high-risk work and when Smart Routing escalates. **Default routing is Smart Routing** (`skills/cost-efficiency/`).
+
+**Architecture gate split:** For small/medium tasks (no new modules, no breaking changes) the Orchestrator writes a 3–5 bullet inline architecture brief into `reports/vX.X.X/01-architect-report.md` without invoking @architect. For new modules, breaking changes, cross-domain designs, or uncertain scope, invoke @architect (Opus) via Task tool.
+
+Use `docs/orchestrator/MODES.md` and the relevant mode skill when the request
+is a prototype, cross-domain department run, or explicit Agent Teams run.
 
 ## Workflow Selection
 

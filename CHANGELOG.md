@@ -7,6 +7,139 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.0.0] - 2026-06-11
+
+### **"The Fable Release" — Fable 5 Orchestration, Effort Routing, and Smart Defaults**
+
+> *CC_GodMode grows up to meet Claude Fable 5. The orchestrator gains autonomy, silence, and delegation instincts tuned for Fable's reasoning depth. Subagents get effort fields so the platform can tune their token budgets automatically. Six department agents move from a private install-time secret into proper version-controlled sources — the total roster doubles from 8 to 14. And the routing posture inverts: risk-based Smart Routing is now the default, with the old always-on Full-Gates path reserved for the signals that actually warrant it. The result is a leaner, cheaper, faster workflow for routine work and an uncompromised safety net for everything that matters.*
+
+### Added
+
+- **`effort:` field in all 14 agent frontmatter** (`agents/*.md`, requires Claude Code >= 2.1.152)
+  - Tunes per-agent token budgets natively without script changes; ignored gracefully by older clients
+  - Full matrix: `architect` opus/high — `builder` sonnet/medium — `validator` sonnet/low — `tester` sonnet/medium — `scribe` haiku/low — `researcher` haiku/low — `api-guardian` sonnet/medium — `github-manager` haiku/low — all 6 department agents sonnet/low
+
+- **6 department agents version-controlled** in repo `agents/` and wired into install prompts and `plugin.json`
+  - `ci-security-guardian` — GitHub Actions, CODEOWNERS, Dependabot, repository security
+  - `docs-dx` — public docs, prompts, setup instructions, user-facing clarity (read-only reviewer)
+  - `quality-operations` — validation scope, regression gates, eval-oriented checks (read-only advisor)
+  - `runtime-platform` — toolchain, sandbox, environment constraints, OS behavior (read-only + diagnostic)
+  - `workflow-design` — orchestration design, skill boundaries, handoff artifacts (read-only designer)
+  - `workspace-governance` — AGENTS layering, repo rules, release law, change-scope policy (read-only reviewer)
+  - Total agent roster: 8 core — **14 agents** (8 core + 6 department); install glob `cp agents/*.md` auto-syncs all 14
+
+- **Agent Return Contract (verdict format)** — structured return from every agent to the orchestrator
+  - Agents return `STATUS: APPROVED | BLOCKED | DONE` + <= 3 bullet findings + absolute report path
+  - Full reports continue to be written to `reports/vX.X.X/` (min-length validation in `validate-agent-output.js` is unchanged — it checks the on-disk file, not the return message)
+  - Orchestrator reads the full report only on BLOCKED or when explicit detail is needed
+  - Contract documented in `docs/orchestrator/QUALITY-GATES.md`, `skills/quality-gates/SKILL.md`, `docs/templates/REPORT_TEMPLATES.md`, and all 8 core agent bodies
+
+- **"Fable 5 Ready" section in README** — documents orchestrator economics, effort tuning, Smart Routing token savings (~30-50% vs. the previous always-Full-Gates default), and model-tiered subagent rationale
+
+- **`docs/AGENT_MODEL_SELECTION.md`**: new "Effort Field" matrix table (14 agents) and "Fable 5 Orchestrator Economics" section — Fable pricing context, orchestrator-stays-Fable / subagents-stay-cheap strategy, and Smart Routing cost floor (~$2.60/feature) vs. Full-Gates ceiling (~$6.10/feature)
+
+### Changed
+
+- **Default routing inverted — Smart Routing is now the DEFAULT** (`skills/cost-efficiency/`)
+  - The former Standard mode is **renamed Full-Gates** and is the explicit escalation path for high-risk work
+  - Risk signals that force Full-Gates: API/schema/type paths (`src/api/`, `shared/types/`, `*.d.ts`, `openapi.yaml`), security surfaces (`.github/workflows/`, auth code, secrets handling), release artifacts (`VERSION`, `CHANGELOG.md`), user-facing UI changes, new modules or cross-domain designs, breaking changes
+  - Updated across `CLAUDE.md`, `templates/CLAUDE-ORCHESTRATOR.md`, `skills/cost-efficiency/SKILL.md`, `skills/workflows/SKILL.md`, `docs/orchestrator/MODES.md`, `docs/orchestrator/WORKFLOWS.md`
+
+- **Architecture gate split** — reduces expensive @architect (Opus) invocations on routine work
+  - Orchestrator writes a 3-5 bullet inline architecture brief into `reports/vX.X.X/01-architect-report.md` for small/medium tasks
+  - @architect (Opus) invoked only for new modules, breaking changes, cross-domain designs, or explicit uncertainty
+  - Core Rule 3 rewritten to reflect the split; consistent across all orchestrator docs
+
+- **Core Rule 2 softened** — "NEVER implement" changed to "Delegate by default"
+  - Trivial one-line/typo/comment fixes may be done directly by the orchestrator (noted inline); anything non-trivial delegates to @builder
+  - Hard safety rules unchanged: @api-guardian mandatory for API/type changes; never git push without explicit user permission
+
+- **@scribe model: `sonnet` changed to `haiku`** — templated documentation work (CHANGELOG, VERSION, API registry) is well within haiku capability under Fable orchestration; effort field set to `low`
+
+- **Orchestrator prompt tuned for Claude Fable 5** (both `CLAUDE.md` and `templates/CLAUDE-ORCHESTRATOR.md`)
+  - Autonomy clause: make minor decisions independently and note briefly; ask before anything scope-expanding, destructive, or ambiguous
+  - Silence default: one sentence per finding, direction-change, or blocker; no summarizing what agents already reported
+  - Explicit delegation triggers: spawn a subagent when the task needs Write/Bash/MCP, multi-file changes, or specialized review; work directly only for trivial one-liners and pure classification/routing
+
+- **`plugin.json`** — version 7.0.0; description and keywords updated with Fable 5 / token-efficiency framing; `agents` array extended from 8 to 14 entries
+
+- **Both install prompts** (`CCGM_Prompt_01-SystemInstall-Auto.md` and `-Manual.md`) — version 7.0.0; agent counts and expected-agent lists updated 8 to 14; welcome banners, verification steps, and Uninstall sections reflect the full 14-agent roster
+
+### Added (Round 3 — Easy-to-Use Overhaul)
+
+- **"Just Type GodMode" usage story in README** — daily usage is a plain request with no activation ceremony; section leads with the normal interaction pattern so new users reach productive use in seconds
+- **Direct Install path** (manifest-described file copy) documented as the recommended install method; CCGM prompts repositioned as manual fallback for environments where direct copy is not available
+- **"What Changed in v7 — and Why" rationale section in README** — explains the routing inversion, effort-field strategy, and agent model choices in plain language for users upgrading from v6
+
+### Changed (Round 3 — Easy-to-Use Overhaul)
+
+- **Agent prompt language modernized** per Anthropic Claude 4.6+ guidance — aggressive CRITICAL/MUST/NEVER scaffolding dialed back to normal imperatives across `tester`, `scribe`, and `researcher` agents; persona framing removed from `builder`; hard safety rules kept at full strength
+- **Agent "Assigned Model" body lines synced with frontmatter** — `scribe` body previously read `sonnet`; corrected to `haiku` to match the frontmatter and the v7.0.0 model downgrade
+- **README Restart-Prompt section demoted to "Troubleshooting: Context Recovery"** — ContextRestore is a recovery tool after `/compact`, not a per-session ritual; daily usage section no longer references it
+- **QUICK_START.md** revised to lead with daily usage and updated to version 7.0.0
+
+> *Research-validated: modern Claude models follow instructions literally. Persona theater and aggressive scaffolding are obsolete patterns that can cause overtriggering — plain imperatives produce the same compliance with less noise.*
+
+### Breaking Changes
+
+- **Routing default inverted** — existing installs that relied on implicit Full-Gates behavior for all tasks will now use Smart Routing by default. Behavior is identical for the risk-signal cases (Full-Gates still runs automatically). Only low-risk tasks route differently.
+  - ⚠️ Existing installs must re-run the install prompt (or manually sync `~/.claude/`) — the global `CLAUDE.md` and agent files otherwise retain v6.x behavior. The 6 new department agent files only appear in `~/.claude/agents/` after re-install.
+- **@scribe model downgrade** (`sonnet` changed to `haiku`) — scribe output quality is validated by `validate-agent-output.js` min-length rules (unchanged at 300 chars); no consumer is affected by the model change directly.
+
+### Migration Notes
+
+- Re-run `CCGM_Prompt_01-SystemInstall-Auto.md` (or `-Manual.md`) to sync `~/.claude/` with v7.0.0 sources: picks up all 14 agents, the updated `CLAUDE.md` orchestrator template, and all skill/prompt changes.
+- Hard rules unchanged: @api-guardian is mandatory for any API/schema/type change; never git push without explicit user permission.
+- The `effort:` field requires Claude Code >= 2.1.152; it is silently ignored by earlier versions — no action needed on older installs.
+
+---
+
+## [6.4.0] - 2026-05-27
+
+### **"The Modes Release" — Fast Lane, Departments, and Cost Control**
+
+> *CC_GodMode now has explicit workflow modes. The default workflow remains
+> strict and production-safe, but prototype spikes, large department-style
+> orchestration, and cost-aware routing are now first-class skills instead of
+> ad-hoc prompt instructions.*
+
+### Added
+
+- **Prototype Mode** (`skills/prototype-mode/SKILL.md`)
+  - Local-only fast lane for throwaway spikes and proof-of-concepts
+  - Mandatory `PROTOTYPE ONLY` watermarks on generated source files
+  - One smoke command instead of full production gates
+  - Migration checklist before any production use
+
+- **Departments Mode** (`skills/departments/SKILL.md`)
+  - Expanded orchestration for large cross-domain work
+  - Department map for runtime, workflow, governance, quality, docs, CI/GitHub, and contracts
+  - Required intake brief, routing map, write-scope matrix, and handoff checklist
+  - Agent Teams remain opt-in, not the default
+
+- **Cost-Efficiency Mode** (`skills/cost-efficiency/SKILL.md`)
+  - Cost-aware routing for smaller teams, bounded research, and scoped validation
+  - Preserves mandatory safety gates for contracts, implementation quality, and user-facing behavior
+
+- **Workflow Modes documentation** (`docs/orchestrator/MODES.md`)
+  - Documents Standard, Prototype, Departments, Cost-Efficiency, and Agent Teams routing
+  - Refreshes Claude Code platform notes against current skills, subagents, hooks, and plugins docs
+
+### Changed
+
+- **VERSION** — 6.3.0 → 6.4.0
+- **Plugin manifest** — registers 11 skills, including the three new mode skills
+- **CLAUDE.md and README.md** — document the new mode layer and current v6.4 runtime shape
+- **Project activation and installer prompts** — update version references and correct the global agent count to 8
+- **Agent registry docs** — align @github-manager model documentation with its `haiku` frontmatter
+- **Auto-update scope** — includes plugin metadata, skills, and docs so mode updates are not missed
+
+### Fixed
+
+- **Prompt analysis fallback** — legal prompts now route to domain orchestration even when the optional external domain detector is unavailable
+
+---
+
 ## [6.3.0] - 2026-03-21
 
 ### **"The Plugin Release" — One Command to Rule Them All**

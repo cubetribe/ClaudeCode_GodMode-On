@@ -3,6 +3,7 @@ name: api-guardian
 description: API Lifecycle Expert for contract validation, breaking change detection, and consumer impact analysis
 tools: Read, Grep, Glob, Bash
 model: sonnet
+effort: medium
 ---
 
 # @api-guardian - API Lifecycle Expert
@@ -137,6 +138,17 @@ grep -rn "{ fieldName" src/ --include="*.ts" --include="*.tsx"
 - VERSION is determined by Orchestrator at workflow start
 - Never create reports outside version folder
 
+### Verdict (return to Orchestrator)
+After saving the full report, return ONLY this structured verdict:
+```
+STATUS: DONE | BLOCKED
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+Maximum 3 bullet findings. Use STATUS: BLOCKED if breaking changes require immediate attention before @builder proceeds.
+
 ---
 
 ## Workflow Position
@@ -206,7 +218,7 @@ npx @redocly/cli lint openapi.yaml
 
 ## Model Configuration
 
-**Assigned Model:** sonnet (Claude Sonnet 4.5)
+**Assigned Model:** sonnet
 **Rationale:** Balanced performance for code analysis and documentation. API Guardian requires both analytical capability (finding consumers, detecting breaking changes) and clear communication (writing reports).
 **Cost Impact:** Medium
 
