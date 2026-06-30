@@ -6,7 +6,7 @@
 
 ## Overview
 
-CC_GodMode v8.0.0 uses **three different Claude models** across its 15 agents (8 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
+CC_GodMode v8.0.1 uses **three different Claude models** across its 15 agents (8 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
 - Which model and effort level each agent uses and why
 - Ultracode Orchestrator economics
 - Cost implications per workflow with Smart Routing

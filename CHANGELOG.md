@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Version bumped to `8.0.1` across `VERSION`, `.claude-plugin/plugin.json`, `CLAUDE.md`, `templates/CLAUDE-ORCHESTRATOR.md`, `README.md`, and `CC-GodMode-Prompts/QUICK_START.md`.
+- **Version-consistency sweep across the remaining current-state surfaces:** the install / project-activation / maintenance / context-restore prompt headers, the install welcome + success banners and the install-report version field (`CC-GodMode-Prompts/CCGM_Prompt_01/02/98/99*`), and the `docs/AGENT_MODEL_SELECTION.md` intro line — all bumped `8.0.0` → `8.0.1`. A stale `v6.4.0` footer in the context-restore prompt was also corrected. Historical references (`CHANGELOG.md`, `// vX.Y.Z:` feature-introduction comments, ADR/authored-at stamps, `archive/`) were deliberately left untouched, verified by an adversarial multi-agent classification pass (see `reports/v8.0.1/`).
 
 ---
 
