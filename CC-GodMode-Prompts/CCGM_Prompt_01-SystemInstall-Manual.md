@@ -62,7 +62,7 @@ git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode
 
 ---
 
-### Step 3: Install agents (14 files)
+### Step 3: Install agents (15 files)
 
 **macOS / Linux:**
 ```bash
@@ -74,7 +74,7 @@ cp /tmp/CC_GodMode/agents/*.md ~/.claude/agents/
 Copy-Item "$env:TEMP\CC_GodMode\agents\*.md" "$env:USERPROFILE\.claude\agents\" -Force
 ```
 
-**Expected files (14 — 8 core + 6 department):**
+**Expected files (15 — 8 core + 1 security gate + 6 department):**
 
 Core agents:
 - `researcher.md`
@@ -85,6 +85,9 @@ Core agents:
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
+
+Security gate:
+- `security.md`
 
 Department agents:
 - `ci-security-guardian.md`
@@ -256,7 +259,7 @@ claude mcp list
 ```
 
 **Expected result:**
-- 14 agent files (8 core + 6 department)
+- 15 agent files (8 core + 1 security gate + 6 department)
 - 11 skill directories
 - 15 scripts
 - 3 templates (`CLAUDE-ORCHESTRATOR.md`, `adr-template.md`, `CCGM_Prompt_02-ProjectActivation.md`)
@@ -293,7 +296,7 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 
 | Component | macOS/Linux | Windows |
 |------------|-------------|----------|
-| Agents (14) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
+| Agents (15) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
 | Skills (11) | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
 | Scripts (15) | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
 | Templates (3) | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` |
@@ -331,7 +334,7 @@ claude mcp remove a11y
 
 **Windows (PowerShell):**
 ```powershell
-# Remove agents (core + department — glob removes all 14)
+# Remove agents (core + department — glob removes all 15)
 Remove-Item "$env:USERPROFILE\.claude\agents\*.md"
 
 # Remove scripts

@@ -25,7 +25,7 @@
 - PARALLEL-FIRST fan-out: independent tasks spawn parallel subagents in a single message; orchestrator collects and synthesizes verdicts
 - Ultracode + dynamic-workflows escalation for large decomposable jobs (fan out to tens–hundreds of verified parallel subagents)
 
-**14 Agents (8 Core + 6 Department)**
+**15 Agents (8 Core + 1 Security Gate + 6 Department)**
 - 6 department agents added under version control and auto-installed
 - Each agent carries an `effort` field for Claude Code ≥2.1.152 budget tuning
 - @scribe downgraded to haiku (templated doc work is sufficient)
@@ -112,7 +112,7 @@ Before you execute anything, give the user the following message:
 ║   What I will do for you:                                                ║
 ║                                                                           ║
 ║   1. Download the CC_GodMode repository from GitHub                      ║
-║   2. Install 14 AI agents (8 core + 6 department)                        ║
+║   2. Install 15 AI agents (8 core + 1 security gate + 6 department)       ║
 ║   3. Set up 15 automation scripts                                         ║
 ║   4. Install 11 skills, config files, and templates                       ║
 ║   5. Install the Memory MCP Server (for persistent knowledge)             ║
@@ -231,7 +231,7 @@ Copy-Item "$env:TEMP\CC_GodMode_install\agents\*.md" "$env:USERPROFILE\.claude\a
 Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 ```
 
-**Expected agents (14 files):**
+**Expected agents (15 files):**
 
 Core agents (8):
 - `researcher.md`
@@ -242,6 +242,9 @@ Core agents (8):
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
+
+Security gate (1):
+- `security.md`
 
 Department agents (6):
 - `ci-security-guardian.md`
@@ -577,7 +580,7 @@ After installation, test by typing:
 You are the Orchestrator. List your available agents.
 ```
 
-The system should recognize all 14 agents (8 core + 6 department).
+The system should recognize all 15 agents (8 core + 1 security gate + 6 department).
 
 ---
 
@@ -595,7 +598,7 @@ After completing all steps, provide this summary to the user:
 ║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
 ║   Version:      8.0.0                                                     ║
-║   Agents:       [X]/14 installed (8 core + 6 department)                  ║
+║   Agents:       [X]/15 installed (8 core + 1 security gate + 6 department)║
 ║   Skills:       [X]/11 installed                                          ║
 ║   Scripts:      [X]/15 installed                                          ║
 ║   Config:       [X]/1 installed                                           ║
@@ -719,7 +722,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
-| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 14 |
+| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 15 |
 | Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 11 |
 | Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 15 |
 | Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
@@ -730,7 +733,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **Details:**
 
-**Agents (14 — 8 core + 6 department):**
+**Agents (15 — 8 core + 1 security gate + 6 department):**
 
 Core agents:
 - researcher.md
@@ -741,6 +744,9 @@ Core agents:
 - tester.md
 - scribe.md
 - github-manager.md
+
+Security gate:
+- security.md
 
 Department agents:
 - ci-security-guardian.md
