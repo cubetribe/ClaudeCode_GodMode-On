@@ -1,6 +1,6 @@
 {
   "name": "cc-godmode",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "description": "Self-orchestrating, parallel-first multi-agent development system for Claude Code — orchestrated by best / Claude Opus 4.8 at ultracode effort. 15 agents (8 core + 1 security gate + 6 department), Smart Routing default, dynamic-workflows escalation, risk-based quality gates. You say WHAT, the AI decides HOW.",
   "author": {
     "name": "Dennis Westermann",

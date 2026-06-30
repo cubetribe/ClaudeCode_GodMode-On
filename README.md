@@ -6,7 +6,7 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-8.0.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-8.0.1-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
@@ -58,9 +58,18 @@ Done. The orchestrator is active. → **Full setup, MCP servers, and prompt-base
 
 ---
 
-## Just Type GodMode
+## Daily Usage — Two Steps
 
-Once installed, daily usage is one line:
+The orchestrator loads from `CLAUDE.md` automatically. But its headline power — **parallel-first dynamic workflows — only runs at Ultracode effort, and Ultracode is session-scoped**. So each new session is two steps:
+
+**Step 1 — Turn on Ultracode.** Set it once per session, in the effort selector at the bottom of Claude Code, or by command:
+
+```
+/model best        # Opus 4.8 today; auto-upgrades as your org gains access
+/effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
+```
+
+**Step 2 — Say what you want, prefixed with `GodMode:`**
 
 ```
 GodMode: New Feature: user authentication with JWT
@@ -68,7 +77,7 @@ GodMode: Bug Fix: cart total miscalculates with discount codes
 GodMode: Research: best approach for real-time sync in React 18
 ```
 
-No ceremony. After one-time setup the orchestrator loads from `CLAUDE.md` automatically. You say *what* you want — the system figures out *which* agents to call, in *what* order, at *what* cost.
+You say *what* you want — the system figures out *which* agents to call, in *what* order, at *what* cost. Ultracode is the one thing that does **not** persist across sessions, so make Step 1 a habit; skip it and GodMode still orchestrates and gates correctly, it just won't fan out to its full parallel width. The trigger `GodMode:` is case-insensitive (`GODMODE:` works too).
 
 ---
 
@@ -184,7 +193,7 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 
 ## Version
 
-**CC_GodMode v8.0.0 — The Ultracode Release**
+**CC_GodMode v8.0.1 — The Ultracode Release**
 
 What's in the box:
 - **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning
