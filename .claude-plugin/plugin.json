@@ -1,7 +1,7 @@
 {
   "name": "cc-godmode",
-  "version": "7.1.0",
-  "description": "Self-orchestrating multi-agent development system powered by Claude Fable 5 — 15 agents (8 core + 1 security gate + 6 department), Smart Routing default, token-efficient subagents, risk-based quality gates. You say WHAT, the AI decides HOW.",
+  "version": "8.0.0",
+  "description": "Self-orchestrating, parallel-first multi-agent development system for Claude Code — orchestrated by best / Claude Opus 4.8 at ultracode effort. 15 agents (8 core + 1 security gate + 6 department), Smart Routing default, dynamic-workflows escalation, risk-based quality gates. You say WHAT, the AI decides HOW.",
   "author": {
     "name": "Dennis Westermann",
     "url": "https://www.dennis-westermann.de"
@@ -18,11 +18,13 @@
     "code-quality",
     "automated-testing",
     "self-improving",
-    "claude-fable-5",
-    "fable-orchestrator",
+    "claude-opus-4-8",
+    "ultracode",
     "claude-code",
     "subagents",
-    "token-efficiency"
+    "token-efficiency",
+    "dynamic-workflows",
+    "parallel-subagents"
   ],
   "agents": [
     "agents/researcher.md",
@@ -43,6 +45,7 @@
   ],
   "skills": [
     "skills/workflows/SKILL.md",
+    "skills/dynamic-workflows/SKILL.md",
     "skills/quality-gates/SKILL.md",
     "skills/release/SKILL.md",
     "skills/issue-processing/SKILL.md",

@@ -1,4 +1,4 @@
-# CC_GodMode v7.1.1
+# CC_GodMode v8.0.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -76,6 +76,7 @@ Full workflow details: `docs/orchestrator/WORKFLOWS.md`
 | Prototype | `skills/prototype-mode/` | local throwaway spikes with `PROTOTYPE ONLY` watermarks |
 | Departments | `skills/departments/` | large cross-domain work with frozen write scopes |
 | Agent Teams | `skills/agent-teams/` | explicit teammate-style parallelism only |
+| Ultracode / Max-Parallel | `skills/dynamic-workflows/` | large, decomposable jobs: codebase-wide audits, big migrations, cross-checked research; fan out to tens–hundreds of verified parallel subagents (opt-in, higher token spend) |
 
 Mode details: `docs/orchestrator/MODES.md`
 
@@ -96,7 +97,9 @@ report: <absolute path>
 
 Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 
-## Fable 5 Orchestrator
+## Ultracode Orchestrator
+
+**Model strategy:** Orchestrator model is `best` (Opus 4.8 today; auto-upgrades to the most capable model your org can access as higher tiers become available), at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
 
 **Autonomy:** Make minor decisions independently and note them briefly. Ask before anything scope-expanding, destructive, or ambiguous.
 
@@ -105,8 +108,32 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 **Delegation triggers:**
 - Spawn a subagent when the task needs Write/Bash/MCP, multi-file changes, or specialized review.
 - Work directly only for trivial one-liners and pure classification/routing.
+- **PARALLEL FAN-OUT IS THE DEFAULT** — when a request decomposes into independent units, spawn multiple subagents in a single message rather than sequentially. See the Parallelization section below.
 
 **Effort tuning:** Agent `effort` frontmatter fields (requires Claude Code ≥2.1.152) tune token budgets: architect=high, builder=medium, tester=medium, api-guardian=medium, validator/scribe/researcher/github-manager=low, all department agents=low.
+
+## Parallelization
+
+**Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
+
+**Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
+
+**Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel.
+
+**Concurrency tiers:** up to ~10 subagents concurrently in one session (rest queue/batch). When a job outgrows that (tens-to-hundreds of units), escalate to dynamic workflows (`/workflows` or ultracode) with adversarial verification.
+
+**File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
+
+**Cost guardrail:** parallel = faster, not cheaper; dynamic workflows multiply tokens. Smart Routing stays the default; max-parallel/dynamic-workflows is an explicit opt-in.
+
+**The four parallelization surfaces:**
+
+| Surface | What it is | Use when |
+|---|---|---|
+| **Subagents** | Delegated workers inside one session, own context, return a summary | A side task would flood the main context; up to ~10 run concurrently, the rest queue |
+| **Agent view** (`claude agents`) | Dispatch + monitor background sessions | Several independent hand-off tasks you check on later (research preview) |
+| **Agent teams** | Coordinated sessions, shared task list, inter-agent messaging, lead-managed | Split a project, assign pieces, keep workers in sync (experimental, off by default) |
+| **Dynamic workflows** (`/workflows`) | Script runs many subagents + adversarial cross-checks | Job outgrows a handful of subagents: codebase-wide audit, 500-file migration, cross-checked research |
 
 ## Skills (On-Demand Knowledge)
 
@@ -124,6 +151,7 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 | `skills/prototype-mode/` | Local-only fast lane with watermarks and migration checklist |
 | `skills/departments/` | Expanded department routing, ownership, and write-scope freeze |
 | `skills/greenfield-bootstrap/` | Bootstrap governance for empty/undocumented workspaces before workflows run |
+| `skills/dynamic-workflows/` | When to use dynamic workflows vs plain subagents vs agent teams; adversarial verification; concurrency caps; worktree isolation; cost tradeoff |
 
 **Load a skill when you need details beyond what's in this file.**
 
@@ -147,4 +175,4 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v7.1.1 — Docs Polish
+**Current Version:** v8.0.0 — The Ultracode Release
