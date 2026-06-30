@@ -6,12 +6,31 @@ disable-model-invocation: true
 
 # Agent Teams Orchestration (Experimental)
 
-> **Status:** Experimental and high-cost
+> **Status:** Experimental — OFF by default (requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)
 > **When to use:** Large features where multiple teammates can work truly in parallel and the user explicitly accepts the token cost
 
 ## What Are Agent Teams?
 
-Agent Teams allow multiple Claude Code instances to coordinate through a SharedTaskList. Instead of the Orchestrator calling agents sequentially via Task tool, teammates work independently and pick up tasks from a shared queue.
+Agent Teams are **coordinated background sessions** with a **shared task list**, **inter-agent messaging**, and a **lead/manager that assigns tasks and keeps workers in sync**. Instead of the Orchestrator calling agents sequentially via Task tool, a lead agent dispatches work and teammates claim, execute, and report tasks from the shared queue independently.
+
+This surface is **experimental and off by default** — enable it only by setting `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in your environment or `settings.json`.
+
+## How This Relates to the Other Parallelization Surfaces
+
+GodMode maps onto four parallelization surfaces. Choose the right one for the job:
+
+| Surface | What it is | Use when |
+|---|---|---|
+| **Plain subagents** (Task tool) | Delegated workers inside one session, own context, return a summary | A side task would flood the main context; up to ~10 run concurrently, the rest queue |
+| **Agent teams** *(this skill)* | Coordinated sessions, shared task list, inter-agent messaging, lead-managed | Split a project, assign pieces, keep workers in sync — persistent teammates, not one-off tasks |
+| **Dynamic workflows** (`skills/dynamic-workflows/`) | Orchestrator-written script fans out to tens–hundreds of subagents + adversarial cross-checks | Job outgrows a handful of subagents: codebase-wide audit, large migration, cross-checked research |
+| **Agent view** (`claude agents`) | Dispatch + monitor background sessions | Several independent hand-off tasks you check on later (research preview) |
+
+**Decision guidance:**
+- Use **plain subagents** for one-off in-session side tasks (the default, always available).
+- Use **agent teams** when you need persistent, coordinated teammates kept in sync via a shared task list across a multi-part project.
+- Use **dynamic workflows** when a job outgrows a handful of subagents and needs fan-out at scale plus adversarial verification — trigger with the word "workflow" in a prompt or enable ultracode.
+- See also the `## Parallelization` section of `CLAUDE.md` for the cost guardrail and concurrency tiers that apply across all surfaces.
 
 ## Enabling Agent Teams
 

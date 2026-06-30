@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [8.0.0] - 2026-06-29
+
+### **"The Ultracode Release" — Fable→Opus Migration, Ultracode Orchestrator, Parallel-First Architecture**
+
+> *v7.x was tuned around Claude Fable 5 as the orchestrator; v8.0.0 re-centres on the current Claude Code lineup and on maximum parallelization. The orchestrator is now `best` / Claude Opus 4.8 at ultracode effort (auto-upgrading to Fable 5 where the org has access), and fanning work out across many parallel subagents becomes the headline capability. Model aliases are verified against the current Anthropic lineup, the "Fable 5" framing is replaced throughout every active config and doc, and a new Parallelization doctrine — with four distinct surfaces, concurrency tiers, file-conflict isolation, and an explicit cost guardrail — becomes a first-class part of the orchestrator's operating rules.*
+
+### Changed
+
+- **Orchestrator model strategy:** `best` (Opus 4.8 today; Fable 5 when the org has access) at ultracode effort (xhigh reasoning + automatic dynamic workflows for substantive tasks) — replaces the Fable 5 orchestrator framing across `CLAUDE.md`, templates, install prompts, `README.md`, and docs. Set per session with `/model best` and `/effort ultracode`; or `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only, not an `effortLevel` value).
+- **Model aliases verified against the current lineup:** `opus` → Opus 4.8 (`claude-opus-4-8`, $5 / $25 per MTok); `sonnet` → Sonnet 4.6 (`claude-sonnet-4-6`, $3 / $15); `haiku` → Haiku 4.5 (`claude-haiku-4-5-20251001`, $1 / $5); `best` → Fable 5 where available, otherwise Opus 4.8. Agent frontmatter keeps aliases — no dated IDs pinned.
+- **`docs/AGENT_MODEL_SELECTION.md`:** "Fable 5 Orchestrator Economics" section renamed to "Ultracode Orchestrator Economics"; price tables refreshed to verified current pricing; legacy pre-4.6 model names and any pinned dated IDs removed.
+- **`config/claude-settings.json` default model:** `sonnet` → `best`.
+
+### Added
+
+- **"## Parallelization" doctrine in `CLAUDE.md`:** fan-out by default when a request decomposes into independent units; fan-in via the existing verdict contract; dependency mapping before spawning; concurrency tiers (~10 subagents in one session, then escalate to dynamic workflows); worktree and `/batch` file-conflict isolation; and an explicit cost guardrail (parallel = faster, not cheaper).
+- **`skills/dynamic-workflows/` skill and Ultracode / Max-Parallel mode** (registered in `.claude-plugin/plugin.json`): when to use dynamic workflows vs plain subagents vs agent teams; adversarial verification (subagents cross-check each other's findings until convergence); concurrency caps; cost tradeoff.
+- **Four parallelization surfaces documented and mapped onto GodMode modes:** Subagents (own context, up to ~10 concurrent), Agent view (`claude agents`, background sessions), Agent teams (shared task list, inter-agent messaging, experimental), Dynamic workflows (`/workflows`, tens-to-hundreds of subagents + adversarial cross-checks). `skills/agent-teams/` reconciled with the official Agent teams surface.
+
+### Migration
+
+- **Fable→Opus/ultracode branding sweep** across `README.md`, `.claude-plugin/plugin.json`, `templates/CLAUDE-ORCHESTRATOR.md`, the install prompts, and all docs. No residual "Fable 5" references remain in active config or docs (immutable history — past CHANGELOG entries and `reports/v7.0.0/**` — left untouched).
+- **`VERSION`, `plugin.json`, `CLAUDE.md`, and `README.md`** all read `8.0.0` / "The Ultracode Release".
+- Re-run the install script (`scripts/apply-global-claude-setup.sh` / `.ps1`) or the install prompt to sync `~/.claude/` with v8.0.0 sources; picks up the updated `CLAUDE.md`, the new `skills/dynamic-workflows/` skill, and the refreshed agent docs.
+
+---
+
 ## [7.1.1] - 2026-06-11
 
 ### Changed

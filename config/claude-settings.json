@@ -1,5 +1,5 @@
 {
-  "model": "sonnet",
+  "model": "best",
   "permissions": {
     "allowedTools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
     "deny": [

@@ -1,6 +1,6 @@
 # CC_GodMode Orchestrator - Inject into CLAUDE.md
 
-> **Version:** 6.4.0 **Type:** PROJECT ACTIVATION **Prerequisite:**
+> **Version:** 8.0.0 **Type:** PROJECT ACTIVATION **Prerequisite:**
 > SystemInstall (01-SystemInstall-Auto or Manual) must be completed first
 > **Frequency:** Once per project
 

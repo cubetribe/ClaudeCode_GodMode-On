@@ -6,11 +6,11 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-7.1.1-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-8.0.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./agents/)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
-[![Fable 5 Ready](https://img.shields.io/badge/Fable%205-Ready-brightgreen)](./docs/AGENT_MODEL_SELECTION.md)
+[![Ultracode Ready](https://img.shields.io/badge/Ultracode-Ready-brightgreen)](./docs/AGENT_MODEL_SELECTION.md)
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./CHANGELOG.md)
 
 </div>
@@ -75,9 +75,9 @@ You say what you want — the system figures out which agents to call, in what o
 
 ## What Changed in v7 — and Why
 
-CC_GodMode v7.0.0 was redesigned based on how Claude Fable 5 actually works, not how earlier models needed to be prompted:
+CC_GodMode v7.0.0 was redesigned around Opus 4.8, ultracode effort, and a parallel-first architecture — built on how modern Claude models actually work, not how earlier models needed to be prompted:
 
-- **Persona prompts are gone.** "You are a Senior X with 15 years of experience" adds nothing on Fable 5 — identity is now one line, the task description does the work.
+- **Persona prompts are gone.** "You are a Senior X with 15 years of experience" adds nothing on modern Claude models like Opus 4.8 — identity is now one line, the task description does the work.
 - **Aggressive caps removed.** Extensive CRITICAL/MUST/NEVER scaffolding in older agents caused overtriggering. Per Anthropic's guidance, normal imperative phrasing is enough; hard safety rules (never push, api-guardian mandatory) keep their weight.
 - **Effort fields instead of verbose instructions.** Each agent carries an `effort:` frontmatter field (Claude Code ≥2.1.152) that tunes token budgets automatically — no long preambles needed.
 - **Smart Routing is now the default.** The old system always ran every agent. v7 runs only what the risk level requires — estimated 30–50% token reduction for standard features.
@@ -106,7 +106,7 @@ I gave it one prompt. The orchestrator delegated to the research team. Analyzed 
 
 ## What Is This?
 
-**CC_GodMode** transforms Claude Code into a self-orchestrating multi-agent development team powered by Claude Fable 5 as the orchestrator with token-efficient Claude Code subagents for implementation, validation, and documentation.
+**CC_GodMode** transforms Claude Code into a self-orchestrating multi-agent development team powered by the best / Claude Opus 4.8 orchestrator at ultracode effort, fanning work out across parallel Claude Code subagents for implementation, validation, and documentation.
 
 **You say WHAT. The AI figures out HOW.**
 
@@ -200,16 +200,19 @@ The difference?
 
 ---
 
-## Fable 5 Ready
+## Ultracode & Parallel-First
 
-CC_GodMode v7.0.0 is tuned for **Claude Fable 5 as the orchestrator** with model-tiered Claude Code subagents (haiku for simple ops, sonnet for implementation, opus for architecture) and effort-field budget tuning.
+CC_GodMode v8.0.0 runs on a **parallel-first, ultracode orchestrator** with model-tiered Claude Code subagents (haiku for simple ops, sonnet for implementation, opus for architecture) and effort-field budget tuning.
 
 **How it works:**
-- **Fable 5 orchestrates** — classifies risk, writes inline architecture briefs, delegates to subagents, reads only what it needs.
+- **The orchestrator (best / Opus 4.8 at ultracode)** — classifies risk, writes inline architecture briefs, fans work out across parallel subagents, and reads only what it needs.
+- **Parallel fan-out by default** — when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations), the orchestrator spawns parallel subagents in a single message rather than sequentially, then collects and synthesizes their verdicts.
+- **Dynamic-workflows escalation** — when a job outgrows ~10 concurrent subagents (codebase-wide audits, large migrations, cross-checked research), the orchestrator escalates to dynamic workflows (`/workflows` or ultracode) with adversarial verification across tens-to-hundreds of subagents.
 - **Subagents stay cheap** — builder/validator/tester on sonnet, scribe/researcher/github-manager on haiku, architect on opus only when genuinely needed.
 - **Effort fields** — each agent's `effort` frontmatter field (Claude Code ≥2.1.152) tunes token budgets automatically: architect=high, builder/tester/api-guardian=medium, all others=low.
 - **Smart Routing default** — risk-based minimal-agent paths replace the old "always Full-Gates" default, estimated 30–50% token reduction per standard feature vs. the previous always-Full-Gates default (based on per-workflow cost models in docs/AGENT_MODEL_SELECTION.md).
 - **Full-Gates on demand** — API/schema changes, security surfaces, release artifacts, new modules, and breaking changes automatically escalate to the full agent sequence.
+- **Cost guardrail** — parallel = faster, not cheaper; dynamic workflows multiply token spend. Smart Routing stays the default; max-parallel / dynamic-workflows is an explicit, deliberate opt-in for big or time-critical jobs.
 
 **Token efficiency per workflow type:**
 | Workflow | Smart Routing | Full-Gates |
@@ -223,7 +226,7 @@ CC_GodMode v7.0.0 is tuned for **Claude Fable 5 as the orchestrator** with model
 
 ## The Architecture (v7.0)
 
-**v6.0 modular architecture. v6.1 Skills. v6.2 worktree isolation. v6.3 Plugin packaging. v6.4 Workflow Modes. v7.0 Fable 5 orchestrator + Smart Routing default. v7.1 @security gate + installer scripts → 15 agents.**
+**v6.0 modular architecture. v6.1 Skills. v6.2 worktree isolation. v6.3 Plugin packaging. v6.4 Workflow Modes. v7.0 orchestrator tuning + Smart Routing default. v7.1 @security gate + installer scripts → 15 agents. v8.0 Ultracode orchestrator + parallel-first architecture.**
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
@@ -511,12 +514,13 @@ The loop continues.
 
 ## Version
 
-**CC_GodMode v7.1.1 — Docs Polish**
+**CC_GodMode v8.0.0 — The Ultracode Release**
 
 Latest releases:
+- **v8.0.0:** Ultracode orchestrator (best / Opus 4.8 at ultracode), parallel-first architecture, new dynamic-workflows skill + Ultracode/Max-Parallel mode, branding migrated to Opus/ultracode
 - **v7.1.1:** README overhaul, self-improving narrative, consolidated install quickstart, improved docs structure
 - **v7.1.0:** Installer/verifier scripts, @security gate agent, greenfield-bootstrap skill, dependabot + CODEOWNERS
-- **v7.0.0:** Fable 5 orchestrator, Smart Routing default, 15 agents (8 core + 1 security + 6 dept), effort fields, verdict contract
+- **v7.0.0:** Orchestrator tuning + Smart Routing default, 15 agents (8 core + 1 security + 6 dept), effort fields, verdict contract
 
 What's in the box:
 - **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning

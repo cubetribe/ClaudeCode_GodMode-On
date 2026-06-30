@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 7.0.0
+> **Version:** 8.0.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -12,15 +12,18 @@
 
 ---
 
-## What's New in v7.0.0 — The Fable Release
+## What's New in v8.0.0 — The Ultracode Release
 
-### Claude Fable 5 Orchestrator Tuning
+### Ultracode Orchestrator Tuning
 
 **Smart Routing (new default)**
 - Risk-based minimal-agent paths replace always-running the full workflow
 - Inline architecture briefs for small/medium tasks (no @architect invocation)
 - Full-Gates escalation for API changes, security surfaces, new modules, breaking changes
 - Targets 30–50% token reduction per standard feature
+- Orchestrator model: `best` (alias for Opus 4.8; auto-upgrades when a newer model is available) at ultracode effort — set with `/model best` and `/effort ultracode`
+- PARALLEL-FIRST fan-out: independent tasks spawn parallel subagents in a single message; orchestrator collects and synthesizes verdicts
+- Ultracode + dynamic-workflows escalation for large decomposable jobs (fan out to tens–hundreds of verified parallel subagents)
 
 **14 Agents (8 Core + 6 Department)**
 - 6 department agents added under version control and auto-installed
@@ -100,7 +103,7 @@ Before you execute anything, give the user the following message:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation v7.0.0 - The Fable Release                     ║
+║   CC_GodMode Installation v8.0.0 - The Ultracode Release                  ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -585,13 +588,13 @@ After completing all steps, provide this summary to the user:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation Successful! v7.0.0 - The Fable Release         ║
+║   CC_GodMode Installation Successful! v8.0.0 - The Ultracode Release      ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
 ║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
-║   Version:      7.0.0                                                     ║
+║   Version:      8.0.0                                                     ║
 ║   Agents:       [X]/14 installed (8 core + 6 department)                  ║
 ║   Skills:       [X]/11 installed                                          ║
 ║   Scripts:      [X]/15 installed                                          ║

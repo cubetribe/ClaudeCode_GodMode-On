@@ -6,7 +6,7 @@ This document defines the mode layer above the CC_GodMode agent
 workflow. Modes change orchestration behavior; they do not remove mandatory
 safety rules unless the mode explicitly declares a local-only exception.
 
-**v7.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
+**v8.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
 
 ## Mode Summary
 
@@ -16,7 +16,16 @@ safety rules unless the mode explicitly declares a local-only exception.
 | Full-Gates | `skills/workflows/` | high-risk work: new modules, API/breaking changes, security, release artifacts | full workflow and gates |
 | Prototype | `skills/prototype-mode/` | local throwaway spikes | fast, watermarked, no push |
 | Departments | `skills/departments/` | large cross-domain work | expanded planning and write scopes |
-| Agent Teams | `skills/agent-teams/` | explicitly requested teammate-style parallelism | experimental and expensive |
+| Agent Teams | `skills/agent-teams/` | explicitly requested teammate-style parallelism; see also `skills/dynamic-workflows/` | experimental and expensive |
+| Ultracode / Max-Parallel | `skills/dynamic-workflows/` | large, decomposable jobs: codebase-wide audits, big migrations, cross-checked research; fan out to tens–hundreds of verified parallel subagents (opt-in, higher token spend) | dynamic-workflow script; adversarial verification; worktree isolation |
+
+## Parallel-First Defaults
+
+When a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), the orchestrator fans out to parallel subagents **in a single message** rather than sequentially. After all subagents return, the orchestrator fans in, resolves conflicts, and synthesizes one result.
+
+- **Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel.
+- **Concurrency cap:** up to ~10 subagents concurrently in one session (the rest queue). When a job outgrows that, escalate to dynamic workflows (`/workflows` or ultracode effort) with adversarial verification.
+- **File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
 
 ## Smart Routing (Default)
 
@@ -119,6 +128,28 @@ Sources:
 - https://code.claude.com/docs/en/skills
 - https://code.claude.com/docs/en/hooks
 - https://code.claude.com/docs/en/plugins
+
+## Ultracode / Max-Parallel (Dynamic Workflows)
+
+Ultracode is the escalation path when a job outgrows a handful of plain subagents. It combines the `best`/Opus 4.8 orchestrator running at ultracode effort (`/model best` + `/effort ultracode`) with Claude Code's **dynamic workflow** engine.
+
+**What dynamic workflows do:**
+
+- The orchestrator writes and runs a script that fans work out across **tens to hundreds of parallel subagents**.
+- **Adversarial verification:** agents try to refute each other's findings; the workflow iterates until answers converge, then returns only the verified result.
+- Triggered by the word "workflow" in a prompt, or automatically when ultracode effort is active.
+- Requires Claude Code v2.1.154+. Inspect active runs with `/workflows`.
+
+**File-conflict isolation:**
+
+- Use **worktrees** (separate git checkout per parallel session) to avoid conflicts when multiple subagents write overlapping files.
+- Use **`/batch`** to split one large change into 5–30 worktree-isolated subagents that each open a separate PR.
+
+**Cost guardrail:**
+
+Parallel execution cuts wall-clock time by ~60–80% on independent work but **does not reduce token cost** — running many workers at once multiplies usage, and dynamic workflows can burn substantially more tokens than a normal session. **Smart Routing stays the default.** Ultracode / Max-Parallel is an **explicit, deliberate opt-in** for large or time-critical jobs.
+
+See `skills/dynamic-workflows/` for the full escalation decision tree, adversarial verification protocol, concurrency caps, and cost tradeoff guidance.
 
 ## Promotion Rules
 

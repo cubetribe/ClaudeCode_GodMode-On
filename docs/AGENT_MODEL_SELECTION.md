@@ -6,16 +6,16 @@
 
 ## Overview
 
-CC_GodMode v7.0.0 uses **three different Claude models** across its 14 agents (8 core + 6 department) to optimize for cost vs. performance. This document explains:
+CC_GodMode v8.0.0 uses **three different Claude models** across its 15 agents (8 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
 - Which model and effort level each agent uses and why
-- Fable 5 orchestrator economics
+- Ultracode Orchestrator economics
 - Cost implications per workflow with Smart Routing
 - When to consider overriding defaults
 - Performance trade-offs
 
 ---
 
-## Effort Field (v7.0.0)
+## Effort Field (v8.0.0)
 
 Every agent carries an `effort` field in its frontmatter (consumed by Claude Code ≥2.1.152). This tunes the token budget per invocation without changing the model.
 
@@ -29,6 +29,7 @@ Every agent carries an `effort` field in its frontmatter (consumed by Claude Cod
 | @scribe | haiku | low | Templated doc work; CHANGELOG/VERSION updates |
 | @researcher | haiku | low | Retrieval + synthesis, not deep reasoning |
 | @github-manager | haiku | low | API operations; MCP does the heavy lifting |
+| @security | opus | low | Vulnerability analysis needs deep reasoning; scoped to changed surfaces |
 | @ci-security-guardian | sonnet | low | Advisory; YAML review |
 | @docs-dx | sonnet | low | Advisory; language-intensive review |
 | @quality-operations | sonnet | low | Advisory; scope matching |
@@ -38,16 +39,18 @@ Every agent carries an `effort` field in its frontmatter (consumed by Claude Cod
 
 ---
 
-## Fable 5 Orchestrator Economics
+## Ultracode Orchestrator Economics
 
-**Claude Fable 5** (as of 2026): ~$10/$50 per MTok (input/output) — approximately 2× the cost of Opus 4.5.
+The orchestrator runs on **`best` / Opus 4.8** at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only).
 
-CC_GodMode v7.0.0 positions Fable 5 as the **orchestrator only** — it classifies, routes, and delegates. Subagents do the implementation work on cheaper models.
+**Parallelism vs. cost tradeoff:** Running parallel or dynamic-workflow sessions cuts wall-clock time by ~60–80% on independent work but does **not** reduce token cost — running many subagents at once multiplies total token usage, and dynamic workflows can burn substantially more tokens than a normal session. Parallelism is a deliberate speed-for-cost trade, not a free optimization.
+
+CC_GodMode positions the `best`/Opus 4.8 orchestrator as the coordinator only — it classifies, routes, and delegates. Subagents do the implementation work on cheaper alias tiers (haiku → sonnet → opus).
 
 **Smart Routing default** targets 30–50% token reduction per standard feature compared to always running the full agent sequence:
 - Inline architecture briefs instead of @architect invocation for small/medium tasks saves ~$2.50 per invocation
 - Scoped validation (affected flows only) instead of full @tester run saves ~$0.50–0.80
-- @scribe downgraded from sonnet → haiku saves ~$0.40 per invocation
+- @scribe on haiku saves ~$0.40 per invocation
 - Total per standard feature: ~$2.60 (fully scoped) to ~$6.10 (Full-Gates escalation) — cost depends on whether risk signals escalate to Full-Gates
 
 **When Full-Gates costs are justified:**
@@ -65,23 +68,25 @@ CC_GodMode v7.0.0 positions Fable 5 as the **orchestrator only** — it classifi
 
 | Model | Use Case | Cost | Performance |
 |-------|----------|------|-------------|
-| **Opus 4.5** | Complex reasoning, architecture | High | Best |
-| **Sonnet 4.5** | Balanced code work, analysis | Medium | Excellent |
-| **Haiku** | Simple operations, API calls | Low | Fast |
+| alias `opus` → Opus 4.8 | Complex reasoning, architecture | High | Best |
+| alias `sonnet` → Sonnet 4.6 | Balanced code work, analysis | Medium | Excellent |
+| alias `haiku` → Haiku 4.5 | Simple operations, API calls | Low | Fast |
+
+> Aliases resolve on the Anthropic API: `opus` → `claude-opus-4-8`, `sonnet` → `claude-sonnet-4-6`, `haiku` → `claude-haiku-4-5-20251001`; `best` → Opus 4.8 (`claude-opus-4-8`) today, auto-upgrading to the most capable model your org can access.
 
 ### Cost vs Capability
 
 ```
                     COST EFFICIENCY CURVE
 
-High Cost   │                    ●  Opus 4.5
+High Cost   │                    ●  opus (Opus 4.8)
             │                   (@architect)
             │
-Medium Cost │          ●●●●●    Sonnet 4.5
+Medium Cost │          ●●●●●    sonnet (Sonnet 4.6)
             │       (@api-guardian, @builder, @validator,
             │        @tester, @scribe)
             │
-Low Cost    │  ●●     Haiku
+Low Cost    │  ●●     haiku (Haiku 4.5)
             │  (@researcher, @github-manager)
             │
             └─────────────────────────────────────────►
@@ -93,9 +98,9 @@ Low Cost    │  ●●     Haiku
 
 ## Agent Model Assignments
 
-### @researcher - Haiku (LOW COST)
+### @researcher — haiku / Haiku 4.5 (LOW COST)
 
-**Model:** `claude-haiku-20250219`
+**Model:** `haiku` (resolves to Haiku 4.5 / `claude-haiku-4-5-20251001`)
 
 **Rationale:**
 - Gathers current facts before higher-cost decisions
@@ -117,9 +122,9 @@ Low Cost    │  ●●     Haiku
 
 ---
 
-### @architect - Opus 4.5 (HIGH COST)
+### @architect — opus / Opus 4.8 (HIGH COST)
 
-**Model:** `claude-opus-4-5-20251101`
+**Model:** `opus` (resolves to Opus 4.8 / `claude-opus-4-8`)
 
 **Rationale:**
 - Makes architectural decisions with long-term codebase impact
@@ -154,9 +159,9 @@ ROI: 20x
 
 ---
 
-### @api-guardian - Sonnet 4.5 (MEDIUM COST)
+### @api-guardian — sonnet / Sonnet 4.6 (MEDIUM COST)
 
-**Model:** `claude-sonnet-4-5-20250929`
+**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
 
 **Rationale:**
 - Needs code analysis capability (finding consumers)
@@ -178,9 +183,9 @@ ROI: 20x
 
 ---
 
-### @builder - Sonnet 4.5 (MEDIUM COST)
+### @builder — sonnet / Sonnet 4.6 (MEDIUM COST)
 
-**Model:** `claude-sonnet-4-5-20250929`
+**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
 
 **Rationale:**
 - Most frequently used agent (all implementations)
@@ -207,9 +212,9 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @validator - Sonnet 4.5 (MEDIUM COST)
+### @validator — sonnet / Sonnet 4.6 (MEDIUM COST)
 
-**Model:** `claude-sonnet-4-5-20250929`
+**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
 
 **Rationale:**
 - Needs analytical capability for code review
@@ -232,9 +237,9 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @tester - Sonnet 4.5 (MEDIUM COST)
+### @tester — sonnet / Sonnet 4.6 (MEDIUM COST)
 
-**Model:** `claude-sonnet-4-5-20250929`
+**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
 
 **Rationale:**
 - Coordinates multiple MCP servers (Playwright, Lighthouse, A11y)
@@ -257,14 +262,14 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @scribe - Haiku (LOW COST) — changed in v7.0.0
+### @scribe — haiku / Haiku 4.5 (LOW COST)
 
-**Model:** `haiku` (downgraded from sonnet in v7.0.0)
+**Model:** `haiku` (resolves to Haiku 4.5 / `claude-haiku-4-5-20251001`; downgraded from sonnet)
 
 **Rationale:**
 - CHANGELOG and VERSION updates follow a strict template — haiku handles templated work well
 - Report synthesis from other agents is pattern-matching, not deep reasoning
-- `effort: low` + haiku is sufficient under Fable 5 orchestration
+- `effort: low` + haiku is sufficient under the ultracode orchestrator
 - Saves ~$0.40 per invocation vs sonnet
 
 **Cost Impact:** Low (~$0.15–0.20 per invocation)
@@ -285,9 +290,9 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @github-manager - Haiku (LOW COST)
+### @github-manager — haiku / Haiku 4.5 (LOW COST)
 
-**Model:** `claude-haiku-20250219`
+**Model:** `haiku` (resolves to Haiku 4.5 / `claude-haiku-4-5-20251001`)
 
 **Rationale:**
 - Simple GitHub API operations
@@ -336,7 +341,7 @@ User: "Build user authentication"
   ├─ @validator (sonnet): $0.70  ┐
   ├─ @tester (sonnet): $1.20     ├─ Parallel
   │                               ┘
-  ├─ @scribe (haiku): $0.20       ← v7.0.0: haiku (was sonnet $0.60)
+  ├─ @scribe (haiku): $0.20       ← haiku (downgraded from sonnet $0.60)
   │
   └─ @github-manager (haiku): $0.10
 
@@ -382,7 +387,7 @@ User: "Change user endpoint response"
   ├─ @validator (sonnet): $0.70  ┐
   ├─ @tester (sonnet): $1.20     ├─ Parallel
   │                               ┘
-  ├─ @scribe (haiku): $0.20   ← v7.0.0: haiku
+  ├─ @scribe (haiku): $0.20   ← haiku (downgraded from sonnet)
   │
   └─ @github-manager (haiku): $0.10
 
@@ -394,7 +399,7 @@ Total: ~$6.50 per API change
 ```
 User: "Update README"
   │
-  ├─ @scribe (haiku): $0.20    ← v7.0.0: haiku (was sonnet $0.60)
+  ├─ @scribe (haiku): $0.20    ← haiku (downgraded from sonnet $0.60)
   │
   └─ @github-manager (haiku): $0.10
 
@@ -406,7 +411,7 @@ Total: ~$0.30 per doc update
 ## Monthly Cost Estimates
 
 > **Note:** These figures use the **Full-Gates upper-bound baseline** (every agent invoked, no Smart Routing).
-> Under the **Smart Routing default** (v7.0.0), standard features cost ~$2.60 each and doc updates ~$0.30 each — see the Summary table below and the Workflow Cost Analysis section above for per-workflow breakdowns.
+> Under the **Smart Routing default**, standard features cost ~$2.60 each and doc updates ~$0.30 each — see the Summary table below and the Workflow Cost Analysis section above for per-workflow breakdowns.
 
 ### Small Project (5 features/month) — Full-Gates upper bound
 
@@ -581,9 +586,23 @@ When justified: Rarely
 
 | Model | Input | Output |
 |-------|-------|--------|
-| Haiku | $0.80 | $4.00 |
-| Sonnet | $3.00 | $15.00 |
-| Opus | $15.00 | $75.00 |
+| Haiku 4.5 | $1.00 | $5.00 |
+| Sonnet 4.6 | $3.00 | $15.00 |
+| Opus 4.8 | $5.00 | $25.00 |
+| `best` higher tier (when org has access) | $10.00 | $50.00 |
+
+---
+
+## When max-parallel pays off (and when it just costs more)
+
+**Parallel subagents and dynamic workflows = faster wall-clock, higher token spend.**
+
+- Running N independent agents in parallel cuts elapsed time by ~60–80% — but total tokens (and cost) stay the same or increase because each agent has its own context.
+- Dynamic workflows (ultracode / `/workflows`) fan work out to tens–hundreds of verified parallel subagents with adversarial cross-checking; this multiplies token usage significantly.
+- **Worth it:** large, decomposable, time-critical jobs — codebase-wide audits, 500-file migrations, multi-angle research with adversarial verification.
+- **Not worth it:** routine feature work, bug fixes, doc updates — Smart Routing stays the default and avoids unnecessary token spend.
+
+> Rule of thumb: opt into max-parallel / dynamic-workflows deliberately. It is a speed-for-cost trade, not a free lunch.
 
 ---
 
@@ -695,7 +714,7 @@ Do not use it to skip mandatory safety checks:
 
 ## Summary
 
-### Model + Effort Strategy (v7.0.0)
+### Model + Effort Strategy (v8.0.0)
 
 | Agent | Model | Effort | When | Why |
 |-------|-------|--------|------|-----|
@@ -705,8 +724,9 @@ Do not use it to skip mandatory safety checks:
 | @builder | sonnet | medium | All implementations | Best cost/performance |
 | @validator | sonnet | low | Every implementation | Mostly execution + checklist |
 | @tester | sonnet | medium | Every implementation | MCP coordination + analysis |
-| @scribe | haiku | low | Before push | Templated doc work (v7.0.0 change) |
+| @scribe | haiku | low | Before push | Templated doc work |
 | @github-manager | haiku | low | GitHub operations | Fast & cheap |
+| @security | opus | low | Security-sensitive changes (auth, secrets, input) | Deep reasoning to catch vulnerabilities |
 | All 6 dept. agents | sonnet | low | Domain-specific advisory | Advisory-only |
 
 ### Cost Efficiency (Smart Routing Default)

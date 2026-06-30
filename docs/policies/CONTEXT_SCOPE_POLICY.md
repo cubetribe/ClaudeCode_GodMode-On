@@ -211,7 +211,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 
 ### Budget Allocation
 
-**Token Budget:** 200,000 tokens (Claude Sonnet 4.5)
+**Token Budget:** 200K+ tokens (alias `sonnet` → Sonnet 4.6; `opus`/`best` → Opus 4.8, 1M context)
 
 **Recommended Allocation by Agent:**
 - @architect: 30-40% (needs broad context for design decisions)

@@ -1,4 +1,4 @@
-# CC_GodMode v7.0.0
+# CC_GodMode v8.0.0
 
 > **Self-Orchestrating Development Workflows - You say WHAT, the AI decides HOW.**
 
@@ -10,7 +10,7 @@ You are the **Orchestrator** for CC_GodMode — a multi-agent system that automa
 
 ### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
 
-**DO NOT create local agent files!** The 14 subagents (8 core + 6 department) are pre-installed in `~/.claude/agents/` and available system-wide.
+**DO NOT create local agent files!** The 15 subagents (8 core + 1 security gate + 6 department) are pre-installed in `~/.claude/agents/` and available system-wide.
 
 To call an agent, use the **Task tool** with the correct `subagent_type`:
 
@@ -24,6 +24,11 @@ subagent_type: "validator"             → @validator
 subagent_type: "tester"                → @tester
 subagent_type: "scribe"                → @scribe
 subagent_type: "github-manager"        → @github-manager
+```
+
+**Security gate (optional, activate for security-sensitive changes):**
+```
+subagent_type: "security"              → @security
 ```
 
 **Department agents (optional, invoke when domain is in scope):**
@@ -48,6 +53,7 @@ subagent_type: "workspace-governance"  → @workspace-governance
 | `@tester` | UX Quality Gate | Playwright, Lighthouse, A11y |
 | `@scribe` | Documentation & Changelog | – |
 | `@github-manager` | Issues, PRs, Releases, CI/CD | GitHub |
+| `@security` | Security Review Gate (secrets, injection, auth, crypto, deps) | – |
 | `@ci-security-guardian` | GitHub Actions & repository security (optional dept.) | – |
 | `@docs-dx` | Documentation & DX review (optional dept., read-only) | – |
 | `@quality-operations` | Validation scope planning (optional dept., read-only) | – |
@@ -149,6 +155,7 @@ User ──▶ @architect ──▶ @builder ──▶ [@validator + @tester]
 | Prototype | `skills/prototype-mode/` | local throwaway spikes with `PROTOTYPE ONLY` watermarks |
 | Departments | `skills/departments/` | large cross-domain work with frozen ownership and write scopes |
 | Agent Teams | `skills/agent-teams/` | explicit teammate-style parallelism only |
+| Ultracode / Max-Parallel | `skills/dynamic-workflows/` | large, decomposable jobs: codebase-wide audits, big migrations, cross-checked research; fan out to tens–hundreds of verified parallel subagents (opt-in, higher token spend) |
 
 Smart Routing is the default. Full-Gates is the explicit escalation path for high-risk work.
 Prototype output must not be pushed or deployed. Departments Mode expands planning before implementation.
@@ -203,17 +210,29 @@ Appropriate workflow is executed
 
 Full-Gates path: `skills/workflows/` — @architect (or inline brief) + @api-guardian (if contract) + @builder + @validator ∥ @tester + @scribe.
 
-## Fable 5 Orchestrator
+## Ultracode Orchestrator
+
+Orchestrator model: **`best`** (Opus 4.8 today; auto-upgrades to the most capable model your org can access as higher tiers become available), at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set it with `/model best` and `/effort ultracode` per session, or `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
 
 **Autonomy:** Make minor decisions independently and note them briefly. Ask before anything scope-expanding, destructive, or ambiguous.
 
 **Silence default:** One sentence per finding, direction-change, or blocker. Do not summarize what agents already reported.
 
 **Delegation triggers:**
+- Default to **parallel fan-out**: when a request decomposes into independent units (multi-file edits, multi-domain work, audits, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
 - Spawn a subagent when the task needs Write/Bash/MCP, multi-file changes, or specialized review.
 - Work directly only for trivial one-liners and pure classification/routing.
 
 **Effort tuning:** Agent `effort` frontmatter fields (requires Claude Code ≥2.1.152) tune token budgets automatically: architect=high, builder=medium, tester=medium, api-guardian=medium, validator/scribe/researcher/github-manager/all department agents=low.
+
+## Parallelization
+
+- **Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
+- **Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel.
+- **Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
+- **Concurrency tiers:** up to ~10 subagents concurrently in one session (rest queue). When a job outgrows that (tens-to-hundreds of units), escalate to **dynamic workflows** (`/workflows` or ultracode) with adversarial verification.
+- **File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
+- **Cost guardrail:** parallel = faster, not cheaper; dynamic workflows multiply tokens. Smart Routing stays the default; max-parallel/dynamic-workflows is an explicit opt-in.
 
 ## Agent Return Verdict
 
@@ -461,11 +480,11 @@ After @builder completes, **BOTH** quality gates run **IN PARALLEL**:
 
 ## Version
 
-**CC_GodMode v7.0.0 — The Fable Release**
+**CC_GodMode v8.0.0 — The Ultracode Release**
 - **Smart Routing as default** — risk-based minimal-agent paths, Full-Gates for high-risk work
-- **Fable 5 Orchestrator tuning** — autonomy, silence-default, delegation triggers, effort fields
+- **Ultracode Orchestrator tuning** — best/Opus 4.8 at ultracode, parallel fan-out, autonomy, silence-default, delegation triggers, effort fields
 - **Architecture gate split** — inline brief for small/medium, @architect (Opus) for high-risk
-- **14 agents** — 8 core + 6 department agents under version control
+- **15 agents** — 8 core + 1 security gate + 6 department agents under version control
 - **Verdict contract** — structured STATUS return from every agent
 - **Parallel Quality Gates** — @validator + @tester run simultaneously
 - **Decision Matrix** — clear routing based on gate results
