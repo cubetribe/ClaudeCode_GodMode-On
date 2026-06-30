@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [8.0.1] - 2026-06-30
+
+### "Activation-Flow Docs" — Ultracode Is a Two-Step, Session-Scoped Ritual
+
+> *Patch release. Documentation only — no runtime, agent, skill, or script changes. v8.0.0's headline (parallel-first dynamic workflows) only runs at Ultracode effort, and Ultracode is session-scoped — yet the user-facing docs still implied "no activation ceremony" and jumped straight to `GodMode:`. This release documents the real daily flow.*
+
+### Fixed
+
+- **Daily-usage docs now state the two-step activation:** Step 1 — turn on Ultracode each session (`/model best` + `/effort ultracode`, or the effort selector at the bottom of Claude Code); Step 2 — `GodMode: <request>`. Corrected in `README.md`, `CC-GodMode-Prompts/QUICK_START.md`, and `docs/INSTALLATION.md`; removed the misleading "no activation ceremony" framing.
+- **Clarified that Ultracode is session-scoped** (it does not persist across sessions) and that skipping Step 1 still orchestrates and gates — only at reduced parallel width.
+- **Documented the trigger casing:** canonical is `GodMode:`, and it is case-insensitive (`GODMODE:` works too).
+
+### Changed
+
+- Version bumped to `8.0.1` across `VERSION`, `.claude-plugin/plugin.json`, `CLAUDE.md`, `templates/CLAUDE-ORCHESTRATOR.md`, `README.md`, and `CC-GodMode-Prompts/QUICK_START.md`.
+
+---
+
 ## [8.0.0] - 2026-06-29
 
 ### **"The Ultracode Release" — Fable→Opus Migration, Ultracode Orchestrator, Parallel-First Architecture**

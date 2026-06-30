@@ -46,7 +46,17 @@ cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
 claude
 ```
 
-Done. The orchestrator is active. From here, just type `GodMode: <your request>`.
+The orchestrator is now active. To run it at full power, each session is two steps:
+
+1. **Turn on Ultracode** — in the effort selector at the bottom of Claude Code, or by command:
+   ```
+   /model best        # Opus 4.8 today; auto-upgrades as your org gains access
+   /effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
+   ```
+   Ultracode is **session-scoped** — it does not persist, so enable it in every new session.
+2. **Type your request**, prefixed with `GodMode:` — e.g. `GodMode: New Feature: dark mode toggle`.
+
+Skip Step 1 and GodMode still orchestrates and gates correctly; it just won't fan out to its full parallel width. The trigger `GodMode:` is case-insensitive (`GODMODE:` works too).
 
 ---
 

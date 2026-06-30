@@ -1,10 +1,20 @@
 # CC_GodMode Quick Start Guide
 
-> **Version:** 8.0.0
+> **Version:** 8.0.1
 
-## Daily Usage
+## Daily Usage — Two Steps
 
-Once installed, just type `GodMode:` followed by your request:
+Each session, two steps unlock the full parallel-first system:
+
+**Step 1 — Turn on Ultracode** (session-scoped; set it once per session via the effort selector at
+the bottom of Claude Code, or by command):
+
+```
+/model best        # Opus 4.8 today; auto-upgrades as higher tiers unlock
+/effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
+```
+
+**Step 2 — Type `GodMode:`** followed by your request:
 
 ```
 GodMode: New Feature: user profile page with avatar upload
@@ -12,8 +22,10 @@ GodMode: Bug Fix: login button unresponsive on mobile
 GodMode: Research: best state management for React 18 in 2026
 ```
 
-No elaborate role prompts needed. No activation ceremony. The orchestrator reads `CLAUDE.md`
-automatically when Claude Code starts in your project — you just describe the work.
+No elaborate role prompts needed — the orchestrator reads `CLAUDE.md` automatically when Claude Code
+starts in your project. Ultracode is the one thing that does **not** persist across sessions, so make
+Step 1 a habit; without it GodMode still orchestrates, just at lower parallel width. The trigger
+`GodMode:` is case-insensitive (`GODMODE:` works too).
 
 ---
 
