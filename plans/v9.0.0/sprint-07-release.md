@@ -2,7 +2,7 @@
 sprint: 7
 slug: release
 plan: plans/v9.0.0/PLAN.md
-status: planned
+status: review
 execution: sequential
 owner: orchestrator
 ---
@@ -55,5 +55,20 @@ The new checks themselves + manual verification of tag/release objects via `gh`.
 ## Version Relevance
 This sprint executes the bump: **9.0.0 (major)**.
 
-## Result
-(filled at completion)
+## Result (as of 2026-07-06 — awaiting maintainer permission for all remote operations)
+Completed locally:
+- Backfill tags created: `v8.0.1` @ 114346e (PR #32 state), `v7.1.1` @ bf7853a (PR #25 merge) —
+  both annotated with a "backfilled" note. NOT pushed yet.
+- v9.0.0 bump executed via `node scripts/version-bump.js major`: VERSION, [Unreleased]→[9.0.0]
+  promotion, all 12 touchpoints synced in one command. Codename block added ("The Sprint-Native
+  Release"). `sync-version --check` green; `release-check` clean except the expected
+  "tag without published GitHub release" (resolves when backfill releases are published).
+- Local orphan tags v1.0.0/v1.1.0: recommendation = delete locally (never pushed; v1.1.0 has no
+  CHANGELOG entry). Left untouched — maintainer's call.
+
+Awaiting explicit permission (single batch):
+1. Push branch `release/v9.0.0` + open PR to main (CI release-consistency runs there for the first time).
+2. Push backfill tags `v7.1.1`, `v8.0.1` + publish their GitHub Releases from the CHANGELOG sections (marked backfilled).
+3. After PR merge (merge commit): release-tag workflow tags v9.0.0 + drafts the release → publish.
+Optional: v9.0.0-rc.1 pre-release soak before the final publish; branch-protection required check
+"Release Consistency" (manual GitHub settings step).

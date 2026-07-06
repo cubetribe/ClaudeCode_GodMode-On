@@ -1,6 +1,6 @@
 # CC_GodMode Quick Start Guide
 
-> **Version:** 8.0.1
+> **Version:** 9.0.0
 
 ## Daily Usage — Two Steps
 

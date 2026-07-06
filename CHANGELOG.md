@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [9.0.0] - 2026-07-06
 > *v9.0.0 in progress — plan: `plans/v9.0.0/PLAN.md`. Entries are added at sprint integration; this section is promoted to a dated release heading by `scripts/version-bump.js` (ADR-004).*
 
 ### Added
