@@ -480,7 +480,7 @@ After @builder completes, **BOTH** quality gates run **IN PARALLEL**:
 
 ## Version
 
-**CC_GodMode v8.0.1 — The Ultracode Release**
+**CC_GodMode v8.0.1**
 - **Smart Routing as default** — risk-based minimal-agent paths, Full-Gates for high-risk work
 - **Ultracode Orchestrator tuning** — best/Opus 4.8 at ultracode, parallel fan-out, autonomy, silence-default, delegation triggers, effort fields
 - **Architecture gate split** — inline brief for small/medium, @architect (Opus) for high-risk

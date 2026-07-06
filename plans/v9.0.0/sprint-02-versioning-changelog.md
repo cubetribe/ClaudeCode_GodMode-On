@@ -2,7 +2,7 @@
 sprint: 2
 slug: versioning-changelog
 plan: plans/v9.0.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -45,10 +45,10 @@ One canonical version source, one complete touchpoint manifest, one composed bum
 - CHANGELOG is history → only ADD [Unreleased]; no rewriting of released entries here.
 
 ## Acceptance Criteria
-- [ ] `node scripts/sync-version.js --check` passes and covers all ~14 touchpoints
-- [ ] `node scripts/version-bump.js patch --dry-run` shows bump+promotion+sync plan
-- [ ] `node scripts/release-check.js` correctly reports today's drift (8.0.1 vs v8.0.0)
-- [ ] `npm run version:check` etc. work
+- [x] `node scripts/sync-version.js --check` passes and covers all 12 touchpoint files (~20 patterns)
+- [x] `node scripts/version-bump.js patch --dry-run` shows bump+promotion+sync plan
+- [x] `node scripts/release-check.js` correctly reports today's drift (v7.1.1 phantom; 8.0.1-ahead tolerated on release branch)
+- [x] `npm run version:check` etc. work
 
 ## Test / Validation Strategy
 Run all three scripts against the live repo; verify expected failures (current drift) and
@@ -62,4 +62,8 @@ Changed: version tooling unified — full touchpoint manifest, composed bump com
 major (part of the release-law change).
 
 ## Result
-(filled at completion)
+Delivered as scoped, plus: release codenames removed from all version lines (they now live only
+in CHANGELOG + GitHub Release titles — one sync dimension eliminated, resolves the 8.0.1
+codename conflict); `pre-push-check.js` gained a Release Consistency check delegating to
+`release-check.js`; `package.json` stays intentionally version-free (documented). Banner lines
+in install prompts are re-padded automatically on sync.

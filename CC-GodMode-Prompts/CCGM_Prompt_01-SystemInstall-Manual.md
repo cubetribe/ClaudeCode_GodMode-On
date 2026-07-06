@@ -385,7 +385,7 @@ chmod +x ~/.claude/scripts/*.js
 
 ## Version
 
-CC_GodMode **v8.0.1 — The Ultracode Release**
+CC_GodMode **v8.0.1**
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 

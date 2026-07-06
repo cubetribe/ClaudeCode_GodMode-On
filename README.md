@@ -193,7 +193,7 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 
 ## Version
 
-**CC_GodMode v8.0.1 — The Ultracode Release**
+**CC_GodMode v8.0.1**
 
 What's in the box:
 - **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning

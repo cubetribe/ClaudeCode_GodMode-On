@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+> *v9.0.0 in progress — plan: `plans/v9.0.0/PLAN.md`. Entries are added at sprint integration; this section is promoted to a dated release heading by `scripts/version-bump.js` (ADR-004).*
+
+### Added
+
+- **Plan-first artifact layer** (Sprint 01): living `ROADMAP.md`, `plans/` directory with master plan and per-sprint files, reusable sprint template (`docs/templates/SPRINT_TEMPLATE.md`) with mandatory write-scope ownership tables, and ADR-004 documenting Plan-First orchestration & version-at-release.
+
+---
+
 ## [8.0.1] - 2026-06-30
 
 ### "Activation-Flow Docs" — Ultracode Is a Two-Step, Session-Scoped Ritual

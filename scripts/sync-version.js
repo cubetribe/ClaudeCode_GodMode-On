@@ -1,239 +1,188 @@
 #!/usr/bin/env node
 
 /**
- * Version Sync Script (v5.11.0)
+ * CC_GodMode Version Sync (v9 rewrite)
  *
- * Ensures all version references are synchronized across the project.
- * Run this BEFORE every release to prevent version mismatches.
+ * Single machine-readable manifest of EVERY file that carries the current
+ * framework version. `--check` is a hard gate (exit 1 on any mismatch or
+ * unresolvable pattern); `--sync` rewrites all touchpoints from VERSION.
+ *
+ * Design rules (ADR-004 / plans/v9.0.0):
+ * - VERSION (repo root) is the single source of truth.
+ * - Release codenames live ONLY in CHANGELOG.md and the GitHub Release title.
+ *   Version lines in docs/prompts are plain `vX.Y.Z` — this script normalizes
+ *   legacy `vX.Y.Z — <codename>` lines when syncing.
+ * - package.json is intentionally version-free (not a published package).
+ * - Paths resolve from the repo root, never from cwd.
  *
  * Usage:
- *   node scripts/sync-version.js --check    # Check for mismatches (dry-run)
- *   node scripts/sync-version.js --sync     # Actually sync all versions
+ *   node scripts/sync-version.js --check   # verify all touchpoints (exit 1 on drift)
+ *   node scripts/sync-version.js --sync    # rewrite all touchpoints from VERSION
+ *   node scripts/sync-version.js --list    # print the touchpoint manifest
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// ANSI Colors
+const ROOT = path.resolve(__dirname, '..');
+const V = '\\d+\\.\\d+\\.\\d+';
+
 const colors = {
-  reset: '\x1b[0m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  cyan: '\x1b[36m',
-  bright: '\x1b[1m'
+  reset: '\x1b[0m', red: '\x1b[31m', green: '\x1b[32m',
+  yellow: '\x1b[33m', cyan: '\x1b[36m', bright: '\x1b[1m'
 };
 
-// Get project root
-const PROJECT_ROOT = path.resolve(__dirname, '..');
-
-// Files to check/sync (relative to PROJECT_ROOT)
-const FILES_TO_SYNC = [
-  'VERSION',
-  'CLAUDE.md',
-  'CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md',
-  'CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Manual.md',
-  'CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md',
-  'CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md',
-  'CC-GodMode-Prompts/CCGM_Prompt_99-ContextRestore.md',
-  'CC-GodMode-Prompts/QUICK_START.md'
+/**
+ * Touchpoint manifest. Each entry: file + list of patterns.
+ * `find` must match the CURRENT version context (any semver), `make(v)` produces
+ * the canonical replacement. `count` = expected number of matches (default 1).
+ * Banner lines inside ║…║ boxes are re-padded to their original width.
+ */
+const MANIFEST = [
+  { file: 'VERSION', whole: true },
+  { file: '.claude-plugin/plugin.json', patterns: [
+    { find: new RegExp(`"version":\\s*"${V}"`), make: v => `"version": "${v}"` },
+  ]},
+  { file: 'CLAUDE.md', patterns: [
+    { find: new RegExp(`^# CC_GodMode v${V}.*$`, 'm'), make: v => `# CC_GodMode v${v}` },
+    { find: new RegExp(`^\\*\\*Current Version:\\*\\* v${V}.*$`, 'm'), make: v => `**Current Version:** v${v}` },
+  ]},
+  { file: 'templates/CLAUDE-ORCHESTRATOR.md', patterns: [
+    { find: new RegExp(`^# CC_GodMode v${V}.*$`, 'm'), make: v => `# CC_GodMode v${v}` },
+    { find: new RegExp(`^\\*\\*CC_GodMode v${V}[^*]*\\*\\*$`, 'm'), make: v => `**CC_GodMode v${v}**` },
+  ]},
+  { file: 'README.md', patterns: [
+    { find: new RegExp(`Version-${V}-blue`), make: v => `Version-${v}-blue` },
+    { find: new RegExp(`^\\*\\*CC_GodMode v${V}[^*]*\\*\\*$`, 'm'), make: v => `**CC_GodMode v${v}**` },
+  ]},
+  { file: 'docs/AGENT_MODEL_SELECTION.md', patterns: [
+    { find: new RegExp(`CC_GodMode v${V} uses`), make: v => `CC_GodMode v${v} uses` },
+  ]},
+  { file: 'CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md', patterns: [
+    { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
+    { find: new RegExp(`CC_GodMode Installation v${V}[^║\\n]*?(?=\\s*║)`), make: v => `CC_GodMode Installation v${v}`, banner: true },
+    { find: new RegExp(`CC_GodMode Installation Successful! v${V}[^║\\n]*?(?=\\s*║)`), make: v => `CC_GodMode Installation Successful! v${v}`, banner: true },
+    { find: new RegExp(`Version:( +)${V}`), make: (v, m) => `Version:${m[1]}${v}`, banner: true },
+  ]},
+  { file: 'CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Manual.md', patterns: [
+    { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
+    { find: new RegExp(`CC_GodMode \\*\\*v${V}[^*]*\\*\\*`), make: v => `CC_GodMode **v${v}**` },
+  ]},
+  { file: 'CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md', patterns: [
+    { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
+  ]},
+  { file: 'CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md', patterns: [
+    { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
+  ]},
+  { file: 'CC-GodMode-Prompts/CCGM_Prompt_99-ContextRestore.md', patterns: [
+    { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
+    { find: new RegExp(`\\*\\*CC_GodMode v${V}( - [^*]*)?\\*\\*`), make: v => `**CC_GodMode v${v} - Enhanced Restart Prompt with Behavior Enforcement**` },
+  ]},
+  { file: 'CC-GodMode-Prompts/QUICK_START.md', patterns: [
+    { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
+  ]},
 ];
 
-/**
- * Read the current version from VERSION file
- */
-function getCurrentVersion() {
-  const versionFile = path.join(PROJECT_ROOT, 'VERSION');
-  if (!fs.existsSync(versionFile)) {
-    console.error(`${colors.red}Error: VERSION file not found${colors.reset}`);
-    process.exit(1);
-  }
-  return fs.readFileSync(versionFile, 'utf-8').trim();
+function getVersion() {
+  const f = path.join(ROOT, 'VERSION');
+  if (!fs.existsSync(f)) { console.error(`${colors.red}VERSION file not found at ${f}${colors.reset}`); process.exit(1); }
+  const v = fs.readFileSync(f, 'utf-8').trim();
+  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(v)) { console.error(`${colors.red}Invalid semver in VERSION: "${v}"${colors.reset}`); process.exit(1); }
+  return v;
 }
 
-/**
- * Check a file for version mismatches
- */
-function checkFile(filePath, targetVersion) {
-  const fullPath = path.join(PROJECT_ROOT, filePath);
+/** Re-pad a ║…║ banner line to its original width after replacement. */
+function repadBannerLine(originalLine, newLine) {
+  if (!originalLine.startsWith('║') || !originalLine.endsWith('║')) return newLine;
+  const width = originalLine.length;
+  let inner = newLine.slice(1, -1).replace(/\s+$/, '');
+  if (inner.length > width - 2) return newLine; // longer than box — leave for manual fix
+  return '║' + inner + ' '.repeat(width - 2 - inner.length) + '║';
+}
 
-  if (!fs.existsSync(fullPath)) {
-    return { status: 'missing', file: filePath };
+function applyPattern(content, p, version) {
+  const m = content.match(p.find);
+  if (!m) return { content, status: 'missing' };
+  const replacement = p.make(version, m);
+  if (m[0] === replacement) return { content, status: 'ok' };
+  if (p.banner) {
+    // operate on the full line containing the match to preserve box padding
+    const lineStart = content.lastIndexOf('\n', m.index) + 1;
+    const lineEnd = content.indexOf('\n', m.index);
+    const line = content.slice(lineStart, lineEnd === -1 ? undefined : lineEnd);
+    const newLineRaw = line.replace(p.find, replacement);
+    const newLine = repadBannerLine(line, newLineRaw);
+    return { content: content.slice(0, lineStart) + newLine + (lineEnd === -1 ? '' : content.slice(lineEnd)), status: 'updated' };
   }
+  return { content: content.replace(p.find, replacement), status: 'updated' };
+}
 
-  const content = fs.readFileSync(fullPath, 'utf-8');
+function run(mode) {
+  const version = getVersion();
+  console.log(`\n${colors.cyan}${colors.bright}CC_GodMode Version ${mode === 'sync' ? 'Sync' : 'Check'}${colors.reset}  target: ${colors.bright}${version}${colors.reset}\n`);
 
-  // Simple check: does the file contain the target version in a version context?
-  const versionPatterns = [
-    `> **Version:** ${targetVersion}`,
-    `**Current Version:** v${targetVersion}`,
-    `CC_GodMode v${targetVersion}`,
-    `Version ${targetVersion} in header`
-  ];
+  let drift = 0, missing = 0, updated = 0;
 
-  // For VERSION file, just check the content directly
-  if (filePath === 'VERSION') {
-    if (content.trim() === targetVersion) {
-      return { status: 'ok', file: filePath };
-    } else {
-      return { status: 'mismatch', file: filePath, found: content.trim(), expected: targetVersion };
+  for (const entry of MANIFEST) {
+    const full = path.join(ROOT, entry.file);
+    if (!fs.existsSync(full)) { console.log(`  ${colors.yellow}?${colors.reset} ${entry.file} (file not found)`); missing++; continue; }
+    let content = fs.readFileSync(full, 'utf-8');
+
+    if (entry.whole) {
+      const ok = content.trim() === version;
+      console.log(`  ${ok ? colors.green + '✓' : colors.red + '✗'}${colors.reset} ${entry.file}${ok ? '' : ` (found: ${content.trim()})`}`);
+      if (!ok) drift++;
+      continue;
     }
-  }
 
-  // For other files, check if target version appears
-  const hasCorrectVersion = versionPatterns.some(pattern => content.includes(pattern));
-
-  // Check for old versions (5.10.0, 5.9.x, etc.)
-  const oldVersionMatch = content.match(/> \*\*Version:\*\* (\d+\.\d+\.\d+)/);
-
-  if (oldVersionMatch && oldVersionMatch[1] !== targetVersion) {
-    return { status: 'mismatch', file: filePath, found: oldVersionMatch[1], expected: targetVersion };
-  }
-
-  if (hasCorrectVersion) {
-    return { status: 'ok', file: filePath };
-  }
-
-  return { status: 'unknown', file: filePath };
-}
-
-/**
- * Sync a file to target version
- */
-function syncFile(filePath, targetVersion) {
-  const fullPath = path.join(PROJECT_ROOT, filePath);
-
-  if (!fs.existsSync(fullPath)) {
-    return { status: 'skipped', file: filePath, reason: 'not found' };
-  }
-
-  let content = fs.readFileSync(fullPath, 'utf-8');
-  const original = content;
-
-  // For VERSION file
-  if (filePath === 'VERSION') {
-    content = targetVersion + '\n';
-  } else {
-    // Replace version patterns
-    // Pattern 1: > **Version:** X.Y.Z
-    content = content.replace(/> \*\*Version:\*\* \d+\.\d+\.\d+/g, `> **Version:** ${targetVersion}`);
-
-    // Pattern 2: **Current Version:** vX.Y.Z
-    content = content.replace(/\*\*Current Version:\*\* v\d+\.\d+\.\d+/g, `**Current Version:** v${targetVersion}`);
-
-    // Pattern 3: CC_GodMode vX.Y.Z (title line, be careful not to change CHANGELOG references)
-    // Only replace in specific contexts
-    content = content.replace(/CC_GodMode v\d+\.\d+\.\d+ - The Fail-Safe Release/g, `CC_GodMode v${targetVersion} - The Fail-Safe Release`);
-
-    // Pattern 4: Version X.Y.Z in header (examples)
-    content = content.replace(/Version \d+\.\d+\.\d+ in header/g, `Version ${targetVersion} in header`);
-  }
-
-  if (content !== original) {
-    fs.writeFileSync(fullPath, content);
-    return { status: 'updated', file: filePath };
-  }
-
-  return { status: 'unchanged', file: filePath };
-}
-
-/**
- * Main check mode
- */
-function runCheck(targetVersion) {
-  console.log('');
-  console.log(`${colors.cyan}╔════════════════════════════════════════════════════════════╗${colors.reset}`);
-  console.log(`${colors.cyan}║${colors.reset}  ${colors.bright}CC_GodMode Version Check${colors.reset}                                  ${colors.cyan}║${colors.reset}`);
-  console.log(`${colors.cyan}╚════════════════════════════════════════════════════════════╝${colors.reset}`);
-  console.log('');
-  console.log(`${colors.bright}Target Version:${colors.reset} ${targetVersion}`);
-  console.log('');
-
-  let mismatches = 0;
-
-  for (const file of FILES_TO_SYNC) {
-    const result = checkFile(file, targetVersion);
-
-    if (result.status === 'ok') {
-      console.log(`  ${colors.green}✓${colors.reset} ${file}`);
-    } else if (result.status === 'mismatch') {
-      console.log(`  ${colors.red}✗${colors.reset} ${file} (found: ${result.found})`);
-      mismatches++;
-    } else if (result.status === 'missing') {
-      console.log(`  ${colors.yellow}?${colors.reset} ${file} (not found)`);
-    } else {
-      console.log(`  ${colors.cyan}○${colors.reset} ${file}`);
+    const results = [];
+    for (const p of entry.patterns) {
+      const r = applyPattern(content, p, version);
+      results.push(r.status);
+      if (r.status === 'updated' && mode === 'sync') content = r.content;
     }
-  }
+    const bad = results.filter(s => s !== 'ok').length;
+    const miss = results.filter(s => s === 'missing').length;
 
-  console.log('');
-
-  if (mismatches > 0) {
-    console.log(`${colors.red}✗ Found ${mismatches} version mismatch(es)${colors.reset}`);
-    console.log(`${colors.yellow}Run: node scripts/sync-version.js --sync${colors.reset}`);
-    process.exit(1);
-  } else {
-    console.log(`${colors.green}✓ All versions synchronized!${colors.reset}`);
-  }
-  console.log('');
-}
-
-/**
- * Main sync mode
- */
-function runSync(targetVersion) {
-  console.log('');
-  console.log(`${colors.cyan}╔════════════════════════════════════════════════════════════╗${colors.reset}`);
-  console.log(`${colors.cyan}║${colors.reset}  ${colors.bright}CC_GodMode Version Sync${colors.reset}                                   ${colors.cyan}║${colors.reset}`);
-  console.log(`${colors.cyan}╚════════════════════════════════════════════════════════════╝${colors.reset}`);
-  console.log('');
-  console.log(`${colors.bright}Target Version:${colors.reset} ${targetVersion}`);
-  console.log('');
-
-  let updated = 0;
-
-  for (const file of FILES_TO_SYNC) {
-    const result = syncFile(file, targetVersion);
-
-    if (result.status === 'updated') {
-      console.log(`  ${colors.green}✓${colors.reset} Updated: ${file}`);
+    if (mode === 'sync' && results.includes('updated')) {
+      fs.writeFileSync(full, content);
       updated++;
-    } else if (result.status === 'unchanged') {
-      console.log(`  ${colors.cyan}○${colors.reset} Already current: ${file}`);
-    } else if (result.status === 'skipped') {
-      console.log(`  ${colors.yellow}○${colors.reset} Skipped: ${file} (${result.reason})`);
+      console.log(`  ${colors.green}✓${colors.reset} synced: ${entry.file} (${results.filter(s => s === 'updated').length} pattern(s))`);
+    } else if (bad === 0) {
+      console.log(`  ${colors.green}✓${colors.reset} ${entry.file}`);
+    } else {
+      console.log(`  ${colors.red}✗${colors.reset} ${entry.file} — ${results.map((s, i) => `p${i + 1}:${s}`).join(', ')}`);
+      drift += bad - miss; missing += miss;
     }
   }
 
   console.log('');
-  console.log(`${colors.green}✓ Sync complete! ${updated} file(s) updated.${colors.reset}`);
+  if (mode === 'sync') {
+    console.log(`${colors.green}✓ Sync complete. ${updated} file(s) updated.${colors.reset}`);
+    if (missing > 0) { console.log(`${colors.red}✗ ${missing} pattern(s) could not be located — fix manually, then re-run --check.${colors.reset}`); process.exit(1); }
+  } else {
+    if (drift + missing > 0) {
+      console.log(`${colors.red}✗ ${drift} mismatch(es), ${missing} unresolvable pattern(s).${colors.reset}`);
+      console.log(`${colors.yellow}Run: node scripts/sync-version.js --sync${colors.reset}`);
+      process.exit(1);
+    }
+    console.log(`${colors.green}✓ All ${MANIFEST.length} touchpoints consistent with VERSION=${version}.${colors.reset}`);
+  }
   console.log('');
 }
 
-/**
- * Main
- */
 function main() {
   const args = process.argv.slice(2);
-
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('');
-    console.log('CC_GodMode Version Sync Script');
-    console.log('');
-    console.log('Usage:');
-    console.log('  node scripts/sync-version.js --check   Check for version mismatches');
-    console.log('  node scripts/sync-version.js --sync    Sync all versions to VERSION file');
-    console.log('');
+    console.log('\nUsage:\n  node scripts/sync-version.js --check | --sync | --list\n');
     process.exit(0);
   }
-
-  const targetVersion = getCurrentVersion();
-
-  if (args.includes('--sync')) {
-    runSync(targetVersion);
-  } else {
-    runCheck(targetVersion);
+  if (args.includes('--list')) {
+    MANIFEST.forEach(e => console.log(`${e.file}  (${e.whole ? 'whole-file' : e.patterns.length + ' pattern(s)'})`));
+    process.exit(0);
   }
+  run(args.includes('--sync') ? 'sync' : 'check');
 }
 
 main();
+module.exports = { MANIFEST, getVersion };

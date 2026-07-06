@@ -15,9 +15,11 @@
 const fs = require('fs');
 const path = require('path');
 
-// Configuration - use current working directory, not script location
-const VERSION_FILE = path.join(process.cwd(), 'VERSION');
-const CHANGELOG_FILE = path.join(process.cwd(), 'CHANGELOG.md');
+// Configuration - resolve from the repo root (script location), never from cwd,
+// so running from a subdirectory cannot silently target the wrong files (v9 fix).
+const ROOT = path.resolve(__dirname, '..');
+const VERSION_FILE = path.join(ROOT, 'VERSION');
+const CHANGELOG_FILE = path.join(ROOT, 'CHANGELOG.md');
 
 // ANSI Colors (same as check-update.js)
 const colors = {
@@ -199,6 +201,20 @@ function checkChangelogUniqueness(versionString) {
 }
 
 /**
+ * Check that the version was never tagged (v9: tags are the release truth,
+ * CHANGELOG uniqueness alone missed the v1.1.0 tag-without-entry class).
+ */
+function checkTagUniqueness(versionString) {
+  try {
+    const tags = execSync('git tag -l "v[0-9]*"', { cwd: ROOT, encoding: 'utf-8' }).trim();
+    return !tags.split('\n').includes(`v${versionString}`);
+  } catch (error) {
+    console.log(`${colors.yellow}⚠ Could not read git tags — skipping tag-uniqueness check${colors.reset}`);
+    return true;
+  }
+}
+
+/**
  * Write new version to VERSION file
  */
 function writeVersionFile(version, dryRun = false) {
@@ -250,14 +266,52 @@ function generateChangelogEntry(version) {
 }
 
 /**
- * Insert CHANGELOG entry after header
+ * Insert or promote CHANGELOG entry (v9 flow, ADR-004):
+ * - If an "## [Unreleased]" section exists and has content, PROMOTE it to
+ *   "## [X.Y.Z] - date" and start a fresh empty [Unreleased] section above it.
+ * - If [Unreleased] exists but is empty, abort: a release without collected
+ *   entries means the sprint integration steps were skipped.
+ * - If no [Unreleased] section exists, fall back to inserting a template entry
+ *   (legacy single-task flow).
  */
 function insertChangelogEntry(version, dryRun = false) {
   let changelog = '';
 
   if (fs.existsSync(CHANGELOG_FILE)) {
     changelog = fs.readFileSync(CHANGELOG_FILE, 'utf8');
-  } else {
+  }
+
+  const unreleasedMatch = changelog.match(/^## \[Unreleased\]\s*$/m);
+  if (unreleasedMatch) {
+    const start = unreleasedMatch.index + unreleasedMatch[0].length;
+    const nextHeading = changelog.slice(start).search(/^## \[/m);
+    const sectionBody = (nextHeading === -1 ? changelog.slice(start) : changelog.slice(start, start + nextHeading));
+    const hasContent = sectionBody.replace(/[-\s#>*]/g, '').length > 0;
+
+    if (!hasContent) {
+      errorExit(
+        'The [Unreleased] section is empty — nothing to release',
+        [
+          'Sprints must add their changelog entries at integration time.',
+          'Fill [Unreleased] in CHANGELOG.md, then re-run the bump.'
+        ]
+      );
+    }
+
+    const promoted = changelog.replace(/^## \[Unreleased\]\s*$/m,
+      `## [Unreleased]\n\n---\n\n## [${version.toString()}] - ${getCurrentDate()}`);
+
+    if (dryRun) {
+      console.log('');
+      console.log(`${colors.gray}[DRY RUN] Would promote [Unreleased] to:${colors.reset}`);
+      console.log(`${colors.cyan}## [${version.toString()}] - ${getCurrentDate()}${colors.reset}`);
+    } else {
+      fs.writeFileSync(CHANGELOG_FILE, promoted, 'utf8');
+    }
+    return;
+  }
+
+  if (!fs.existsSync(CHANGELOG_FILE)) {
     // Create new CHANGELOG with header
     changelog = [
       '# Changelog',
@@ -468,6 +522,17 @@ function main() {
     );
   }
 
+  // Check uniqueness against git tags (release truth)
+  if (!checkTagUniqueness(newVersion.toString())) {
+    errorExit(
+      `Tag v${newVersion.toString()} already exists — this version was already released`,
+      [
+        'NEVER reuse a released version number',
+        'Bump a different segment instead'
+      ]
+    );
+  }
+
   // Execute or dry-run
   if (dryRun) {
     printBox([
@@ -488,6 +553,18 @@ function main() {
     // Write files
     writeVersionFile(newVersion);
     insertChangelogEntry(newVersion);
+
+    // Propagate to ALL version touchpoints (v9: bump and sync are one command)
+    try {
+      execSync(`node ${JSON.stringify(path.join(__dirname, 'sync-version.js'))} --sync`, {
+        cwd: ROOT, stdio: 'inherit'
+      });
+    } catch (error) {
+      errorExit('Version sync failed after bump', [
+        'Fix the reported touchpoints manually',
+        'Then verify: node scripts/sync-version.js --check'
+      ]);
+    }
 
     // Create report folder
     const reportFolder = createReportFolder(newVersion);

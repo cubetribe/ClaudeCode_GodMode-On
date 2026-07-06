@@ -1,4 +1,14 @@
 {
+  "name": "cc-godmode",
+  "private": true,
+  "description": "CC_GodMode — self-orchestrating multi-agent framework for Claude Code. The version lives in the VERSION file (single source of truth); package.json is intentionally version-free.",
+  "scripts": {
+    "version:check": "node scripts/sync-version.js --check",
+    "version:sync": "node scripts/sync-version.js --sync",
+    "version:bump": "node scripts/version-bump.js",
+    "release:check": "node scripts/release-check.js",
+    "pre-push": "node scripts/pre-push-check.js"
+  },
   "dependencies": {
     "js-yaml": "^5.1.0"
   }

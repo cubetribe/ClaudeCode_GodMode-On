@@ -103,7 +103,7 @@ Before you execute anything, give the user the following message:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation v8.0.1 - The Ultracode Release                  ║
+║   CC_GodMode Installation v8.0.1                                          ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -591,7 +591,7 @@ After completing all steps, provide this summary to the user:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation Successful! v8.0.1 - The Ultracode Release      ║
+║   CC_GodMode Installation Successful! v8.0.1                              ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║

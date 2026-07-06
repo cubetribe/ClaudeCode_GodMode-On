@@ -175,4 +175,4 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v8.0.1 — The Ultracode Release
+**Current Version:** v8.0.1
