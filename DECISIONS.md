@@ -13,6 +13,7 @@ This document captures significant decisions made during the development of CC_G
 | [ADR-001](#adr-001-parallel-quality-gates) | Parallel Quality Gates | ACCEPTED | v5.6.0 | 2025-01-07 |
 | [ADR-002](#adr-002-mcp-health-check-tiers) | MCP Health Check Tiers | ACCEPTED | v5.6.0 | 2025-01-07 |
 | [ADR-003](#adr-003-phase-2-governance-features) | Phase 2 Governance Features | ACCEPTED | v5.8.0 | 2025-01-08 |
+| [ADR-004](#adr-004-plan-first-orchestration-and-version-at-release) | Plan-First Orchestration & Version-at-Release | ACCEPTED | v9.0.0 | 2026-07-06 |
 
 ---
 
@@ -345,6 +346,72 @@ Meta-Decision Rules implemented:
 3. Performance Critical Path
 4. Emergency Hotfix
 5. Documentation-Only Optimization
+
+---
+
+## ADR-004: Plan-First Orchestration & Version-at-Release
+
+### Status
+
+**ACCEPTED**
+
+- **Date:** 2026-07-06
+- **Decision Makers:** Orchestrator, based on full repository audit (plans/v9.0.0/PLAN.md)
+- **Version Introduced:** v9.0.0
+
+### Context
+
+Core Rule 1 ("Version-First": read VERSION and increment BEFORE any work starts) was designed
+for single-task workflows. A 2026-07-06 audit confirmed it breaks under the framework's own
+parallel-first doctrine and under real usage:
+
+- Two concurrent workstreams read the same VERSION, claim the same next version, and collide on
+  `reports/vX.X.X/` (fixed filenames → silent overwrites) and the CHANGELOG prepend point.
+- VERSION had 2–3 legitimate writers (Orchestrator before work, @scribe before push, any second
+  session) with no demarcation rule.
+- Bumping before work structurally guarantees windows where main claims an unreleased version.
+  Result on record: `[8.0.1]` and `[7.1.1]` changelogged and merged but never tagged/released
+  (42 CHANGELOG versions vs. 3 GitHub releases).
+- The rule also self-collided with routing: touching VERSION/CHANGELOG is a Full-Gates risk
+  signal, so read literally every Smart-Routed task escalated.
+
+### Decision
+
+1. **Plan-First replaces Version-First.** Non-trivial work starts with a plan
+   (`plans/vX.Y.Z/PLAN.md`) split into sprint files (`docs/templates/SPRINT_TEMPLATE.md`) that
+   carry goal, scope, non-goals, write-scope ownership, risks, acceptance criteria, test
+   strategy, changelog note, and version relevance.
+2. **VERSION is written exactly once per release**, by the release sprint's tooling
+   (`scripts/version-bump.js`: bump → `[Unreleased]` promotion → full touchpoint sync), never at
+   task start and never by implementer agents.
+3. **CHANGELOG gains an `[Unreleased]` section.** Sprints contribute entries at their
+   (serialized) integration step; the release tooling promotes the section to `[X.Y.Z] - date`.
+4. **Release invariant** enforced by `scripts/release-check.js` + CI:
+   `VERSION == top CHANGELOG version == latest tag == latest GitHub release`, with
+   `VERSION > latest tag` allowed only on an open `release/*` branch.
+
+### Consequences
+
+**Positive:** parallel sprints cannot race on version claims; phantom releases become
+mechanically detectable; a single writer owns each hot file; report/plan artifacts get sprint
+namespaces.
+
+**Negative / trade-offs:** work-in-progress is no longer labeled with a target version from
+minute one (the plan folder carries the target instead); one more artifact layer to maintain.
+
+### Alternatives Considered
+
+- **Keep Version-First + add a lock file:** rejected — locks don't work across clones/sessions
+  and don't fix the phantom-release tail.
+- **Fragment-based changelog (towncrier/changesets):** rejected for now — proportionate for
+  multi-contributor repos; solo maintainer + serialized integration makes `[Unreleased]`
+  sufficient. Revisit if contributors join (see ROADMAP backlog).
+- **Full automation via release-please/semantic-release:** rejected — CI-centric, heavier than
+  needed; the composed local tooling + thin CI checks achieve the invariant with less machinery.
+
+### Related Decisions
+
+- [ADR-001: Parallel Quality Gates](#adr-001-parallel-quality-gates)
 
 ---
 
