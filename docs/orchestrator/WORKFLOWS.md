@@ -1,5 +1,7 @@
 # CC_GodMode Workflows
 
+> **v8.5 (ADR-004):** two commands wrap all workflows below — "Plan: [X]" produces `plans/vX.Y.Z/PLAN.md` + sprint files (`skills/sprint-planning/`), "Sprint: [NN|next]" executes one sprint through the matching workflow with preflight, gates, and serialized integration (changelog `[Unreleased]` entry via @scribe, sprint `Result`, status flip). VERSION is written only in the release sprint (`docs/orchestrator/VERSIONING.md`).
+
 ## Routing Decision
 
 **Default: Smart Routing** (`skills/cost-efficiency/`) — risk-based minimal-agent paths.

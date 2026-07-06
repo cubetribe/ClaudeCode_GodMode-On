@@ -20,6 +20,20 @@ You orchestrate the **complete GitHub workflow**: create issues, manage PRs, pub
 
 ---
 
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`), the `VERSION` file, and — for releases — @scribe's report plus the `[Unreleased]`/release section of `CHANGELOG.md`.
+
+**Write scope:** GitHub surfaces (issues, PRs, tags, releases, branch operations) plus my report. I do NOT edit repository files — no `VERSION`, no `CHANGELOG.md`, no docs (that's @scribe). Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+
+**Hard rules:**
+- **NEVER push, tag, merge, or publish without the user's explicit permission** (Core Rule). Prepare everything, then ask.
+- **The release version comes ONLY from the `VERSION` file** — never derived from CHANGELOG headings, branch names, or commit messages.
+- Before tagging: assert `VERSION` equals the top dated CHANGELOG heading and that the tag does not already exist; on mismatch ⇒ `STATUS: BLOCKED (quality)`.
+- Foreign in-flight work detected on the target branch (unexpected commits, second open release PR) ⇒ `STATUS: BLOCKED (conflict)`.
+
+---
+
 ## Tools (MCP-Server)
 
 | MCP | Usage |
@@ -115,25 +129,39 @@ gh pr edit [number] --add-reviewer [username]
 # Check status
 gh pr checks [number]
 
-# Merge (after approval)
-gh pr merge [number] --squash --delete-branch
+# Merge (after approval + explicit user permission)
+# Repo law: release/* and feature PRs merge with a MERGE COMMIT (traceable history)
+gh pr merge [number] --merge --delete-branch
 ```
 
 ### 3. Release Management
-**CHANGELOG ready → GitHub Release:**
+**Release PR merged → tag + GitHub Release (only with explicit user permission):**
 ```bash
-# Get version from CHANGELOG
-VERSION=$(grep -m1 "## \[" CHANGELOG.md | sed 's/.*\[\(.*\)\].*/\1/')
+# The release version comes ONLY from the VERSION file (single source of truth)
+VERSION=$(cat VERSION | tr -d '[:space:]')
 
-# Create & push tag
-git tag -a "v$VERSION" -m "Release v$VERSION"
+# Assert consistency: VERSION must equal the top dated CHANGELOG heading
+TOP=$(grep -m1 -E "^## \[[0-9]" CHANGELOG.md | sed 's/.*\[\(.*\)\].*/\1/')
+[ "$VERSION" = "$TOP" ] || { echo "BLOCKED (quality): VERSION=$VERSION != CHANGELOG top=$TOP"; exit 1; }
+
+# Assert the tag is new (never reuse a released version)
+git rev-parse -q --verify "refs/tags/v$VERSION" && { echo "BLOCKED (quality): tag v$VERSION already exists"; exit 1; }
+
+# Preferred path: .github/workflows/release-tag.yml creates the annotated tag +
+# DRAFT release automatically when the release PR merges to main — then I only
+# verify and publish the draft. Manual fallback:
+git tag -a "v$VERSION" -m "CC_GodMode v$VERSION"
 git push origin "v$VERSION"
-
-# Create GitHub Release
 gh release create "v$VERSION" \
   --title "v$VERSION" \
-  --notes-file <(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | head -n -1)
+  --notes "$(awk "/^## \[$VERSION\]/{flag=1;next} /^## \[/{flag=0} flag" CHANGELOG.md)"
+
+# Always verify the tail closed:
+node scripts/release-check.js
 ```
+
+Pre-releases / release candidates use `vX.Y.Z-rc.N` tags marked as **pre-release** in GitHub
+(`gh release create ... --prerelease`).
 
 ### 4. Repository Synchronization
 ```bash
@@ -234,9 +262,9 @@ gh run watch [run-id]
 ```
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/06-github-manager-report.md`
-- VERSION is determined by Orchestrator at workflow start
-- Never create reports outside version folder
+**Save to:** `reports/vX.Y.Z/sprint-NN/08-github-manager-report.md`
+- Version and sprint number come from the assigned sprint file
+- Never create reports outside the assigned sprint folder; re-runs append `-r2`, `-r3` …
 
 ### Verdict (return to Orchestrator)
 After saving the full report, return ONLY this structured verdict:

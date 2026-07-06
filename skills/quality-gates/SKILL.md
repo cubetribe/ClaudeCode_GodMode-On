@@ -80,7 +80,7 @@ Both agents MUST complete before applying this matrix:
 
 ## Execution with Worktree Isolation
 
-For conflict-free parallel execution, use `isolation: worktree`:
+For conflict-free parallel execution, use `isolation: worktree` (native Claude Code subagent frontmatter — already set in validator.md/tester.md; no repo tooling required):
 
 ```
 Task tool → subagent_type: "validator", isolation: "worktree"
@@ -109,7 +109,7 @@ Failure report includes: error type, suggested action (retry/escalate/skip), com
 
 ## Agent Return Contract
 
-Each agent writes a **full report** to `reports/vX.X.X/NN-<agent>-report.md`. The return message to the Orchestrator is the structured verdict only — separate from the on-disk report.
+Each agent writes a **full report** to `reports/vX.Y.Z/sprint-NN/<NN>-<agent>-report.md` (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`). The return message to the Orchestrator is the structured verdict only — separate from the on-disk report.
 
 ```
 STATUS: APPROVED | BLOCKED | DONE

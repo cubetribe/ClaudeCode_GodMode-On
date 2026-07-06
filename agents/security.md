@@ -24,6 +24,16 @@ you hand back precise, actionable findings.
 
 ---
 
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) and the explicit commit range or file list the Orchestrator passes me — I review that change set, never a guessed `HEAD~1`.
+
+**Write scope:** read-only gate — I write only my report to `reports/vX.Y.Z/sprint-NN/06-security-report.md`. My Bash usage is limited to read-only audits (`npm audit`, secret scans); I never modify files, install packages, or change git state. Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+
+**Conflict detection:** security-relevant files in my diff that no sprint write scope claims ⇒ `STATUS: BLOCKED (conflict)`.
+
+---
+
 ## Tools
 
 | Tool | Usage |
@@ -108,7 +118,16 @@ SECURITY REVIEW COMPLETE
 ## Dependency Audit
 [npm audit / pip-audit summary, or "clean"]
 
-## Verdict
+## Verdict (return to Orchestrator — canonical shape: `docs/templates/REPORT_TEMPLATES.md`)
+
+```
+STATUS: APPROVED | BLOCKED
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+
 APPROVED  /  BLOCKED  (reason)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -117,7 +136,7 @@ APPROVED  /  BLOCKED  (reason)
 **Required sections:** Summary, Findings, Dependency Audit, Verdict
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/0X-security-report.md` (VERSION set by Orchestrator).
+**Save to:** `reports/vX.Y.Z/sprint-NN/06-security-report.md` (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`; version and sprint number come from the assigned sprint file).
 
 ---
 

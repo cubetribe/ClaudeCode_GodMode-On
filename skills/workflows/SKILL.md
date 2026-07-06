@@ -7,7 +7,7 @@ description: "CC_GodMode Full-Gates workflow definitions — used for high-risk 
 
 **These are the Full-Gates workflows**, used for high-risk work and when Smart Routing escalates. **Default routing is Smart Routing** (`skills/cost-efficiency/`).
 
-**Architecture gate split:** For small/medium tasks (no new modules, no breaking changes) the Orchestrator writes a 3–5 bullet inline architecture brief into `reports/vX.X.X/01-architect-report.md` without invoking @architect. For new modules, breaking changes, cross-domain designs, or uncertain scope, invoke @architect (Opus) via Task tool.
+**Architecture gate split:** For small/medium tasks (no new modules, no breaking changes) the Orchestrator writes a 3–5 bullet inline architecture brief into `reports/vX.Y.Z/sprint-NN/01-architect-report.md` without invoking @architect. For new modules, breaking changes, cross-domain designs, or uncertain scope, invoke @architect (Opus) via Task tool.
 
 Use `docs/orchestrator/MODES.md` and the relevant mode skill when the request
 is a prototype, cross-domain department run, or explicit Agent Teams run.
@@ -58,7 +58,7 @@ User Request → "Bug Fix: [X]"
     ↓
 2. @validator ∥ @tester (PARALLEL)
     ↓
-3. COMPLETE (no @scribe for patches unless significant)
+3. INTEGRATE — @scribe adds the `[Unreleased]` CHANGELOG entry (Core Rule 11: every sprint, even one-line fixes)
 ```
 
 ## API Change Workflow (Strict)
@@ -105,7 +105,7 @@ User Request → "Research: [X]"
    → Technology evaluation matrix
    → Report with sources and recommendations
     ↓
-2. Report saved to reports/vX.X.X/00-researcher-report.md
+2. Report saved to reports/vX.Y.Z/sprint-NN/00-researcher-report.md
 ```
 
 ## Issue Processing Workflow

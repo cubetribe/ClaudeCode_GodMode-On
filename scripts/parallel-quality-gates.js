@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 /**
+ * ⚠ SIMULATION ONLY — this script does NOT execute real quality gates.
+ * launchValidator/launchTester are setTimeout stubs hardcoded to APPROVED.
+ * Real parallel gates run via the Orchestrator's parallel Task tool calls
+ * (see docs/orchestrator/QUALITY-GATES.md). Deprecated as tooling since
+ * v8.5.0; kept as an executable illustration of the decision matrix.
+ *
  * Parallel Quality Gates Orchestrator (v5.6.0)
  *
  * Revolutionary performance improvement: 40% faster quality validation

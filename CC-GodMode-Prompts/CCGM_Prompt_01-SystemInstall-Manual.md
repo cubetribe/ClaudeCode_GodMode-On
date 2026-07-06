@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 8.0.1
+> **Version:** 8.5.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -385,7 +385,7 @@ chmod +x ~/.claude/scripts/*.js
 
 ## Version
 
-CC_GodMode **v8.0.1 — The Ultracode Release**
+CC_GodMode **v8.5.0**
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 

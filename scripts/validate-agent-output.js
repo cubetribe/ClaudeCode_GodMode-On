@@ -695,6 +695,70 @@ function checkWorkflowViolation(agentType, validation) {
 }
 
 /**
+ * Hook mode (v8.5 fix): Claude Code hooks (SubagentStop etc.) invoke this script
+ * with NO argv and deliver a JSON payload on stdin. The old wiring passed no
+ * arguments, so every hook fire died in the usage branch with exit 1 and no
+ * report was ever validated. In hook mode we:
+ *  - read the stdin payload (for cwd),
+ *  - locate the most recently modified report under reports/ (last 15 min),
+ *  - validate it, and exit 2 (blocking, per hook contract) on violations.
+ * If no recent report exists we exit 0 — a hook must never break unrelated work.
+ */
+function findLatestReport(baseDir) {
+  const reportsDir = path.join(baseDir, 'reports');
+  if (!fs.existsSync(reportsDir)) return null;
+  let best = null;
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith('.md')) {
+        const mtime = fs.statSync(full).mtimeMs;
+        if (!best || mtime > best.mtime) best = { path: full, mtime };
+      }
+    }
+  };
+  try { walk(reportsDir); } catch { return null; }
+  if (!best) return null;
+  const fifteenMinutes = 15 * 60 * 1000;
+  return (Date.now() - best.mtime) <= fifteenMinutes ? best.path : null;
+}
+
+function runHookMode(domain) {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (d) => { raw += d; });
+  process.stdin.on('end', () => {
+    let payload = {};
+    try { payload = JSON.parse(raw || '{}'); } catch { /* tolerate non-JSON */ }
+    const cwd = payload.cwd || process.cwd();
+
+    const reportPath = findLatestReport(cwd);
+    if (!reportPath) process.exit(0);
+
+    const output = loadAgentOutput(reportPath);
+    if (!output) process.exit(0);
+
+    const agent = detectAgentName(path.basename(reportPath));
+    if (!agent) process.exit(0);
+
+    const validation = validateAgentOutput(agent, output, domain);
+    displayValidationResults(validation);
+
+    const violation = checkWorkflowViolation(agent, validation);
+    if (violation) {
+      console.error(`WORKFLOW VIOLATION: ${violation.reason} — ${violation.message}`);
+      process.exit(2); // blocking exit code per Claude Code hook contract
+    }
+    if (validation.completeness < 30) {
+      console.error(`Agent report critically incomplete (${validation.completeness}% < 30%): ${reportPath}`);
+      process.exit(2);
+    }
+    process.exit(0);
+  });
+}
+
+/**
  * Main CLI interface
  */
 function main() {
@@ -726,6 +790,11 @@ function main() {
 
   // Validate required arguments
   if (!args.reportPath) {
+    // Hook mode: no argv, JSON payload on stdin (Claude Code hook contract)
+    if (!process.stdin.isTTY) {
+      runHookMode(args.domain);
+      return;
+    }
     console.error('Usage: validate-agent-output.js <report-file> [agent-name] [--domain=<name>]');
     console.error('');
     console.error('Use --help for more information.');

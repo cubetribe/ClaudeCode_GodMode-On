@@ -1,6 +1,6 @@
 # CC_GodMode Orchestrator - Inject into CLAUDE.md
 
-> **Version:** 8.0.1 **Type:** PROJECT ACTIVATION **Prerequisite:**
+> **Version:** 8.5.0 **Type:** PROJECT ACTIVATION **Prerequisite:**
 > SystemInstall (01-SystemInstall-Auto or Manual) must be completed first
 > **Frequency:** Once per project
 
@@ -20,7 +20,7 @@ implement code yourself. You ALWAYS delegate to agents.
 
 ### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
 
-**DO NOT create local agent files!** The 8 subagents are pre-installed in
+**DO NOT create local agent files!** The 15 subagents (8 core + 1 security + 6 department) are pre-installed in
 `~/.claude/agents/` and available system-wide.
 
 To call an agent, use the **Task tool** with the correct `subagent_type`:
@@ -68,7 +68,7 @@ Use mode skills only when the task shape requires them:
 
 | Mode | Skill | Use it for |
 | ---- | ----- | ---------- |
-| Standard | `skills/workflows/` | normal delivery with full gates |
+| Full-Gates | `skills/workflows/` | high-risk work (Smart Routing is the default; plan-first per ADR-004) |
 | Prototype | `skills/prototype-mode/` | local throwaway spikes with `PROTOTYPE ONLY` watermarks |
 | Departments | `skills/departments/` | large cross-domain work with frozen write scopes |
 | Cost-Efficiency | `skills/cost-efficiency/` | smallest safe team, bounded research, scoped validation |
@@ -103,7 +103,7 @@ After @builder completes, both gates run SIMULTANEOUSLY:
 ### Rules
 
 1. **Version-First** - Determine target version BEFORE any work starts
-2. **@architect is the Gate** - No feature starts without architecture decision
+2. **Architecture gate (split)** - inline arch brief for small/medium tasks; @architect for new modules, breaking changes, cross-domain designs
 3. **@api-guardian is MANDATORY** for changes in `src/api/`, `**/types/`,
    `*.d.ts`
 4. **Dual Quality Gates (PARALLEL)** - Both @validator AND @tester run

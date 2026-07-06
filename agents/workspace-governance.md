@@ -20,6 +20,24 @@ You review the governing documents that control a task: CLAUDE.md files, AGENTS.
 
 ---
 
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — goal, scope, non-goals, and acceptance criteria bound my review — plus the role-specific inputs the Orchestrator names in the dispatch.
+
+**Write scope:** I am advisory: I write ONLY my report to `reports/vX.Y.Z/sprint-NN/workspace-governance-report.md` (department reports are unnumbered by name). I never modify repository files, `VERSION`, `CHANGELOG.md`, or `plans/**`. Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+
+**Return verdict (canonical shape — required for Orchestrator fan-in):**
+```
+STATUS: DONE | BLOCKED
+- finding 1 (one line max)
+- finding 2
+- finding 3
+report: <absolute path to report file>
+```
+Use `BLOCKED (quality)` when required inputs are missing or findings demand a hard stop; `BLOCKED (conflict)` when foreign in-flight changes affect my review target.
+
+---
+
 ## What I Do
 
 ### 1. Review governing documents
@@ -69,7 +87,7 @@ Always explicitly mark:
 ```
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/workspace-governance-report.md`
+**Save to:** `reports/vX.Y.Z/sprint-NN/workspace-governance-report.md` (version and sprint number from the assigned sprint file)
 
 ---
 
@@ -93,4 +111,4 @@ Optional department agent. Activate when:
 
 ---
 
-*Ported from Codex department agent — GodMode v0.2.0 migration*
+*Department agent — see `docs/orchestrator/AGENTS.md` for the registry and handoff matrix.*

@@ -60,7 +60,7 @@ Use parallel Task tool calls to run both agents simultaneously:
 
 ## Agent Return Contract
 
-Every agent writes a **full report** to `reports/vX.X.X/NN-<agent>-report.md` (validated by `scripts/validate-agent-output.js` — min-length rules check the file, not the return message). The agent's **return message to the Orchestrator** is the structured verdict only:
+Every agent writes a **full report** to `reports/vX.Y.Z/sprint-NN/<NN>-<agent>-report.md` (validated by `scripts/validate-agent-output.js` — min-length rules check the file, not the return message). The agent's **return message to the Orchestrator** is the structured verdict only:
 
 ```
 STATUS: APPROVED | BLOCKED | DONE

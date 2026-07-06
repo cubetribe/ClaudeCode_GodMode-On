@@ -8,9 +8,10 @@ Thumbs.db
 *.swp
 *.swo
 
-# Generated Reports (all agent/subagent reports go here)
-/reports/
-!/reports/.gitkeep
+# Agent/subagent reports are TRACKED since v8.5.0 (maintainer rule 2026-07-06):
+# every agent and subagent writes its markdown report into reports/vX.Y.Z/sprint-NN/
+# inside the repo — never into /tmp or session scratch dirs, which vanish on
+# session interruption. Reports are committed at sprint integration.
 
 # Legacy Agents folder (for projects using CC_GodMode)
 /Agents/*

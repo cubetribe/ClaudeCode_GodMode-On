@@ -84,7 +84,7 @@ your-project/                       ← YOUR PROJECT
 │   ├── QUALITY-GATES.md            ← Parallel gate orchestration
 │   ├── VERSIONING.md               ← Version-first & pre-push rules
 │   └── META-DECISIONS.md           ← Meta-logic, ADR, RARE, escalation
-├── reports/                        ← Agent outputs (gitignored)
+├── reports/                        ← Agent/subagent reports (tracked since v8.5.0)
 │   └── vX.X.X/                     ← Grouped by version
 └── .playwright-mcp/                ← Screenshot output
 ```

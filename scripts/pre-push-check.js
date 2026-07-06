@@ -210,6 +210,25 @@ function checkUncommittedChanges() {
 }
 
 /**
+ * Release invariant (v8.5, ADR-004): VERSION == top CHANGELOG == latest tag,
+ * ahead-of-tag only while a release is in flight. Delegates to release-check.js.
+ */
+function checkReleaseConsistency() {
+  try {
+    execSync(`node ${JSON.stringify(path.join(__dirname, 'release-check.js'))} --ci`, { stdio: 'pipe' });
+    return {
+      passed: true,
+      message: 'Release invariant holds (VERSION / CHANGELOG / tags consistent)'
+    };
+  } catch (error) {
+    return {
+      passed: false,
+      message: 'Release invariant violated — run: node scripts/release-check.js'
+    };
+  }
+}
+
+/**
  * Run all pre-push checks
  */
 function runPrePushChecks() {
@@ -223,6 +242,7 @@ function runPrePushChecks() {
     { name: 'Workflow State', fn: checkWorkflowState },
     { name: 'VERSION Updated', fn: checkVersionUpdated },
     { name: 'CHANGELOG Updated', fn: checkChangelogUpdated },
+    { name: 'Release Consistency', fn: checkReleaseConsistency },
     { name: 'No Uncommitted Changes', fn: checkUncommittedChanges }
   ];
 

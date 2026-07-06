@@ -6,7 +6,7 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-8.0.1-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-8.5.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
@@ -65,7 +65,7 @@ The orchestrator loads from `CLAUDE.md` automatically. But its headline power �
 **Step 1 — Turn on Ultracode.** Set it once per session, in the effort selector at the bottom of Claude Code, or by command:
 
 ```
-/model best        # Opus 4.8 today; auto-upgrades as your org gains access
+/model best        # resolves to Opus 4.8 — the model this system is optimized for
 /effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
 ```
 
@@ -119,7 +119,7 @@ You: *drinks coffee*
 
 v8.0.0's headline: **parallelization is the default**, not an afterthought.
 
-- **Orchestrator on `best` / Opus 4.8 at ultracode** — xhigh reasoning plus automatic dynamic workflows for substantive tasks. The `best` alias auto-upgrades as your org gains access to more capable models, so the system never goes stale.
+- **Orchestrator optimized for Opus 4.8 at ultracode** — xhigh reasoning plus automatic dynamic workflows for substantive tasks. The `best` alias resolves to Opus 4.8; if your org has access to a higher tier it is picked up automatically — strictly optional, no feature depends on it.
 - **Fan-out by default** — independent units (multi-file edits, audits, migrations, multi-angle research) spawn parallel subagents in a single message; the orchestrator fans in and synthesizes their verdicts.
 - **Dynamic-workflows escalation** — when a job outgrows ~10 concurrent subagents, it escalates to tens-to-hundreds of subagents with **adversarial verification** (agents try to refute each other's findings). See [`skills/dynamic-workflows/`](./skills/dynamic-workflows/SKILL.md).
 - **Smart Routing stays the default** — risk-based, minimal-agent paths; ~30–50% token reduction vs. always-Full-Gates. Parallel is *faster, not cheaper*, so max-parallel is a deliberate opt-in.
@@ -144,15 +144,16 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 
 ## The Rules
 
-1. **Version-First** — Determine the version BEFORE any work starts
+1. **Plan-First** — Non-trivial work starts with a plan (`plans/vX.Y.Z/`) split into sprints with explicit write-scope ownership; the version is decided at release, never at work start (ADR-004)
 2. **Smart Routing default** — Risk-based routing; Full-Gates for high-risk signals
 3. **Architecture gate (split)** — Inline brief for small/medium; @architect (Opus) for new modules / breaking changes
 4. **@api-guardian is MANDATORY** — For any API/schema/type change (enforced by hook)
 5. **Dual Quality Gates** — Both @validator AND @tester must pass (parallel execution)
 6. **@tester MUST create screenshots** — Every page tested at 3 viewports
-7. **No Skipping** — Every agent in the workflow executes
-8. **Reports in `reports/vX.X.X/`** — Organized by version
+7. **No Skipping within the selected path** — Smart Routing picks the minimal set; that set executes fully
+8. **Sprint-scoped reports & single-writer hot files** — parallel agents get disjoint write scopes; `VERSION`/`CHANGELOG.md` have exactly one writer (the release tooling / @scribe)
 9. **NEVER push without permission** — Applies to ALL agents
+10. **Release invariant, machine-checked** — `VERSION == CHANGELOG == tag == GitHub release`, enforced locally and in CI
 
 ---
 
@@ -163,12 +164,14 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 - **[Architecture](./docs/ARCHITECTURE.md)** — parallel-first orchestration, file structure, dual-location model, the hook
 - **[The Agents](./docs/AGENTS.md)** — the 15-agent roster, quality gates, workflows, and modes
 - **[The Story & Design Philosophy](./docs/STORY.md)** — how (and why) the system builds itself
+- **[ROADMAP.md](./ROADMAP.md)** — living roadmap · **[plans/](./plans/)** — active plans & sprint files
 
 **Reference:**
 - **[CHANGELOG.md](./CHANGELOG.md)** — full version history
 - **[AGENT_MODEL_SELECTION.md](./docs/AGENT_MODEL_SELECTION.md)** — model aliases, pricing, and cost optimization
 - **[AGENT_ARCHITECTURE.md](./docs/AGENT_ARCHITECTURE.md)** — dual-location install/update/verify procedures
 - **[orchestrator/AGENTS.md](./docs/orchestrator/AGENTS.md)** — agent registry & handoff matrix
+- **[orchestrator/VERSIONING.md](./docs/orchestrator/VERSIONING.md)** — **the release law** (single source of truth, invariant, procedures)
 - **[orchestrator/WORKFLOWS.md](./docs/orchestrator/WORKFLOWS.md)** · **[MODES.md](./docs/orchestrator/MODES.md)** · **[QUALITY-GATES.md](./docs/orchestrator/QUALITY-GATES.md)** · **[VERSIONING.md](./docs/orchestrator/VERSIONING.md)** · **[META-DECISIONS.md](./docs/orchestrator/META-DECISIONS.md)**
 
 **Policies:**
@@ -193,7 +196,7 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 
 ## Version
 
-**CC_GodMode v8.0.1 — The Ultracode Release**
+**CC_GodMode v8.5.0**
 
 What's in the box:
 - **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning

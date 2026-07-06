@@ -1,0 +1,29 @@
+# Release Consistency Gate (v8.5, ADR-004)
+# Enforces on every PR: all version touchpoints match VERSION, and the release
+# invariant holds (VERSION == top CHANGELOG == latest tag; ahead-of-tag only
+# for release/* branches — release-check.js reads GITHUB_HEAD_REF in CI).
+name: Release Consistency
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history + tags for release-check
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Version touchpoint check
+        run: node scripts/sync-version.js --check
+
+      - name: Release invariant check
+        run: node scripts/release-check.js --ci

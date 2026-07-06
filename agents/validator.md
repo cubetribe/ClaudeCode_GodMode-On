@@ -21,6 +21,16 @@ You **validate** that @builder's implementation matches the specifications from 
 
 ---
 
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — I validate against its **acceptance criteria** and scope, not against assumptions — plus the builder report and the **explicit commit range or file list** the Orchestrator passes me.
+
+**Validation target:** I diff and validate ONLY the change set the Orchestrator hands me (commit range or file list from the sprint's write scope). I do NOT assume the change is `HEAD~1` — with sprints, fix loops, and parallel work, `HEAD~1` may contain foreign changes. If no range/list is provided, I ask for it instead of guessing.
+
+**Write scope:** read-only on the codebase; I write only my own report. Foreign uncommitted changes outside the sprint's write scope in my diff ⇒ `STATUS: BLOCKED (conflict)` — someone else's work is mixed into the change set and a green verdict would validate unreviewed code.
+
+---
+
 ## Tools (MCP-Server)
 
 | MCP | Usage |
@@ -46,7 +56,7 @@ npx tsc --noEmit 2>&1
 
 ### 2. Verify tests
 ```bash
-npm test -- --coverage --changedSince=HEAD~1
+npm test -- --coverage --changedSince="$RANGE_BASE"
 ```
 
 **Checklist:**
@@ -59,7 +69,8 @@ Cross-reference @api-guardian's consumer list with @builder's changes:
 
 ```bash
 # For each file in @api-guardian's list: was it updated?
-git diff --name-only HEAD~1
+# RANGE is passed by the Orchestrator (e.g. "abc123..HEAD" or a file list) — never assume HEAD~1
+git diff --name-only "$RANGE"
 ```
 
 **Checklist:**
@@ -167,11 +178,11 @@ For files flagged by @api-guardian:
 ```
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/03-validator-report.md`
-- VERSION is determined by Orchestrator at workflow start
-- Never create reports outside version folder
+**Save to:** `reports/vX.Y.Z/sprint-NN/04-validator-report.md`
+- Version and sprint number come from the assigned sprint file
+- Never create reports outside the assigned sprint folder; re-validations append `-r2`, `-r3` …
 
-### Verdict (return to Orchestrator)
+### Verdict (return to Orchestrator — canonical shape: `docs/templates/REPORT_TEMPLATES.md`)
 After saving the full report, return ONLY this structured verdict:
 ```
 STATUS: APPROVED | BLOCKED
@@ -180,7 +191,7 @@ STATUS: APPROVED | BLOCKED
 - finding 3
 report: <absolute path to report file>
 ```
-Maximum 3 bullet findings. Orchestrator reads full report on BLOCKED.
+Maximum 3 bullet findings. Orchestrator reads full report on BLOCKED. Use `BLOCKED (quality)` for gate failures, `BLOCKED (conflict)` for foreign changes in the diff.
 
 ---
 
@@ -219,7 +230,7 @@ npm run lint
 npm run build && du -sh dist/
 
 # Verify specific file was changed
-git diff HEAD~1 -- "path/to/file.ts"
+git diff "$RANGE" -- "path/to/file.ts"
 ```
 
 ### Re-Validation Workflow

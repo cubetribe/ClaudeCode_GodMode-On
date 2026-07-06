@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 8.0.1
+> **Version:** 8.5.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -35,7 +35,7 @@
 - Full reports still written to disk and validated by `validate-agent-output.js`
 
 **Skills Installation**
-- Installs all 11 CC_GodMode skills into `~/.claude/skills/`
+- Installs all 14 CC_GodMode skills into `~/.claude/skills/` (incl. sprint-planning, dynamic-workflows, greenfield-bootstrap)
 
 ---
 
@@ -103,7 +103,7 @@ Before you execute anything, give the user the following message:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation v8.0.1 - The Ultracode Release                  ║
+║   CC_GodMode Installation v8.5.0                                          ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -114,7 +114,7 @@ Before you execute anything, give the user the following message:
 ║   1. Download the CC_GodMode repository from GitHub                      ║
 ║   2. Install 15 AI agents (8 core + 1 security gate + 6 department)       ║
 ║   3. Set up 15 automation scripts                                         ║
-║   4. Install 11 skills, config files, and templates                       ║
+║   4. Install 14 skills, config files, and templates                       ║
 ║   5. Install the Memory MCP Server (for persistent knowledge)             ║
 ║   6. Configure 4 automatic hooks                                          ║
 ║   7. Set up auto-update system                                            ║
@@ -445,7 +445,7 @@ claude mcp list
     "SubagentStop": [
       {
         "type": "command",
-        "command": "node ~/.claude/scripts/validate-agent-output.js \"$CLAUDE_SUBAGENT_TYPE\" \"$CLAUDE_SUBAGENT_OUTPUT\""
+        "command": "node ~/.claude/scripts/validate-agent-output.js"
       }
     ]
   }
@@ -483,7 +483,7 @@ claude mcp list
     "SubagentStop": [
       {
         "type": "command",
-        "command": "node \"%USERPROFILE%\\.claude\\scripts\\validate-agent-output.js\" \"$CLAUDE_SUBAGENT_TYPE\" \"$CLAUDE_SUBAGENT_OUTPUT\""
+        "command": "node \"%USERPROFILE%\\.claude\\scripts\\validate-agent-output.js\""
       }
     ]
   }
@@ -591,13 +591,13 @@ After completing all steps, provide this summary to the user:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation Successful! v8.0.1 - The Ultracode Release      ║
+║   CC_GodMode Installation Successful! v8.5.0                              ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
 ║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
-║   Version:      8.0.1                                                     ║
+║   Version:      8.5.0                                                     ║
 ║   Agents:       [X]/15 installed (8 core + 1 security gate + 6 department)║
 ║   Skills:       [X]/11 installed                                          ║
 ║   Scripts:      [X]/15 installed                                          ║
@@ -723,7 +723,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
 | Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 15 |
-| Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 11 |
+| Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 14 |
 | Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 15 |
 | Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
 | Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 3 |

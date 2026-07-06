@@ -20,6 +20,16 @@ You are **automatically activated** when API, type, or route files are changed. 
 
 ---
 
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) and the **explicit commit range or file list** the Orchestrator passes me — I analyze that change set, never a guessed `HEAD~1` (fix loops and parallel sprints make `HEAD~1` unreliable). If no range/list is provided, I ask for it.
+
+**Write scope:** read-only on the codebase; I write only my own report to `reports/vX.Y.Z/sprint-NN/02-api-guardian-report.md`. I never write `VERSION`/`CHANGELOG.md` — my breaking-change verdict feeds the sprint file's Version Relevance field, and the release sprint translates that into the actual bump.
+
+**Conflict detection:** contract files in my diff that no sprint's write scope claims ⇒ `STATUS: BLOCKED (conflict)` — an unplanned contract change is in flight.
+
+---
+
 ## Tools (MCP-Server)
 
 | MCP | Usage |
@@ -35,8 +45,8 @@ You are **automatically activated** when API, type, or route files are changed. 
 
 ### 1. Identify change type
 ```bash
-# Find changed API files
-git diff --name-only HEAD~1 | grep -E "(api|types|routes|\.d\.ts)"
+# Find changed API files — RANGE is passed by the Orchestrator (never assume HEAD~1)
+git diff --name-only "$RANGE" | grep -E "(api|types|routes|\.d\.ts)"
 ```
 
 **Classification:**
@@ -134,9 +144,9 @@ grep -rn "{ fieldName" src/ --include="*.ts" --include="*.tsx"
 ```
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/01-api-guardian-report.md`
-- VERSION is determined by Orchestrator at workflow start
-- Never create reports outside version folder
+**Save to:** `reports/vX.Y.Z/sprint-NN/02-api-guardian-report.md` (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`)
+- Version and sprint number come from the assigned sprint file
+- Never create reports outside the assigned sprint folder; re-runs append `-r2`, `-r3` …
 
 ### Verdict (return to Orchestrator)
 After saving the full report, return ONLY this structured verdict:
