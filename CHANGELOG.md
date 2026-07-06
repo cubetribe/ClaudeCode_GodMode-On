@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Hook contract test** `scripts/test-hooks-contract.js` (`npm run hooks:test`, new "Hook contract check" step in `.github/workflows/release-consistency.yml`): asserts no forbidden `$CLAUDE_*` argument tokens in any hook wiring file (`${CLAUDE_PLUGIN_ROOT}` stays allowed), behavioral stdin-payload probes for every wired script, usage-error guard — 28 checks.
+- **Installer `--fix-hooks` mode** (`scripts/apply-global-claude-setup.sh`): repairs `~/.claude/settings.json` hook wiring — backs up first, merges the canonical five events ($HOME-anchored, argument-free, both repo-relative and `~/.claude`-style canonical paths normalized), removes entries referencing analyze-prompt.js or never-populated `$CLAUDE_*` vars, preserves all unrelated keys/events byte-for-byte; composes with the normal install or runs standalone. Closes the documented gap that the installer never healed settings.json drift.
+- **Session-start drift guard** (`scripts/session-start.js`): banner now warns when the install marker is behind the repo VERSION and when broken `$CLAUDE_*`/analyze-prompt hook wiring is detected in `~/.claude/settings.json` (with the fix command); silent when healthy, never crashes the banner (full try/catch degradation).
 
 ### Deprecated
 

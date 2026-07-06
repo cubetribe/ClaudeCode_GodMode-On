@@ -56,6 +56,10 @@ const CLAUDE_DIR = path.join(HOME_DIR, '.claude');
 const VERSION_FILE = path.join(CLAUDE_DIR, 'VERSION');
 const REPORTS_DIR = path.join(process.cwd(), 'reports');
 
+// v8.6.0 - Sprint 02: Install/repo drift guard + broken-wiring guard
+const INSTALL_VERSION_MARKER = path.join(HOME_DIR, '.cc-godmode-version');
+const CLAUDE_SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
+
 // ANSI Colors (same as version-bump.js)
 const colors = {
   reset: '\x1b[0m',
@@ -391,6 +395,123 @@ function checkWorkflowInProgress() {
 }
 
 /**
+ * Detect a GodMode repo signature in a directory (v8.6.0)
+ * Signature: VERSION file + CLAUDE.md + scripts/apply-global-claude-setup.sh
+ */
+function isGodModeRepoDir(dir) {
+  try {
+    return (
+      fs.existsSync(path.join(dir, 'VERSION')) &&
+      fs.existsSync(path.join(dir, 'CLAUDE.md')) &&
+      fs.existsSync(path.join(dir, 'scripts', 'apply-global-claude-setup.sh'))
+    );
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Find a GodMode repo VERSION by walking up from cwd up to 2 ancestor levels (v8.6.0)
+ */
+function findRepoVersion() {
+  try {
+    let dir = process.cwd();
+    for (let i = 0; i <= 2; i++) {
+      if (isGodModeRepoDir(dir)) {
+        const content = fs.readFileSync(path.join(dir, 'VERSION'), 'utf8');
+        return content.trim().replace(/^v/, '') || null;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  } catch (error) {
+    // Non-critical - degrade silently
+  }
+  return null;
+}
+
+/**
+ * Read a version-like marker file, tolerating absence (v8.6.0)
+ */
+function readVersionMarker(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const content = fs.readFileSync(filePath, 'utf8').trim().replace(/^v/, '');
+    return content || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Detect install/repo version drift (v8.6.0 - Sprint 02)
+ * Never throws - degrades to no warnings on any error.
+ */
+function detectDriftWarnings() {
+  const warnings = [];
+
+  try {
+    const marker = readVersionMarker(INSTALL_VERSION_MARKER);
+    const claudeVersion = readVersionMarker(VERSION_FILE);
+    const repoVersion = findRepoVersion();
+
+    if (marker && repoVersion && marker !== repoVersion) {
+      warnings.push(
+        `Install v${marker} behind repo v${repoVersion} — run scripts/apply-global-claude-setup.sh`
+      );
+    }
+
+    if (marker && claudeVersion && claudeVersion !== marker) {
+      warnings.push(
+        `~/.claude/VERSION (v${claudeVersion}) != install marker (v${marker})`
+      );
+    }
+  } catch (error) {
+    // Non-critical - degrade silently, never crash the banner
+  }
+
+  return warnings;
+}
+
+/**
+ * Detect broken hook wiring in ~/.claude/settings.json (v8.6.0 - Sprint 02)
+ * Scans hook command strings for $CLAUDE_* tokens (other than
+ * ${CLAUDE_PLUGIN_ROOT}) or analyze-prompt.js references.
+ * Tolerates absence/parse errors silently - never crashes the banner.
+ */
+function detectBrokenHookWiring() {
+  try {
+    if (!fs.existsSync(CLAUDE_SETTINGS_FILE)) return false;
+
+    const settings = JSON.parse(fs.readFileSync(CLAUDE_SETTINGS_FILE, 'utf8'));
+    const hooks = settings && settings.hooks;
+    if (!hooks || typeof hooks !== 'object') return false;
+
+    const FORBIDDEN_VAR_RE = /\$CLAUDE_(?!\{?PLUGIN_ROOT\b)/;
+    const ANALYZE_PROMPT_RE = /analyze-prompt\.js/;
+
+    for (const entries of Object.values(hooks)) {
+      if (!Array.isArray(entries)) continue;
+      for (const entry of entries) {
+        const hookList = entry && entry.hooks;
+        if (!Array.isArray(hookList)) continue;
+        for (const h of hookList) {
+          const command = h && typeof h.command === 'string' ? h.command : '';
+          if (FORBIDDEN_VAR_RE.test(command) || ANALYZE_PROMPT_RE.test(command)) {
+            return true;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    // Non-critical - degrade silently, never crash the banner
+  }
+
+  return false;
+}
+
+/**
  * Display workflow resume box (v5.8.3)
  */
 function displayWorkflowResume(resumeInfo) {
@@ -439,7 +560,7 @@ function displayWorkflowResume(resumeInfo) {
 /**
  * Display welcome message with system status
  */
-function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPacks) {
+function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPacks, driftWarnings, hookWiringBroken) {
   const lines = [
     `${colors.bright}CC_GodMode v${version.toString()}${colors.reset}`,
     ''
@@ -566,6 +687,21 @@ function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPac
   lines.push(`  ${colors.gray}${row1}${colors.reset}`);
   lines.push(`  ${colors.gray}${row2}${colors.reset}`);
 
+  // v8.6.0 - Sprint 02: Drift Guard section (only rendered when triggered)
+  const hasDriftWarnings = Array.isArray(driftWarnings) && driftWarnings.length > 0;
+  if (hasDriftWarnings || hookWiringBroken) {
+    lines.push('');
+    lines.push(`${colors.yellow}Drift Guard${colors.reset}`);
+    if (hasDriftWarnings) {
+      driftWarnings.forEach(w => lines.push(`  ${colors.yellow}⚠${colors.reset} ${w}`));
+    }
+    if (hookWiringBroken) {
+      lines.push(
+        `  ${colors.yellow}⚠${colors.reset} Broken hook wiring detected in ~/.claude/settings.json — run apply-global-claude-setup.sh --fix-hooks`
+      );
+    }
+  }
+
   // Print the box
   printBox(lines, colors.blue);
 
@@ -618,11 +754,15 @@ async function main() {
   // v5.7.0: Discover domain packs
   const domainPacks = discoverDomainPacksIfAvailable();
 
+  // v8.6.0 - Sprint 02: Drift guard + broken-wiring guard (never throws)
+  const driftWarnings = detectDriftWarnings();
+  const hookWiringBroken = detectBrokenHookWiring();
+
   // Display welcome message
   if (!workflowResume) {
     console.log(''); // Empty line before box (only if no workflow resume shown)
   }
-  displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPacks);
+  displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPacks, driftWarnings, hookWiringBroken);
   console.log(''); // Empty line after box
 }
 

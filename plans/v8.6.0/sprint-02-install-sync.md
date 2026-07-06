@@ -2,7 +2,7 @@
 sprint: 02
 slug: install-sync
 plan: plans/v8.6.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -75,4 +75,24 @@ patch — installer/diagnostic improvements, no contract change.
 - [ ] No other in-progress sprint owns overlapping files
 
 ## Result (filled at completion)
-_pending_
+Done 2026-07-06. Gates: @validator APPROVED after one BLOCKED (quality) round — the
+canonical repo-relative PostToolUse command was not $HOME-normalized in the install
+merge; fixed (adjustCommand now normalizes both `scripts/<name>.js` and
+`~/.claude/scripts/<name>.js` forms). Contract suite stayed 28/28 throughout.
+
+Live sync EXECUTED on this machine (orchestrator step):
+- `--fix-hooks`: 3 events replaced, 2 inserted (TaskCompleted/TeammateIdle were never
+  wired in the install), 1 broken analyze-prompt entry removed; backup at
+  `~/.claude/backups/install-archives/2026-07-06T14-28-50/settings/settings.json`.
+- Full install: 15 agents (Sprint Contract), 17 scripts (stdin hook modes), 14 skills
+  (incl. sprint-planning), templates; archive `.../2026-07-06T14-29-00/`.
+- `~/.claude/CLAUDE.md` refreshed to the v8.5 orchestrator core with the personal tail
+  preserved (stack defaults, department table, scheduled automations); backup in the
+  same archive. `~/.claude/VERSION` → 8.5.0.
+- Verified: wiring $HOME-anchored/argument-free (no forbidden $CLAUDE_*), installed
+  check-api-impact + validate-agent-output have stdin modes, drift guard silent on the
+  now-healthy install, installed hook fires on API-path probe.
+
+Follow-up: sprint 05 re-syncs the install after the 8.6.0 bump (VERSION marker +
+CLAUDE.md footer). NOTE: running sessions load the new global CLAUDE.md only on
+restart.
