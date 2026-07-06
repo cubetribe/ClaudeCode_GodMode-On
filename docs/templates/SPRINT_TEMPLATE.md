@@ -47,6 +47,23 @@ Rules:
 How the result is verified (commands, checks, review type). Prefer runnable checks
 (`node scripts/sync-version.js --check`, `node scripts/release-check.js`, targeted grep).
 
+## Routing Log
+**Canonical definition** (`skills/cost-efficiency/SKILL.md` references this section).
+One line per routing decision or agent skip, logged **before dispatch**:
+
+```
+- <date> | path: smart-routing|full-gates | signals: <risk signals seen or "none"> | skipped: <agents skipped + one-line justification, or "none">
+```
+
+Example:
+- 2026-07-06 | path: smart-routing | signals: none | skipped: @architect (small doc-only change, no new module)
+- 2026-07-07 | path: full-gates | signals: src/api/routes.ts, VERSION | skipped: none
+
+Rules:
+- Every routing choice AND every agent skip MUST be logged before dispatch.
+- A skip without a matching log line is a contract violation — reviewers return `BLOCKED (quality)`.
+- Implicit sprints (`sprint-00`, no sprint file) put the same line in the report header instead of a sprint file section.
+
 ## Changelog Note
 One draft bullet for `CHANGELOG.md` `[Unreleased]` (added at sprint integration, by the single changelog writer).
 

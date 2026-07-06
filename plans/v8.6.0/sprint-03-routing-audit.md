@@ -2,7 +2,7 @@
 sprint: 03
 slug: routing-audit
 plan: plans/v8.6.0/PLAN.md
-status: planned
+status: done
 execution: parallel
 owner: orchestrator
 ---
@@ -80,4 +80,14 @@ minor — new mandatory workflow mechanisms, backward-compatible.
 - [ ] No other in-progress sprint owns overlapping files (04 shares META-DECISIONS ⇒ 04 waits)
 
 ## Result (filled at completion)
-_pending_
+Done 2026-07-06. Gates: @validator APPROVED (cross-file consistency, no CLAUDE.md
+conflicts, hooks suite green), @docs-dx APPROVED with queued wording improvements —
+all applied post-gate by both builders (filled-in Routing Log example in the canonical
+template, format-string dedup to single canonical location, keep/omit rule for the
+implicit-sprint Routing Log line, self-contained correlated-miss-floor rationale,
+adjudication worked example + bright-line trigger test, simplified collusion wording).
+Spot-check re-verified after fixes; hooks contract suite stayed green.
+
+Note: the SubagentStop verdict hook (repaired in sprints 01–02) actively enforced
+report structure on builder-B mid-sprint — first live proof of the restored
+enforcement layer.

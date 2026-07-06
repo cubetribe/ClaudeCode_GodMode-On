@@ -48,15 +48,62 @@ Full Matrix: `docs/policies/RARE_MATRIX.md`
 
 ## Escalation Mechanism
 
-Three-tier error handling:
+Three-tier error handling, now expressed as an explicit decision tree so every
+trigger is classified MANDATORY (must escalate, no orchestrator discretion) or
+OPTIONAL (orchestrator judgment call, logged).
+
+### Escalation Decision Tree
 
 ```
-Tier 1: Agent Self-Resolution (automatic retry)
-        | (if fails 3x)
-Tier 2: Orchestrator Resolution (alternate agent/skip)
-        | (if unresolvable)
-Tier 3: Human Escalation (present options to user)
+START: an agent, gate, or the orchestrator hits friction
+│
+├─ Is it a retriable tool error or a missing input the agent can find itself?
+│  └─ YES ─▶ TIER 1 (agent self-resolution)
+│            - max 2 attempts, same agent, same scope
+│            - attempt 2 still fails ─▶ fall through to TIER 2
+│
+├─ Is it a write-scope conflict, a gate failure with actionable findings,
+│  or a mid-sprint routing re-classification (new risk signal appeared)?
+│  └─ YES ─▶ TIER 2 (orchestrator resolution)
+│            - BLOCKED (conflict)  → orchestrator resolves ownership, re-dispatches
+│            - BLOCKED (quality)   → merge findings, rework loop back to @builder
+│            - new risk signal     → re-route Smart Routing → Full-Gates, log why
+│
+└─ Is it one of the following?
+   │
+   ├─ MANDATORY (Tier 3 human escalation — no orchestrator override):
+   │  - security-relevant finding (any agent, any tier)
+   │  - scope change vs. the approved plan/sprint file
+   │  - verdict conflict NOT resolvable by written criteria
+   │    (see Finding-Conflict Adjudication in `docs/orchestrator/QUALITY-GATES.md`)
+   │  - any destructive/irreversible action (force-push, history rewrite,
+   │    data deletion, prod deploy)
+   │  - release/publish steps (tag, GitHub Release, npm publish, merge to main)
+   │
+   └─ OPTIONAL (orchestrator judgment — permitted to proceed without asking,
+      but MUST be logged in the sprint's Routing Log):
+      - cost overruns (token/time budget exceeded)
+      - repeated rework loops (>2 cycles through Tier 2 on the same item)
+      - ambiguity that slows progress but does not block a gate or a write
 ```
+
+Judgment-class triggers: see the Finding-Conflict Adjudication procedure in docs/orchestrator/QUALITY-GATES.md (this sprint); sprint 04 extends this further into CLAUDE.md core rules.
+
+### Why the MANDATORY set exists
+
+Structured rule application — risk classification, gate sequencing, verdict-matrix
+lookup — is tier-insensitive and safe to leave to the orchestrator. Judgment-class
+questions (architecture taste, ambiguous requirements, "is this actually secure/
+correct/reversible") are not: a same-tier agent ensemble shares the same blind
+spots, so a unanimous PASS at Tier 1/2 is not independent evidence of correctness —
+it is confident correlated silence. Left unescalated, a unanimous same-tier PASS
+would suppress exactly the human review a single uncertain verdict should have
+triggered (the correlated-miss floor: same-tier agents share blind spots, so a
+unanimous same-tier PASS is not independent evidence — full derivation in
+reports/v8.6.0/sprint-00/00-analysis-gtd-and-fable-gap-digest.md §2.5/§3.2). The MANDATORY
+Tier 3 triggers above are the cases where that floor is highest-consequence
+(security, scope, irreversibility, release) or structurally unresolvable by any
+written rule — so they are pulled out of orchestrator discretion entirely.
 
 ## Issue Analysis Schema
 

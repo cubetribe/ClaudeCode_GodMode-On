@@ -27,10 +27,28 @@ Everything else should be:
 For **small/medium tasks** (no new modules, no breaking changes, no cross-domain design):
 - Orchestrator writes a 3–5 bullet **inline architecture brief** directly into `reports/vX.X.X/01-architect-report.md`.
 - No @architect subagent invocation needed.
+- The brief's 3–5 bullets MUST cover all five **required fields** (see below). A brief
+  missing any field is invalid — invoke @architect instead of proceeding on an
+  underspecified design.
 
 For **high-risk tasks** (new modules, breaking changes, cross-domain design, uncertain scope):
 - Invoke @architect (Opus) via Task tool as normal.
 - Full-Gates path applies.
+
+### Inline Architecture Brief — Required Fields
+
+The brief stays 3–5 bullets (cost-efficiency spirit unchanged) — these are the fields
+those bullets must cover, not additional sections:
+
+1. **Decision** — the design/approach actually taken.
+2. **Rejected alternative** — at least one alternative considered and why it lost.
+3. **Constraints** — what binds the implementation (technical, contractual, scope).
+4. **Out-of-scope** — explicitly what this brief does NOT cover.
+5. **Affected contracts/APIs** — named, or "none".
+
+Missing any of the five ⇒ the brief is invalid; escalate to @architect rather than
+handing @builder an underspecified design. See `docs/templates/REPORT_TEMPLATES.md`
+for the exact inline-brief report variant (frontmatter, field labels).
 
 ## Default Routing
 
@@ -55,6 +73,24 @@ Any of these risk signals force the Full-Gates path (`skills/workflows/`):
 - User-facing UI changes
 - New modules or cross-domain designs
 - Breaking changes
+
+## Routing Log (Mandatory)
+
+Every Smart Routing decision and every agent skip is logged **before dispatch** — no
+exceptions. See `docs/templates/SPRINT_TEMPLATE.md` § Routing Log for the exact format
+string and example — that section is the single canonical definition; this skill does
+not duplicate it.
+
+Planned work logs this in the sprint file's `## Routing Log` section; implicit
+`sprint-00` work logs the same line in the report header instead.
+
+**Why this exists:** a misrouted task bypasses every downstream gate invisibly —
+Smart Routing's whole value is skipping agents when the risk profile allows it, but
+an unlogged skip means nobody can tell, after the fact, whether that call was
+justified or a silent gap. The log turns each minimal-path decision into a
+post-hoc auditable, re-examinable record instead of an invisible judgment call.
+A gate-skip without a matching log line is a contract violation — reviewers
+(@validator, the Orchestrator on re-check) return `BLOCKED (quality)`.
 
 ## Research Budget
 
