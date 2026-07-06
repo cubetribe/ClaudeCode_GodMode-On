@@ -6,7 +6,7 @@
   from CLAUDE.md at release time (scripts/sync-version.js keeps the version strings aligned).
 -->
 
-# CC_GodMode v8.5.0
+# CC_GodMode v8.6.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -206,4 +206,4 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 ---
 
-**CC_GodMode v8.5.0**
+**CC_GodMode v8.6.0**

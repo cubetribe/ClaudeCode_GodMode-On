@@ -2,7 +2,7 @@
 sprint: 05
 slug: release
 plan: plans/v8.6.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -64,4 +64,15 @@ none — release mechanics; aggregate of plan = minor.
 - [ ] `git status` clean except release artifacts
 
 ## Result (filled at completion)
-_pending_
+Done 2026-07-06 (local side; publish pending). Version Relevance aggregate = minor ⇒
+`version-bump.js minor`: 8.5.0 → 8.6.0, [Unreleased] promoted to [8.6.0] - 2026-07-06
+with the "Fable 5 Light" codename block, 12 touchpoints synced. Checks:
+`sync-version.js --check` all 12 consistent; `release-check.js` invariant holds
+(ahead-of-tag OK on release/v8.6.0); `hooks:test` green. ROADMAP: v8.6.0 entry at
+status `rc`. Live install re-synced to 8.6.0 (CLAUDE.md core refresh with preserved
+personal tail, VERSION + marker 8.6.0).
+
+STOPPED BEFORE PUSH per Core Rule 9 — awaiting maintainer approval for:
+push release/v8.6.0 → PR → merge → tag/GitHub Release "v8.6.0 — Fable 5 Light"
+(auto-drafted by release-tag.yml on merge; publish needs explicit OK).
+After publish: flip ROADMAP entry to `released`, flip this sprint + plan status.

@@ -79,3 +79,7 @@ All four bullets reference the canonical docs (skill.md, AGENT_MODEL_SELECTION.m
 ## Status
 
 **COMPLETE** — Sprint 04 integration finished. Changelog [Unreleased] ready for release sprint's version promotion. Next: Sprint 05 (release sprint) or any dependent sprints in the plan.
+
+## Addendum — Release Sprint (Sprint 05) Codename Block
+
+Codename title block added to `## [Unreleased]` (release sprint step): matching the [8.5.0] house format, the block contains the release tagline ("Fable 5 Light" — Deterministic Enforcement Repair, Routing Audit, Scoped Compensation) and a narrative blockquote describing the v8.6 analysis findings and law-into-code transformation. Block sits immediately after the `## [Unreleased]` heading and before the `### Fixed` section. No VERSION touched; dated heading will be promoted by `scripts/version-bump.js` in the release sprint.

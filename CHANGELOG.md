@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [8.6.0] - 2026-07-06
+### **"Fable 5 Light" — Deterministic Enforcement Repair, Routing Audit, Scoped Compensation**
+
+> *v8.5 made work sprint-native — and the v8.6 analysis (2 dynamic-workflow runs, 15 agents, adversarially verified: `reports/v8.6.0/sprint-00/`) found the enforcement layer it relied on was partly dead: the PostToolUse API-impact hook had been a silent no-op since v8.0.0, the live install was stuck on broken wiring the installer never healed, routing decisions left no audit trail, and the compensation levers meant to lift Opus 4.8 toward Fable-5 quality were unscoped. v8.6 turns the findings into law: hooks read the real stdin contract and are contract-tested in CI, the installer heals settings.json, every gate-skip is logged, adversarial verification is restricted to refutable facts, judgment-class decisions are mandatory human escalations, and the ~2× cost break-even against a real Fable-5 run is documented. "Fable 5 Light": parity on routine and checkable work — the residual gap named, visible, and human-managed.*
+
 ### Fixed
 
 - **PostToolUse API-impact hook was a silent no-op** since v8.0.0 — wired with `"$CLAUDE_FILE_PATH"`, an env var Claude Code never populates, while the script read argv only; Core Rule 4's automatic @api-guardian trigger never fired. `check-api-impact.js` now reads the hook's stdin JSON payload (`tool_input.file_path`, `cwd`) with unchanged CLI mode; wiring is argument-free in `config/claude-settings.json`, `.claude-plugin/plugin.json`, and `templates/settings.local.json.template`.

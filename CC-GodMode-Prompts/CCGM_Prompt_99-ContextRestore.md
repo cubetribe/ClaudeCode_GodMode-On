@@ -1,6 +1,6 @@
 # CC_GodMode Restart Prompt
 
-> **Version:** 8.5.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
+> **Version:** 8.6.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
 > and ProjectActivation completed **Frequency:** As-needed (after /compact or
 > context loss)
 
@@ -354,4 +354,4 @@ v8.6.0 — not wired to any hook, kept for reference only.
 
 ---
 
-**CC_GodMode v8.5.0 - Enhanced Restart Prompt with Behavior Enforcement**
+**CC_GodMode v8.6.0 - Enhanced Restart Prompt with Behavior Enforcement**

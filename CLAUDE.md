@@ -1,4 +1,4 @@
-# CC_GodMode v8.5.0
+# CC_GodMode v8.6.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -196,4 +196,4 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v8.5.0
+**Current Version:** v8.6.0
