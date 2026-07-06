@@ -2,7 +2,7 @@
 sprint: 7
 slug: release
 plan: plans/v8.5.0/PLAN.md
-status: review
+status: done
 execution: sequential
 owner: orchestrator
 ---
