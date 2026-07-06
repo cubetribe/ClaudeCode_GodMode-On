@@ -12,7 +12,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [8.5.0] - 2026-07-06
-> *v8.5.0 in progress — plan: `plans/v8.5.0/PLAN.md`. Entries are added at sprint integration; this section is promoted to a dated release heading by `scripts/version-bump.js` (ADR-004).*
+
+### **"The Sprint-Native Release" — Plan-First Orchestration, Single-Writer Release Law, CI-Enforced Invariant**
+
+> *v8 made parallel fan-out the default — and a full-repo audit (9 readers, 5 adversarial validators, 10 researchers) confirmed what that exposed: Version-First made parallel workstreams race on VERSION by design, 42 changelogged versions stood against 3 actual releases, and the enforcement layer was prose. v8.5 turns the findings into law: work is planned into sprints with owned write scopes before anything is dispatched, exactly one writer touches each release artifact, the version is computed once at release by tooling, and a machine-checked invariant — VERSION == CHANGELOG == tag == GitHub release — runs locally and in CI. Full audit trail: `plans/v8.5.0/PLAN.md`, `reports/v8.5.0/sprint-00/`, ADR-004/ADR-005.*
+
+> *Version decision: semver would classify these contract changes as MAJOR; the maintainer explicitly designated this the **8.5** release. The migration notes below apply regardless.*
+
+### Breaking Changes
+
+- **Version-First is retired** (ADR-004): the Orchestrator no longer bumps `VERSION` at work start. Plan-First replaces Core Rule 1; `VERSION` is written exactly once per release by `scripts/version-bump.js`. Sessions/templates built on the old rule must re-install (`scripts/apply-global-claude-setup.sh`).
+- **Agent/subagent reports are TRACKED repo artifacts** (maintainer rule 2026-07-06): `reports/` is no longer gitignored — every agent and every spawned subagent/swarm writes its markdown report (frontmatter + Files-Changed list) into `reports/vX.Y.Z/sprint-NN/` inside the repo, committed at sprint integration. Reports in `/tmp` or session scratch dirs are a contract violation: they vanish on session interruption and destroy the who/what/when audit trail. The v8.5.0 audit digests ship as the first tracked reports (`reports/v8.5.0/sprint-00/`).
+- **Report paths moved** to `reports/vX.Y.Z/sprint-NN/` with canonical numbering (00-researcher … 08-github-manager, `docs/templates/REPORT_TEMPLATES.md`); the verdict contract now requires reason categories on BLOCKED (`scope|conflict|quality`) and retires FAILED/PARTIAL.
+- **Release codenames** no longer appear in doc/prompt version lines (CHANGELOG + GitHub Release title only).
+
+### Model Positioning
+
+- CC_GodMode is **optimized for Claude Opus 4.8 at ultracode effort**. The `best` alias resolves to Opus 4.8; higher model tiers are picked up automatically only where an org has access — strictly optional, no feature depends on them.
 
 ### Added
 
