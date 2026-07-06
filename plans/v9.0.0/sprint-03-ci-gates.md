@@ -2,7 +2,7 @@
 sprint: 3
 slug: ci-gates
 plan: plans/v9.0.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -42,10 +42,10 @@ tail, a working agent-output hook, and honest labels on dead automation.
   in the push and no tag exists; draft release requires manual publish anyway.
 
 ## Acceptance Criteria
-- [ ] Both workflow files syntactically valid YAML, checks reference existing scripts
-- [ ] `echo '{"agent_type":"builder"}' | node scripts/validate-agent-output.js` no longer
-      usage-errors; CLI mode still works with explicit args
-- [ ] Dead scripts carry a DEPRECATED/SIMULATION header
+- [x] Both workflow files syntactically valid YAML (js-yaml parse), checks reference existing scripts
+- [x] Hook mode verified: stdin JSON without argv exits 0 when no fresh report exists, validates
+      the newest report otherwise (blocking = exit 2); CLI mode with explicit args unchanged
+- [x] Dead scripts carry a DEPRECATED/SIMULATION header
 
 ## Test / Validation Strategy
 Local: run scripts with stdin/args; YAML parsed with js-yaml. CI proof comes with the release PR.
@@ -58,4 +58,8 @@ never validated (arg/stdin mismatch); Deprecated: workflow-state.js, parallel-qu
 minor within the major release.
 
 ## Result
-(filled at completion)
+Delivered as scoped, plus: the two broken env-var hook variants
+(`$CLAUDE_SUBAGENT_TYPE`/`$CLAUDE_SUBAGENT_OUTPUT`) in the auto-install prompt were corrected to
+the argument-free stdin form (hook correctness, pulled forward from Sprint 6);
+`release-check.js` now reads `GITHUB_HEAD_REF` so release/* PRs pass the ahead-of-tag rule in CI.
+Note: `release-tag.yml` creates a DRAFT release — publishing stays manual by design.

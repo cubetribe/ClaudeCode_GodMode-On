@@ -445,7 +445,7 @@ claude mcp list
     "SubagentStop": [
       {
         "type": "command",
-        "command": "node ~/.claude/scripts/validate-agent-output.js \"$CLAUDE_SUBAGENT_TYPE\" \"$CLAUDE_SUBAGENT_OUTPUT\""
+        "command": "node ~/.claude/scripts/validate-agent-output.js"
       }
     ]
   }
@@ -483,7 +483,7 @@ claude mcp list
     "SubagentStop": [
       {
         "type": "command",
-        "command": "node \"%USERPROFILE%\\.claude\\scripts\\validate-agent-output.js\" \"$CLAUDE_SUBAGENT_TYPE\" \"$CLAUDE_SUBAGENT_OUTPUT\""
+        "command": "node \"%USERPROFILE%\\.claude\\scripts\\validate-agent-output.js\""
       }
     ]
   }

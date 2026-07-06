@@ -13,7 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Release-consistency CI** (Sprint 03): `.github/workflows/release-consistency.yml` (touchpoint + invariant checks on every PR) and `.github/workflows/release-tag.yml` (auto tag + **draft** GitHub Release when a merged release PR changes `VERSION` — closes the structural hole behind the v7.1.1/v8.0.1 phantom releases).
+- **`scripts/release-check.js`** (Sprint 02): enforces `VERSION == top CHANGELOG == latest tag (== latest GitHub release)`; ahead-of-tag tolerated only on `release/*` branches; flags phantom releases; wired into `pre-push-check.js`.
 - **Plan-first artifact layer** (Sprint 01): living `ROADMAP.md`, `plans/` directory with master plan and per-sprint files, reusable sprint template (`docs/templates/SPRINT_TEMPLATE.md`) with mandatory write-scope ownership tables, and ADR-004 documenting Plan-First orchestration & version-at-release.
+
+### Changed
+
+- **Version tooling unified** (Sprint 02): `sync-version.js` rewritten around one declarative touchpoint manifest (12 files incl. `plugin.json`, README badge, orchestrator template, install banners with automatic box re-padding); `version-bump.js` now checks git-tag uniqueness, promotes `[Unreleased]` to a dated heading, and chains the full sync — bump and sync are one command. Release codenames now live only in CHANGELOG and GitHub Release titles (resolves the duplicated "The Ultracode Release" codename). `package.json` is a real manifest with `version:*`/`release:*` scripts and stays intentionally version-free.
+
+### Fixed
+
+- **SubagentStop hook never validated** (Sprint 03): `validate-agent-output.js` now reads the Claude Code hook payload from stdin (argument-free wiring), locates the freshest report, and blocks with exit code 2 per the hook contract; the broken env-var hook variants in the install prompt were corrected.
+
+### Deprecated
+
+- `scripts/workflow-state.js` (never wired, schema mismatch with its consumers) and `scripts/parallel-quality-gates.js` (simulation stubs) — sprint files under `plans/` are the v9 state surface (Sprint 03).
 
 ---
 

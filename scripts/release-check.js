@@ -72,7 +72,8 @@ function main() {
     const d = cmpV(version, latestTag);
     if (d < 0) problems.push(`VERSION=${fmt(version)} is BEHIND latest tag v${fmt(latestTag)}.`);
     if (d > 0) {
-      const branch = sh('git rev-parse --abbrev-ref HEAD') || '';
+      // In CI PR checkouts HEAD is detached — GITHUB_HEAD_REF carries the branch name
+      const branch = process.env.GITHUB_HEAD_REF || sh('git rev-parse --abbrev-ref HEAD') || '';
       if (allowAhead || /^release\//.test(branch)) {
         warnings.push(`VERSION=${fmt(version)} ahead of latest tag v${fmt(latestTag)} — OK (release in flight on ${branch || 'n/a'}).`);
       } else {
