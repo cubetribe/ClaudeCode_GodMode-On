@@ -53,3 +53,12 @@ crypto, file/path access, or external integrations. Runs in parallel with @valid
 | @security | @builder, @api-guardian | SYNC POINT (waits for other gates); BLOCK → @builder |
 | @scribe | @validator + @tester (+@security) all approved | @github-manager (for release) |
 | @github-manager | @scribe, @tester, User | Done |
+| @ci-security-guardian | Orchestrator (CI/security surface in scope) | @builder (implements specified workflows) |
+| @docs-dx | Orchestrator (docs in acceptance criteria) | @scribe |
+| @quality-operations | Orchestrator / @validator (test-plan scoping) | @validator |
+| @runtime-platform | Orchestrator (environment/toolchain concerns) | @builder / Orchestrator |
+| @workflow-design | Orchestrator (orchestration/skill changes) | Orchestrator |
+| @workspace-governance | Orchestrator (release prep, governance review) | @scribe |
+
+Department agents are advisory (report-only) and return the same STATUS verdict as core agents
+(`docs/templates/REPORT_TEMPLATES.md`).

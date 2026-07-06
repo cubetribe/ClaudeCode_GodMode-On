@@ -62,7 +62,7 @@ Skip Step 1 and GodMode still orchestrates and gates correctly; it just won't fa
 
 ## Recommended MCP Servers
 
-These servers extend what the agents can do. The setup script installs them for you, but you can add them manually with the commands below.
+These servers extend what the agents can do. **The setup script does NOT install MCP servers** (it says so in its closing notes) — add them with the commands below, or use `scripts/install-mcps.sh`.
 
 ```bash
 # Memory — recommended for agents (persistent context across sessions)

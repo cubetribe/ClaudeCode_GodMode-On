@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Documentation consistency sweep** (Sprint 06): install prompts corrected (14 skills, 15 agents, v5.6-era rules replaced), INSTALLATION's false "script installs MCP servers" claim fixed, README rules updated to the v9 law, department agents added to the handoff matrix, CONTRIBUTING gains the contributor release law, CHANGELOG date typos ([5.0.0]/[4.1.0] year) and a mislabeled duplicate upgrade-guide heading repaired as documented corrections.
 - **SubagentStop hook never validated** (Sprint 03): `validate-agent-output.js` now reads the Claude Code hook payload from stdin (argument-free wiring), locates the freshest report, and blocks with exit code 2 per the hook contract; the broken env-var hook variants in the install prompt were corrected.
 
 ### Deprecated
@@ -1633,7 +1634,7 @@ None - This is a bugfix and documentation release.
 
 ---
 
-## [5.0.0] - 2025-01-05
+## [5.0.0] - 2026-01-05
 
 ### Added
 
@@ -1693,7 +1694,7 @@ None - This is a bugfix and documentation release.
 
 ---
 
-## [4.1.0] - 2025-01-04
+## [4.1.0] - 2026-01-04
 
 ### Added
 
@@ -2161,7 +2162,7 @@ The quality gate is now split:
 
 ---
 
-## Upgrade Guide: v1.0.0 → v2.0.0
+## Upgrade Guide: v2.x era (@github-manager / MCP additions — heading corrected 2026-07-06, was mislabeled "v1.0.0 → v2.0.0")
 
 ### 1. Add New Agent File
 

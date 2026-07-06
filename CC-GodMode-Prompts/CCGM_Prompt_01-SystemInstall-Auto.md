@@ -35,7 +35,7 @@
 - Full reports still written to disk and validated by `validate-agent-output.js`
 
 **Skills Installation**
-- Installs all 11 CC_GodMode skills into `~/.claude/skills/`
+- Installs all 14 CC_GodMode skills into `~/.claude/skills/` (incl. sprint-planning, dynamic-workflows, greenfield-bootstrap)
 
 ---
 
@@ -114,7 +114,7 @@ Before you execute anything, give the user the following message:
 ║   1. Download the CC_GodMode repository from GitHub                      ║
 ║   2. Install 15 AI agents (8 core + 1 security gate + 6 department)       ║
 ║   3. Set up 15 automation scripts                                         ║
-║   4. Install 11 skills, config files, and templates                       ║
+║   4. Install 14 skills, config files, and templates                       ║
 ║   5. Install the Memory MCP Server (for persistent knowledge)             ║
 ║   6. Configure 4 automatic hooks                                          ║
 ║   7. Set up auto-update system                                            ║
@@ -723,7 +723,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
 | Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 15 |
-| Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 11 |
+| Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 14 |
 | Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 15 |
 | Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
 | Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 3 |

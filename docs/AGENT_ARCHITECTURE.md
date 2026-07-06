@@ -2,6 +2,11 @@
 
 > **Understanding the Two-Location Model in CC_GodMode**
 
+> ⚠️ **Maintenance note (2026-07-06):** the conceptual two-location model below is current, but
+> the agent tree and manual `cp` procedures reflect an older 7-agent generation. For the
+> authoritative roster (15 agents) see `docs/orchestrator/AGENTS.md`; for installation use
+> `scripts/apply-global-claude-setup.sh` (see `docs/INSTALLATION.md`).
+
 ---
 
 ## Overview

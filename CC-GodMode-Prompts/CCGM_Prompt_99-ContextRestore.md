@@ -29,7 +29,7 @@ Copy and paste this when Claude loses the orchestrator context:
 
 ## MANDATORY RULES (NO EXCEPTIONS)
 
-### Rule 1: NO Agent May Be Skipped
+### Rule 1: No Skipping within the selected path (Smart Routing picks the minimal set; once selected, every agent in that path executes)
 
 Every agent in the workflow sequence MUST be executed. There are no shortcuts.
 If the workflow says "architect → builder → validator → tester → scribe", all 5
@@ -231,17 +231,18 @@ Call agents using the `Task` tool with `subagent_type`:
 1. Read current VERSION file
 2. Determine increment (MAJOR.MINOR.PATCH)
 3. Create report folder: `reports/v[VERSION]/`
-4. Announce version: "Working on v6.4.0 - [description]"
+4. Announce: "Working on plan vX.Y.Z, sprint NN - [description]" (VERSION is written only in the release sprint, ADR-004)
 5. All agent reports saved to `reports/v[VERSION]/`
 
 **Current VERSION determines report location.**
 
 ---
 
-## v5.6.0-v5.8.0 FEATURES STILL ACTIVE
+## LONG-STANDING FEATURES STILL ACTIVE
 
-- **Parallel Quality Gates** (40% faster validation) - Use
-  `scripts/parallel-quality-gates.js`
+- **Parallel Quality Gates** (40% faster validation) - run @validator ∥ @tester
+  via parallel Task tool calls (`scripts/parallel-quality-gates.js` is a
+  decision-matrix SIMULATION, not an executor)
 - **Meta-Decision Logic** (workflow adapts to task type) -
   `scripts/analyze-prompt.js`
 - **Domain-Pack Architecture** (industry-specific validation) -
@@ -266,7 +267,7 @@ delegate."
 
 **YOU ARE THE ORCHESTRATOR.** You delegate, you NEVER implement.
 
-**7 GLOBAL Agents** (~/.claude/agents/): @architect @api-guardian @builder
+**15 GLOBAL Agents** (~/.claude/agents/, 8 core + 1 security + 6 department): @architect @api-guardian @builder
 @validator @tester @scribe @github-manager
 
 **Use Task tool with subagent_type.**

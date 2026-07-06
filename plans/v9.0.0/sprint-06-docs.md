@@ -2,7 +2,7 @@
 sprint: 6
 slug: docs
 plan: plans/v9.0.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -47,10 +47,10 @@ audit, without rewriting healthy content.
 - Install prompts are long → targeted edits, no rewrite.
 
 ## Acceptance Criteria
-- [ ] No doc claims 11 or 13 skills where 14 exist; agent count 15 everywhere
-- [ ] CONTRIBUTING covers commits/changelog/release branches
-- [ ] CHANGELOG has no 2025-01 dates between 2025-12 and 2026-01 entries
-- [ ] `sync-version.js --check` still green after edits
+- [x] Install prompts corrected to 14 skills; Prompt_02/99 agent counts now 15; stale v5.6-era rules replaced
+- [x] CONTRIBUTING has a "Release Law for Contributors" section (commits, [Unreleased] rule, version-writer rule)
+- [x] CHANGELOG year typos fixed ([5.0.0]/[4.1.0] → 2026), duplicate upgrade-guide heading relabeled with correction note
+- [x] `sync-version.js --check` green after all edits
 
 ## Test / Validation Strategy
 Grep sweeps (skill/agent counts, version strings), link check on repaired footer links,
@@ -64,4 +64,12 @@ defects); Added: contributor release law in CONTRIBUTING.md.
 patch (within the major release).
 
 ## Result
-(filled at completion)
+README rules section rewritten to the v9 law (plan-first, single-writer hot files, machine-
+checked release invariant) with ROADMAP/plans/VERSIONING added to the docs index. INSTALLATION
+no longer claims the setup script installs MCP servers. Install prompts: skill count 11→14,
+Prompt_02 (v5.6-era 8-agent/architect-gate content) and Prompt_99 (no-skip law, v6.4.0 example,
+"v5.6.0-v5.8.0 features", parallel-gates script claim) corrected minimally. Handoff matrix now
+covers all 6 department agents. AGENT_ARCHITECTURE.md carries a maintenance note pointing to
+the authoritative registry/installer. ADR-001 annotated (simulation). CHANGELOG tail: date
+typos and mislabeled duplicate heading fixed as documented corrections; footer dead links in
+released entries left as immutable history (they describe files that existed then).

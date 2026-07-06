@@ -183,6 +183,20 @@ More specifically:
 
 ---
 
+## Release Law for Contributors (v9)
+
+- **Commits:** Conventional Commits — `feat|fix|docs|style|refactor|test|chore|deps(scope): description`;
+  breaking changes use `!` (e.g. `feat(release)!: …`). Release PRs come from `release/vX.Y.Z`
+  branches and merge with a **merge commit**.
+- **Changelog:** every PR adds an entry to the `## [Unreleased]` section of `CHANGELOG.md`
+  (Keep a Changelog categories). PRs without user-visible impact state "no-changelog: <reason>"
+  in the PR body. Never create dated version headings — the release tooling does that.
+- **Versioning:** never touch `VERSION` or other version strings — `scripts/version-bump.js`
+  (release sprint) is the only writer; CI (`release-consistency.yml`) rejects drift.
+- **Full law:** `docs/orchestrator/VERSIONING.md` · plan/sprint workflow: `skills/sprint-planning/SKILL.md`
+
+---
+
 <div align="center">
 
 **Thanks for contributing!** 🎉

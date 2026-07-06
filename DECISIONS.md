@@ -42,6 +42,10 @@ This sequential approach was simple but created a bottleneck in the development 
 
 **We will run @validator and @tester in parallel after @builder completes.**
 
+> **Note (2026-07-06):** the referenced `scripts/parallel-quality-gates.js` is a decision-matrix
+> simulation (stubbed agents), not an executor — real parallel gates run via parallel Task tool
+> calls. The script carries a SIMULATION header since v9.0.0.
+
 **Implementation:**
 - Use parallel Task tool calls to launch both agents simultaneously
 - Implement a sync point that waits for both to complete

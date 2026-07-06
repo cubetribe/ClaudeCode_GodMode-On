@@ -144,15 +144,16 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 
 ## The Rules
 
-1. **Version-First** — Determine the version BEFORE any work starts
+1. **Plan-First** — Non-trivial work starts with a plan (`plans/vX.Y.Z/`) split into sprints with explicit write-scope ownership; the version is decided at release, never at work start (ADR-004)
 2. **Smart Routing default** — Risk-based routing; Full-Gates for high-risk signals
 3. **Architecture gate (split)** — Inline brief for small/medium; @architect (Opus) for new modules / breaking changes
 4. **@api-guardian is MANDATORY** — For any API/schema/type change (enforced by hook)
 5. **Dual Quality Gates** — Both @validator AND @tester must pass (parallel execution)
 6. **@tester MUST create screenshots** — Every page tested at 3 viewports
-7. **No Skipping** — Every agent in the workflow executes
-8. **Reports in `reports/vX.X.X/`** — Organized by version
+7. **No Skipping within the selected path** — Smart Routing picks the minimal set; that set executes fully
+8. **Sprint-scoped reports & single-writer hot files** — parallel agents get disjoint write scopes; `VERSION`/`CHANGELOG.md` have exactly one writer (the release tooling / @scribe)
 9. **NEVER push without permission** — Applies to ALL agents
+10. **Release invariant, machine-checked** — `VERSION == CHANGELOG == tag == GitHub release`, enforced locally and in CI
 
 ---
 
@@ -163,12 +164,14 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 - **[Architecture](./docs/ARCHITECTURE.md)** — parallel-first orchestration, file structure, dual-location model, the hook
 - **[The Agents](./docs/AGENTS.md)** — the 15-agent roster, quality gates, workflows, and modes
 - **[The Story & Design Philosophy](./docs/STORY.md)** — how (and why) the system builds itself
+- **[ROADMAP.md](./ROADMAP.md)** — living roadmap · **[plans/](./plans/)** — active plans & sprint files
 
 **Reference:**
 - **[CHANGELOG.md](./CHANGELOG.md)** — full version history
 - **[AGENT_MODEL_SELECTION.md](./docs/AGENT_MODEL_SELECTION.md)** — model aliases, pricing, and cost optimization
 - **[AGENT_ARCHITECTURE.md](./docs/AGENT_ARCHITECTURE.md)** — dual-location install/update/verify procedures
 - **[orchestrator/AGENTS.md](./docs/orchestrator/AGENTS.md)** — agent registry & handoff matrix
+- **[orchestrator/VERSIONING.md](./docs/orchestrator/VERSIONING.md)** — **the release law** (single source of truth, invariant, procedures)
 - **[orchestrator/WORKFLOWS.md](./docs/orchestrator/WORKFLOWS.md)** · **[MODES.md](./docs/orchestrator/MODES.md)** · **[QUALITY-GATES.md](./docs/orchestrator/QUALITY-GATES.md)** · **[VERSIONING.md](./docs/orchestrator/VERSIONING.md)** · **[META-DECISIONS.md](./docs/orchestrator/META-DECISIONS.md)**
 
 **Policies:**
