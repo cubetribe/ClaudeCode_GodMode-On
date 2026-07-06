@@ -149,20 +149,32 @@ function parseVersion(versionString) {
 }
 
 /**
- * Check VERSION file and return version
+ * Print a minimal "not installed" notice and signal graceful degradation.
+ * (v8.6.0 - Sprint 02 addendum: a SessionStart hook must NEVER fail. A
+ * missing ~/.claude/VERSION, or a missing ~/.claude entirely, means
+ * CC_GodMode simply isn't installed on this machine yet — that is not a
+ * corruption/error condition, so this prints a short hint instead of the
+ * red CRITICAL banner and lets main() exit 0.)
+ */
+function printNotInstalledNotice() {
+  console.log(
+    `${colors.gray}CC_GodMode not installed — run scripts/apply-global-claude-setup.sh${colors.reset}`
+  );
+}
+
+/**
+ * Check VERSION file and return version, or null if not installed.
+ * Never exits non-zero: a missing install degrades to a short notice
+ * (handled by the caller); genuine corruption (unreadable/invalid content)
+ * is downgraded to a warning line, not a fatal CRITICAL ERROR + exit 1 -
+ * this is a SessionStart hook and must always exit 0.
  */
 function checkVersionFile() {
   try {
-    // Check if VERSION file exists
+    // Missing ~/.claude/VERSION (including a missing ~/.claude entirely) is
+    // the "not installed yet" case - graceful, not an error.
     if (!fs.existsSync(VERSION_FILE)) {
-      errorExit(
-        'VERSION file not found',
-        [
-          'Create a VERSION file in the project root',
-          'Example: echo "1.0.0" > VERSION',
-          'This file is required for CC_GodMode to function'
-        ]
-      );
+      return null;
     }
 
     // Read and parse version
@@ -170,27 +182,23 @@ function checkVersionFile() {
     const version = parseVersion(content);
 
     if (!version) {
-      errorExit(
-        `Invalid version format in VERSION file: "${content.trim()}"`,
-        [
-          'VERSION file must contain semantic version (MAJOR.MINOR.PATCH)',
-          'Example: 1.0.0',
-          'Current content is not valid semver'
-        ]
+      console.log(
+        `${colors.yellow}⚠ Warning: Invalid version format in VERSION file: "${content.trim()}"${colors.reset}`
       );
+      console.log(
+        `${colors.gray}  VERSION file must contain semantic version (MAJOR.MINOR.PATCH), e.g. 1.0.0${colors.reset}`
+      );
+      return null;
     }
 
     return version;
 
   } catch (error) {
-    errorExit(
-      `Failed to read VERSION file: ${error.message}`,
-      [
-        'Ensure VERSION file is readable',
-        'Check file permissions',
-        'Verify file is not corrupted'
-      ]
+    // Genuine corruption (unreadable file, permissions, etc.) - warn, don't crash.
+    console.log(
+      `${colors.yellow}⚠ Warning: Failed to read VERSION file: ${error.message}${colors.reset}`
     );
+    return null;
   }
 }
 
@@ -739,8 +747,15 @@ async function main() {
     // Continue to show system status below
   }
 
-  // Check VERSION file
+  // Check VERSION file (v8.6.0: returns null when not installed/unreadable -
+  // this is a SessionStart hook and must never exit non-zero)
   const version = checkVersionFile();
+
+  if (!version) {
+    printNotInstalledNotice();
+    console.log('');
+    return;
+  }
 
   // Create report folder
   const reportFolder = createReportFolder(version);

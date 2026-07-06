@@ -183,7 +183,7 @@ All hook contract checks passed.
 Re-run after all edits — unchanged 28/28, confirming no regression to the
 sprint-01 hook wiring contract.
 
-## Quality Gates
+### Quality Gates
 
 - [x] `bash -n scripts/apply-global-claude-setup.sh` — syntax OK
 - [x] `node -c scripts/session-start.js` — syntax OK
@@ -243,8 +243,79 @@ timeout) changes.
 - All fixture temp dirs cleaned up; `git status` confirms no changes outside
   write scope (`scripts/apply-global-claude-setup.sh`, this report).
 
+## Addendum 2 — CI finding: SessionStart hook must never exit non-zero (missing install)
+
+**Finding (from PR #35 CI, surfaced by the new hook contract check):** on a
+machine/CI runner with no CC_GodMode install (`~/.claude/VERSION` missing —
+which also means `~/.claude` itself is typically missing), `session-start.js`
+called `errorExit('VERSION file not found', ...)`, which printed a red
+"CRITICAL ERROR" box and called `process.exit(1)`. A `SessionStart` hook must
+never fail the session it's attached to — this is the same "must degrade
+silently" philosophy already applied to the Sprint 02 drift guard, just not yet
+applied to this older, pre-existing code path.
+
+**Root cause:** `checkVersionFile()` treated "VERSION file not found" as fatal
+unconditionally, with no distinction between "not installed yet" (expected,
+common, harmless) and genuine corruption (unreadable file, bad permissions).
+
+**Fix (scoped to `scripts/session-start.js` only):**
+
+1. `checkVersionFile()` no longer calls `errorExit`/`process.exit(1)` for any
+   case. Missing `VERSION_FILE` (including a missing `~/.claude` entirely) now
+   returns `null` — this is the graceful "not installed" case. Invalid semver
+   content or a read/permission error now print a `⚠ Warning:` line (via
+   `console.log`, not the red `printBox` CRITICAL banner) and also return
+   `null` — genuine corruption is now a warning, not a crash.
+2. New `printNotInstalledNotice()` prints a single gray hint line:
+   `CC_GodMode not installed — run scripts/apply-global-claude-setup.sh`.
+3. `main()` now short-circuits right after `checkVersionFile()`: if `version`
+   is `null`, it prints the notice and `return`s (no report-folder creation, no
+   MCP health check, no banner box needing a version string) — the process
+   then falls through to the normal (non-throwing) end of `main()` and exits 0
+   via Node's default exit path. The pre-existing `errorExit()` function is
+   left in place (now unused) rather than deleted, to keep this a minimal,
+   scoped fix.
+4. The valid-VERSION code path (report folder, MCP check, full banner,
+   drift guard) is completely unchanged — no behavior difference when
+   `~/.claude/VERSION` exists and parses.
+
+**Verification:**
+
+```
+$ HOME=$(mktemp -d) node scripts/session-start.js; echo $?
+CC_GodMode not installed — run scripts/apply-global-claude-setup.sh
+
+0
+```
+Exit 0, no CRITICAL banner (finding's repro command now passes).
+
+```
+$ node scripts/session-start.js   # real HOME, real ~/.claude install present
+[... full banner box, unchanged: VERSION, Reports, MCP Servers, Agents Ready ...]
+EXIT: 0
+```
+Normal run with a real, healthy install produces the identical banner as
+before this fix (valid-VERSION code path untouched).
+
+```
+$ node scripts/test-hooks-contract.js            → 28/28 passed
+$ HOME=$(mktemp -d) node scripts/test-hooks-contract.js  → 28/28 passed
+```
+Both the normal local run and the CI-simulating run (`HOME` pointed at a fresh
+empty temp dir, so `session-start.js`'s own fixture probe inside the contract
+test also exercises the no-install path) stay fully green.
+
+`node -c scripts/session-start.js` — syntax OK. No stray `reports/` artifacts
+left behind (`git status` clean outside `scripts/session-start.js` and this
+report); write scope respected (`scripts/session-start.js` only, per
+instruction).
+
 ## Files Changed
 
+### Files Created
+- None — this sprint only modified existing files (plus this report).
+
+### Files Modified
 - `scripts/apply-global-claude-setup.sh` — added `--fix-hooks` flag (standalone
   and composed with normal install), `fix_hooks()` function performing a
   timestamped backup + embedded `node -e` JSON merge of the canonical hook
@@ -258,5 +329,10 @@ timeout) changes.
   `readVersionMarker`) and broken-hook-wiring detection
   (`detectBrokenHookWiring`), wired into `main()` and rendered as an optional
   "Drift Guard" section in the existing banner (`displayWelcome`); zero output
-  change when the install is healthy.
+  change when the install is healthy. Addendum 2: `checkVersionFile()` no
+  longer exits non-zero for a missing/unreadable/invalid `~/.claude/VERSION` —
+  degrades to `null` + a short "not installed" hint (missing case) or a
+  `⚠ Warning:` line (corruption case); `main()` short-circuits to a clean
+  `return` (exit 0) when `version` is `null`, fixing a pre-existing
+  SessionStart-hook-must-never-fail bug caught by CI on PR #35.
 - `reports/v8.6.0/sprint-02/03-builder-report.md` — this report.
