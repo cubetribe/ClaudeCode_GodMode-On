@@ -100,6 +100,8 @@ report: <absolute path>
 
 Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 
+Judgment-class decisions (architecture choice between valid alternatives, design taste, malformed-request suspicion) are mandatory human escalations — a unanimous agent PASS does not waive them (`docs/orchestrator/QUALITY-GATES.md`).
+
 ## Ultracode Orchestrator
 
 **Model strategy:** The system is optimized for **Claude Opus 4.8 at ultracode effort** (xhigh reasoning + automatic dynamic workflows for substantive tasks). Use the `best` alias: it resolves to Opus 4.8 — and only if your org happens to have access to a higher tier does it pick that up automatically (optional, never required; no feature depends on it). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.

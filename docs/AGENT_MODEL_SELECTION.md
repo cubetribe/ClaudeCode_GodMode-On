@@ -60,6 +60,56 @@ CC_GodMode positions the `best`/Opus 4.8 orchestrator as the coordinator only �
 
 ---
 
+### Fable-parity economics
+
+**Verified pricing (per 1M tokens, in/out):** Fable 5 (Mythos-class) $10/$50;
+Opus 4.8 $5/$25. Fable 5 costs roughly **2× Opus 4.8 per token** — no other
+pricing figures in this document are estimates of Fable pricing; only these
+two are verified.
+
+**The 2× break-even.** `skills/dynamic-workflows/SKILL.md` documents a lever
+multiplier table for the compensation techniques this system uses to close
+Opus 4.8's reliability gap against Fable 5 (deterministic hooks ~1.05×,
+structured handoffs ~1.1×, dual gates ~1.2×, decomposition + externalized
+state 1.3–2×, adversarial verification of facts 2–4×, judge panels 2–3× on
+the conflict path only, loop-until-dry enumeration 3–10×). These stack
+multiplicatively when combined. Once a task's *planned* compensation stack
+exceeds roughly a 2× total token multiplier, running it on Fable 5 instead
+would likely be both cheaper AND higher-ceiling than compensating on Opus
+4.8 — because past that point the compensation is spending more than the
+2× price premium would have cost, for a result still capped at Opus'
+capability envelope. The orchestrator states the projected multiplier in one
+line (Routing Log entry or workflow announcement) before launching a heavy
+compensation stack — see the skill for the worked example.
+
+**What compensation buys, and what it does not.** The levers above close the
+*checkable* error class — wrong facts, missed call sites, format violations,
+coverage gaps — because structured rule application and counterexample-based
+verification are tier-insensitive: a same-tier skeptic can refute "this
+function is unused" as reliably as a stronger model can. They do **not**
+close the *judgment* class: the quality of a decomposition against
+alternatives never generated, taste in ambiguous design decisions, and
+correlated misses across same-tier verifier ensembles are not fixable by
+adding more of the same tier — refuting a design judgment requires generating
+a better design, which is precisely the capability gap being compensated for,
+not a fact to check. This is what "Fable 5 Light" means in practice: the
+compensation stack gets Opus 4.8 as close to Fable-5 reliability as structure
+can buy on routine, checkable work, while making the residual judgment gap
+visible (via the verification-scoping split and the mandatory human gate for
+judgment-class decisions — `docs/orchestrator/META-DECISIONS.md`,
+`docs/orchestrator/QUALITY-GATES.md` Step 3) rather than papering over it with
+a confident but unearned consensus (this is the correlated-miss floor — see
+`docs/orchestrator/META-DECISIONS.md`).
+
+**`best`-alias note.** On orgs with Fable 5 access, the `best` alias already
+resolves to it automatically (see CLAUDE.md Ultracode Orchestrator Model
+Strategy) — no compensation stack is needed in that case, since the model
+gap closes at the source. This economics subsection, and the compensation
+levers it references, exist for Opus-only environments where that auto-upgrade
+path is unavailable; nothing in this system depends on Fable access.
+
+---
+
 ---
 
 ## Model Strategy

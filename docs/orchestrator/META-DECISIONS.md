@@ -79,6 +79,13 @@ START: an agent, gate, or the orchestrator hits friction
    │  - any destructive/irreversible action (force-push, history rewrite,
    │    data deletion, prod deploy)
    │  - release/publish steps (tag, GitHub Release, npm publish, merge to main)
+   │  - architecture selection between two or more workable alternatives
+   │  - design-taste decisions no written criterion can resolve (API
+   │    ergonomics, public-surface naming, UX judgment)
+   │  - suspicion that the request itself is malformed (requirements
+   │    silently conflict, a "bug fix" is actually a design flaw)
+   │  - any decision where the Finding-Conflict Adjudication procedure
+   │    hit Step 3
    │
    └─ OPTIONAL (orchestrator judgment — permitted to proceed without asking,
       but MUST be logged in the sprint's Routing Log):
@@ -87,7 +94,12 @@ START: an agent, gate, or the orchestrator hits friction
       - ambiguity that slows progress but does not block a gate or a write
 ```
 
-Judgment-class triggers: see the Finding-Conflict Adjudication procedure in docs/orchestrator/QUALITY-GATES.md (this sprint); sprint 04 extends this further into CLAUDE.md core rules.
+Judgment-class triggers (four classes — architecture choice between valid
+alternatives, design taste with no written criterion, malformed-request
+suspicion, and Adjudication Step 3): authoritative definition is the
+**Judgment-Class Human Gate** in `docs/orchestrator/QUALITY-GATES.md`. A
+unanimous agent PASS does NOT waive this gate — see that section for the
+correlated-miss floor rationale.
 
 ### Why the MANDATORY set exists
 

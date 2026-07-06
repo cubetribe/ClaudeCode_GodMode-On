@@ -2,7 +2,7 @@
 sprint: 04
 slug: compensation-playbook
 plan: plans/v8.6.0/PLAN.md
-status: planned
+status: done
 execution: parallel
 owner: orchestrator
 ---
@@ -85,4 +85,13 @@ minor — new operating guidance, backward-compatible.
 - [ ] `git status` clean except tracked sprint artifacts
 
 ## Result (filled at completion)
-_pending_
+Done 2026-07-06. Gates: @validator APPROVED (all criteria with quoted evidence,
+CLAUDE.md diff = exactly one additive sentence, price audit clean, hooks suite green),
+@docs-dx APPROVED with queued wording fixes — all applied post-gate (litmus test under
+the facts-vs-judgment table, Routing Log canonical pointer, correlated-miss-floor term
+made searchable in AGENT_MODEL_SELECTION, trigger-class-differentiated decision brief,
+VERSIONING.md sprint-04 note; header confirmed NOT a sync-version touchpoint, left for
+release law).
+
+The analysis' central honesty constraint is now codified: compensation levers scoped
+to where they work, judgment class human-gated, ~2× cost break-even documented.

@@ -1,5 +1,7 @@
 # CC_GodMode Versioning & Release Law (v8.5, ADR-004)
 
+Updated by v8.6.0 sprint 04 additions; the header version is bumped at the release sprint per this document's own law.
+
 > **This document is the single authoritative release law.** `skills/release/` and
 > `skills/sprint-planning/` summarize it; agent prompts reference it. If another doc
 > contradicts this one, this one wins.
@@ -78,6 +80,16 @@ explicit user permission; a merged release PR without its tag+release is a defec
 - **Version drift across files:** `node scripts/sync-version.js --sync`, review diff, commit.
 - **Wrong bump merged but not tagged:** revert the bump commit via PR (the invariant tolerates
   VERSION ahead of tags only on release branches).
+
+## Integration queue
+
+When multiple sprints reach integration simultaneously, they integrate in
+**ascending sprint number, exactly one integration at a time** — the hot
+files listed above (`VERSION`, `CHANGELOG.md`, `ROADMAP.md`, `plans/**`,
+`README.md`) are single-writer and cannot absorb concurrent integrations. A
+`BLOCKED` integration does not let later-numbered sprints jump the queue:
+they wait for resolution, or the orchestrator re-sequences the plan and
+records the change in the plan file.
 
 ## Report folders (TRACKED — maintainer rule, 2026-07-06)
 
