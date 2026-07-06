@@ -38,9 +38,53 @@ const CONFIG = {
   ],
 };
 
-// Get the changed file from CLI argument
-const changedFile = process.argv[2];
-if (!changedFile) process.exit(0);
+/**
+ * Hook mode (v8.6.0 fix): Claude Code hooks (PostToolUse etc.) invoke this
+ * script with NO argv and deliver a JSON payload on stdin — there is no
+ * $CLAUDE_FILE_PATH env var. The old wiring `node check-api-impact.js
+ * "$CLAUDE_FILE_PATH"` therefore always passed an empty string and the
+ * script silently exited, killing Core Rule 4's automatic @api-guardian
+ * trigger. Pattern follows validate-agent-output.js runHookMode
+ * (lines ~697-759): if argv[2] is present, keep existing CLI behavior; else
+ * if stdin is not a TTY, read+parse the JSON payload (tolerantly — bad/empty
+ * JSON just exits 0) and pull the changed file from
+ * payload.tool_input.file_path (PostToolUse payload shape), using
+ * payload.cwd to scope the analysis; else (TTY, no arg) exit 0 as before.
+ * This hook stays non-blocking: informational output only, always exit 0.
+ */
+function runHookMode() {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (d) => { raw += d; });
+  process.stdin.on('end', () => {
+    let payload = {};
+    try { payload = JSON.parse(raw || '{}'); } catch { /* tolerate non-JSON */ }
+
+    const changedFile = payload && payload.tool_input && payload.tool_input.file_path;
+    if (!changedFile) process.exit(0);
+
+    if (payload.cwd) {
+      try { process.chdir(payload.cwd); } catch { /* fall back to current cwd */ }
+    }
+
+    analyzeAndReport(changedFile);
+    process.exit(0);
+  });
+}
+
+// Determine mode: CLI (argv) vs hook (stdin JSON payload) vs no-op (TTY, no arg)
+const cliFile = process.argv[2];
+if (!cliFile) {
+  if (!process.stdin.isTTY) {
+    runHookMode();
+    return;
+  }
+  process.exit(0);
+}
+
+analyzeAndReport(cliFile);
+
+function analyzeAndReport(changedFile) {
 
 // Check if this is an API-relevant file
 const isApiFile = CONFIG.apiPaths.some(p => changedFile.includes(p));
@@ -48,7 +92,7 @@ const isTypeFile = CONFIG.typeFilePatterns.some(p => changedFile.endsWith(p));
 const isSchemaFile = CONFIG.schemaFiles.some(f => changedFile.endsWith(f));
 
 if (!isApiFile && !isTypeFile && !isSchemaFile) {
-  process.exit(0);
+  return;
 }
 
 // Helper: Run command safely
@@ -217,3 +261,5 @@ console.log('╔═════════════════════�
 console.log('║  ⚡ @api-guardian MUST be called for API changes!          ║');
 console.log('╚════════════════════════════════════════════════════════════╝');
 console.log('');
+
+} // end analyzeAndReport

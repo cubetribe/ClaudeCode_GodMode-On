@@ -1,6 +1,6 @@
 # CC_GodMode Restart Prompt
 
-> **Version:** 8.5.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
+> **Version:** 8.6.0 **Type:** CONTEXT RESTORE **Prerequisite:** SystemInstall
 > and ProjectActivation completed **Frequency:** As-needed (after /compact or
 > context loss)
 
@@ -243,8 +243,9 @@ Call agents using the `Task` tool with `subagent_type`:
 - **Parallel Quality Gates** (40% faster validation) - run @validator ∥ @tester
   via parallel Task tool calls (`scripts/parallel-quality-gates.js` is a
   decision-matrix SIMULATION, not an executor)
-- **Meta-Decision Logic** (workflow adapts to task type) -
-  `scripts/analyze-prompt.js`
+- **Meta-Decision Logic** (workflow adapts to task type) - applied natively by
+  the orchestrator (`skills/meta-decisions/`); `scripts/analyze-prompt.js` is
+  deprecated since v8.6.0 and no longer wired to any hook
 - **Domain-Pack Architecture** (industry-specific validation) -
   `scripts/domain-pack-loader.js`
 - **DECISIONS.md ADR Logging** (governance transparency)
@@ -347,8 +348,10 @@ The system has meta-decision logic that adapts workflows:
 
 **Trust the meta-layer. It analyzes prompts and adapts automatically.**
 
-**Script:** `scripts/analyze-prompt.js`
+**Implementation:** applied natively by the orchestrator
+(`skills/meta-decisions/`). `scripts/analyze-prompt.js` is deprecated since
+v8.6.0 — not wired to any hook, kept for reference only.
 
 ---
 
-**CC_GodMode v8.5.0 - Enhanced Restart Prompt with Behavior Enforcement**
+**CC_GodMode v8.6.0 - Enhanced Restart Prompt with Behavior Enforcement**

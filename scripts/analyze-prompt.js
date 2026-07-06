@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 
 /**
+ * ⚠ DEPRECATED since v8.6.0 — kept for reference only.
+ *
+ * UserPromptSubmit wiring for this script was removed in v8.5.0; the
+ * orchestrator now performs meta-decision analysis natively (see
+ * skills/meta-decisions/). Nothing in config/claude-settings.json or
+ * ~/.claude/settings.json invokes this file anymore, and it is not part of
+ * any hook contract. It is kept only for historical/reference purposes and
+ * will be removed in a future major release. Do not re-wire it without an
+ * ADR revisiting that decision.
+ *
  * User Prompt Analyzer (v5.8.0)
  *
  * UserPromptSubmit Hook Implementation

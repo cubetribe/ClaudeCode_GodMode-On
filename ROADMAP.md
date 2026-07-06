@@ -6,6 +6,7 @@
 
 | Target | Initiative | Status | Plan | Notes |
 |---|---|---|---|---|
+| v8.6.0 (2026-07-06) | "Fable 5 Light": hook-layer repair + CI contract tests, installer `--fix-hooks` + drift guard, routing decision log + escalation tree + finding adjudication, scoped compensation playbook (facts-only adversarial verify, judgment-class human gate, ~2× rule) | released | [plans/v8.6.0/PLAN.md](plans/v8.6.0/PLAN.md) | Published 2026-07-06; approved by maintainer |
 | v8.5.0 (2026-07-06) | Sprint-Native GodMode: plan-first orchestration, sprint artifacts, parallel-safe write scopes, version-at-release, changelog `[Unreleased]` flow, release consistency checks + CI | released | [plans/v8.5.0/PLAN.md](plans/v8.5.0/PLAN.md) | Replaces Version-First (ADR-004) |
 | v8.0.1 | Activation-flow docs (two-step Ultracode ritual) | released | — | Tag/GitHub release backfilled during v8.5.0 release sprint |
 | — | Backlog: multi-sprint state tooling (successor to deprecated `workflow-state.js`), fragment-based changelog if contributors join, domain-pack revival | planned | — | Re-evaluate after v8.5.0 |

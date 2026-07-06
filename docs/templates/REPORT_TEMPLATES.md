@@ -205,6 +205,46 @@ task: [TASK_DESCRIPTION]
 
 ---
 
+## 1a. Inline Architecture Brief (Orchestrator-written variant)
+
+**Purpose:** Smart Routing's lightweight substitute for the full @architect report on
+small/medium tasks (`skills/cost-efficiency/SKILL.md` — Architecture Gate Split). This
+does NOT replace or weaken the full @architect template above; it is a distinct,
+narrower artifact the Orchestrator itself writes when @architect is not invoked.
+
+**Validation Rules:**
+- Stays 3–5 bullets total (cost-efficiency spirit) — but ALL five required-field labels
+  below MUST be present as bullet labels. Missing any field ⇒ brief invalid ⇒ invoke
+  @architect instead of proceeding.
+- Saved to the same canonical path as the full template: `reports/vX.Y.Z/sprint-NN/01-architect-report.md`.
+- For implicit sprints (no sprint file), the Routing Log line goes in this report's
+  frontmatter/header instead of a sprint-file section (see `docs/templates/SPRINT_TEMPLATE.md`).
+
+**Template:**
+
+```markdown
+---
+agent: orchestrator-inline
+version: [VERSION]
+date: [DATE]
+status: complete
+task: [TASK_DESCRIPTION]
+---
+
+# Inline Architecture Brief: [FEATURE_NAME]
+
+- **Decision:** [the design/approach actually taken]
+- **Rejected alternative:** [at least one alternative considered and why it lost]
+- **Constraints:** [what binds the implementation — technical, contractual, scope]
+- **Out-of-scope:** [explicitly what this brief does NOT cover]
+- **Affected contracts/APIs:** [named, or "none"]
+
+<!-- Implicit sprint-00 (no sprint file) → KEEP this Routing Log line here. Planned sprint (sprint file exists) → OMIT this line; it lives in the sprint file's own ## Routing Log section instead. -->
+Routing Log: <date> | path: smart-routing | signals: <risk signals seen or "none"> | skipped: <agents skipped + justification, or "none">
+```
+
+---
+
 ## 2. @api-guardian Report Template
 
 **Purpose:** API lifecycle management and breaking change detection

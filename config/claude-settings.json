@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node scripts/check-api-impact.js \"$CLAUDE_FILE_PATH\"",
+            "command": "node scripts/check-api-impact.js",
             "timeout": 30
           }
         ]

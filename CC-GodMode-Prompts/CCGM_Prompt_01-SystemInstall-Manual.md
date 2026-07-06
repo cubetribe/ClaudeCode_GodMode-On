@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 8.5.0
+> **Version:** 8.6.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -209,7 +209,7 @@ Create/edit `~/.claude/settings.json` (macOS/Linux) or `%USERPROFILE%\.claude\se
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/scripts/check-api-impact.js \"$CLAUDE_FILE_PATH\""
+            "command": "node ~/.claude/scripts/check-api-impact.js"
           }
         ]
       }
@@ -220,8 +220,12 @@ Create/edit `~/.claude/settings.json` (macOS/Linux) or `%USERPROFILE%\.claude\se
 
 **Windows path in settings.json:**
 ```json
-"command": "node \"%USERPROFILE%\\.claude\\scripts\\check-api-impact.js\" \"$CLAUDE_FILE_PATH\""
+"command": "node \"%USERPROFILE%\\.claude\\scripts\\check-api-impact.js\""
 ```
+
+**Note:** `check-api-impact.js` reads the changed file from the PostToolUse
+stdin JSON payload (`tool_input.file_path`) — Claude Code hooks do not set a
+`$CLAUDE_FILE_PATH` environment variable, so no argument is passed.
 
 ---
 
@@ -385,7 +389,7 @@ chmod +x ~/.claude/scripts/*.js
 
 ## Version
 
-CC_GodMode **v8.5.0**
+CC_GodMode **v8.6.0**
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 

@@ -27,3 +27,6 @@ jobs:
 
       - name: Release invariant check
         run: node scripts/release-check.js --ci
+
+      - name: Hook contract check
+        run: node scripts/test-hooks-contract.js

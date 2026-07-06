@@ -118,6 +118,51 @@ Final output: verified set only
 
 **Practical implication:** you get fewer findings than a naive scrape, but the ones returned are high-confidence. For security audits or migration correctness checks this tradeoff is usually correct.
 
+### Verification Scoping — Facts Only, Not Judgment
+
+Adversarial verification only works on **refutable** claims: a skeptic must be
+able to disprove the finding with a concrete counterexample. That is true for
+factual, checkable findings — it is not true for design/architecture judgment
+calls, where "refuting" the claim would require generating a better design,
+which is exactly the capability a same-tier skeptic lacks. Routing a judgment
+question into a skeptic panel produces **confident consensus error**, not
+signal: same-tier judges share the same blind spot as the primary agent and
+majority-vote the error through instead of catching it.
+
+| Verify adversarially (facts) | Do NOT verify — escalate instead (judgment) |
+|---|---|
+| "This function is unused" (grep for call sites disproves/confirms it) | "This module split is suboptimal" (refuting it means designing the better split) |
+| "This consumer breaks under the new signature" (run/trace the call site) | "This API's ergonomics are poor" (a matter of taste, not a checkable fact) |
+| "Test X does not cover code path Y" (coverage report settles it) | "This is the right architecture for this problem" (no mechanical counterexample exists) |
+
+**Litmus test:** if refuting the claim requires only checking, running, or
+grepping something that already exists (fact), it verifies adversarially; if
+refuting it requires producing a *better alternative* that doesn't yet exist
+(judgment), it escalates.
+
+When a finding falls in the right-hand column, do not spin up a skeptic
+panel — route it per the QUALITY-GATES adjudication procedure's Step 3
+(`docs/orchestrator/QUALITY-GATES.md`): not criteria-resolvable ⇒ mandatory
+human escalation. A unanimous same-tier PASS on a judgment question is not
+evidence; it is a correlated miss waiting to happen.
+
+### Decomposition Seam-Check
+
+Before dispatching a multi-agent decomposition, the orchestrator writes **one
+line** naming the cross-cutting concern the split could hide, e.g.:
+
+```
+seams: auth flow crosses builder-A/builder-B file boundary
+```
+
+This is cheap — one sentence — but closes real recall gaps: cross-cutting
+bugs live in the seams between subagent scopes, not inside any single unit,
+so no per-unit gate catches them by default. Where the seam is non-trivial
+(the concern spans behavior, not just adjacent files), assign one
+**seam-checker** agent whose only job is reading ACROSS the completed units'
+outputs for cross-cutting breakage — it does not re-review any single unit in
+isolation; that is the primary agent's and the quality gates' job.
+
 ---
 
 ## Concurrency Caps and Rate-Limit Awareness
@@ -189,6 +234,48 @@ Running many workers at once multiplies token usage. Dynamic workflows add on to
 | ~10 parallel subagents | 1x (same total tokens) | ~3–5x faster |
 | Agent teams (3–5 teammates) | ~5–15x | faster for large features |
 | Dynamic workflows (adversarial) | Substantially higher (varies by N subagents × rounds) | ~60–80% faster wall-clock |
+
+### Cost Thresholds — Lever Multiplier Table and the ~2× Rule
+
+Each compensation lever has a documented token-cost multiplier relative to a
+plain single-pass session. These multiply when stacked (e.g. decomposition ×
+adversarial verification), so a workflow combining several heavy levers can
+reach a much larger total multiplier than any single row suggests.
+
+| Lever | Cost multiplier | Why it works |
+|---|---|---|
+| Deterministic hooks/scripts | ~1.05× | Regex on file paths triggers checks at ~100% recall regardless of model tier — best ROI of any lever. |
+| Structured handoff templates | ~1.1× | Converts "remember to mention X" (capability) into "fill in field X" (compliance). |
+| Dual parallel gates + decision matrix | ~1.2× | Converts post-build acceptance from judgment to rule application (tier-insensitive). |
+| Decomposition + externalized state | 1.3–2× | Short bounded task horizons avoid long-horizon degradation structurally instead of out-reasoning it. |
+| Adversarial verification of FACTUAL findings | 2–4× | Counterexample-finding is easier than original synthesis, so same-tier skeptics add real signal (see Verification Scoping above — facts only). |
+| Judge panels on verdict conflicts only | 2–3× (on the ~10–20% of runs that conflict) | Reduces tie-break variance where explicit adjudication criteria exist (`QUALITY-GATES.md` Step 2). |
+| Loop-until-dry enumeration | 3–10× | Multiple independently framed passes approach the recall a stronger model gets in one pass. |
+
+**The ~2× rule:** Fable 5 costs roughly 2× Opus 4.8 per token ($10/$50 vs
+$5/$25 in/out per MTok). Compensation levers stack multiplicatively — when a
+task's *planned* compensation stack (sum of the levers you intend to invoke)
+exceeds roughly a **2× total token multiplier**, a Fable-5 run would likely be
+both cheaper AND higher-ceiling than compensating on Opus 4.8, because
+compensation buys reliability parity within Opus' capability envelope but
+never raises that envelope (see `docs/AGENT_MODEL_SELECTION.md` — Fable-parity
+economics for the full break-even argument).
+
+Before launching a heavy workflow, state the projected multiplier in one line
+(Routing Log entry — defined in `docs/templates/SPRINT_TEMPLATE.md` § Routing
+Log; per-turn announcement if no sprint file exists — or workflow
+announcement), e.g.:
+
+```
+projected multiplier: decomposition (1.5x) x adversarial-facts (3x) ~= 4.5x -> exceeds 2x threshold, consider Fable-5 if available
+```
+
+This is a planning heuristic, not a hard gate — proceed on Opus-only orgs
+where Fable is unavailable, but log the number so the cost tradeoff is
+visible before spend, not after. On orgs with Fable 5 access, the `best`
+alias already resolves to it automatically (see CLAUDE.md Ultracode
+Orchestrator Model Strategy) — these thresholds matter for Opus-only
+environments where that auto-upgrade path does not apply.
 
 ---
 
