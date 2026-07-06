@@ -1,16 +1,19 @@
 # Agent Report Templates
 
-**Version:** v7.0.0
-**Last Updated:** 2026-06-11
+**Last Updated:** 2026-07-06 (v9 sprint contract)
 **Validation:** Enforced by `scripts/validate-agent-output.js`
+
+> **This document is the CANONICAL definition** of the return verdict, the report numbering,
+> and the sprint contract blocks. Agent files and orchestrator docs reference it — they must
+> not carry diverging copies.
 
 ---
 
 ## Orchestrator Return Verdict (separate from the on-disk report)
 
-Each agent saves a **full report** to disk (`reports/vX.X.X/NN-<agent>-report.md`) and returns only a structured verdict to the Orchestrator. These are two distinct outputs.
+Each agent saves a **full report** to disk and returns only a structured verdict to the Orchestrator. These are two distinct outputs.
 
-**Verdict shape:**
+**Verdict shape (identical for ALL 15 agents, including department agents):**
 ```
 STATUS: APPROVED | BLOCKED | DONE
 - finding 1 (one line max)
@@ -21,11 +24,56 @@ report: <absolute path to full report>
 
 **Rules:**
 - Maximum 3 bullet findings in the verdict.
-- `STATUS: APPROVED` — work passed all gates; proceed.
-- `STATUS: BLOCKED` — issues found; Orchestrator reads full report for details.
-- `STATUS: DONE` — task completed (used by @builder, @scribe, @github-manager, @researcher).
+- `STATUS: APPROVED` — gate agents only (@validator, @tester, @security): work passed; proceed.
+- `STATUS: DONE` — non-gate agents: task completed.
+- `STATUS: BLOCKED` — any agent, always with a reason category in parentheses:
+  - `BLOCKED (scope)` — the task requires writing outside the agent's assigned write scope.
+  - `BLOCKED (conflict)` — foreign/uncommitted changes detected in the assigned scope; another agent or sprint may be editing the same files. Never overwrite — stop and report.
+  - `BLOCKED (quality)` — gate failure, missing inputs, or unresolvable errors (details in report).
+  - Legacy `FAILED`/`PARTIAL` statuses are retired: report them as `BLOCKED (quality)` with the partial results documented in the on-disk report.
 - The Orchestrator opens the full report **only on BLOCKED** or when explicitly needed.
-- Min-length validation (`scripts/validate-agent-output.js`) checks the **on-disk file**, not the verdict. Thresholds unchanged: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.
+- Min-length validation (`scripts/validate-agent-output.js`) checks the **on-disk file**, not the verdict. Thresholds: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.
+
+## Canonical Report Paths & Numbering
+
+Reports are LOCAL working artifacts (`reports/` is gitignored); the durable audit trail is the
+tracked sprint file (`plans/vX.Y.Z/sprint-NN-*.md`, `Result` section). Within a sprint:
+
+```
+reports/vX.Y.Z/sprint-NN/<prefix>-<agent>-report.md
+```
+
+| Prefix | Agent |
+|---|---|
+| 00 | researcher |
+| 01 | architect (also used for the Orchestrator's inline arch brief) |
+| 02 | api-guardian |
+| 03 | builder |
+| 04 | validator |
+| 05 | tester |
+| 06 | security |
+| 07 | scribe |
+| 08 | github-manager |
+| — | department agents: `<agent-name>-report.md` (unnumbered) |
+
+Rules:
+- One folder per sprint — parallel sprints can never overwrite each other's reports.
+- Re-runs within a sprint (e.g. builder fix loops) append `-r2`, `-r3` … instead of overwriting.
+- Single-task work without a plan uses `sprint-00`.
+
+## Sprint Contract (referenced by every agent file)
+
+Every agent follows these four blocks; agent files state role-specific specializations only:
+
+1. **Context intake** — read the assigned sprint file first (goal, scope, non-goals, acceptance
+   criteria, write-scope table are binding), then the role-specific inputs listed in the agent file.
+2. **Write scope** — write only the paths assigned in the sprint file plus the own report path.
+   `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, and `plans/**` are release/orchestrator artifacts:
+   no agent writes them except @scribe (CHANGELOG `[Unreleased]` entries at sprint integration,
+   release promotion via `scripts/version-bump.js`). Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+3. **Conflict detection** — before writing, check `git status`/`git diff` for the assigned paths;
+   foreign modifications ⇒ `STATUS: BLOCKED (conflict)` listing the conflicting paths.
+4. **Return verdict** — exactly the shape defined above.
 
 ---
 

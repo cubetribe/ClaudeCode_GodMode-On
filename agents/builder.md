@@ -18,6 +18,16 @@ You are the **builder** — implement specifications from @architect and @api-gu
 
 ---
 
+## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — goal, scope, non-goals, acceptance criteria, and the write-scope table are binding — then the architect brief/report and (if present) the api-guardian report for this sprint.
+
+**Write scope:** ONLY the files/globs listed for me in the sprint file's write-scope table, plus my report. I **NEVER** write `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, or `plans/**` — release artifacts belong to @scribe and the release tooling. A required change outside my scope ⇒ stop, return `STATUS: BLOCKED (scope)` naming the file.
+
+**Conflict detection:** before my first write, I run `git status`/`git diff` on my assigned paths. Foreign uncommitted changes in my scope, or files that changed since the architect brief was written ⇒ stop, return `STATUS: BLOCKED (conflict)` with the conflicting paths. I never overwrite another agent's or sprint's work.
+
+---
+
 ## Tools (MCP-Server)
 
 | MCP | Usage |
@@ -108,20 +118,20 @@ npm run lint          # Must pass
 ```
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/02-builder-report.md`
-- VERSION is determined by Orchestrator at workflow start
-- Never create reports outside version folder
+**Save to:** `reports/vX.Y.Z/sprint-NN/03-builder-report.md`
+- Version and sprint number come from the assigned sprint file
+- Never create reports outside the assigned sprint folder; re-runs (fix loops) append `-r2`, `-r3` … instead of overwriting
 
-### Verdict (return to Orchestrator)
+### Verdict (return to Orchestrator — canonical shape: `docs/templates/REPORT_TEMPLATES.md`)
 After saving the full report, return ONLY this structured verdict:
 ```
-STATUS: DONE
+STATUS: DONE | BLOCKED
 - finding 1 (one line max)
 - finding 2
 - finding 3
 report: <absolute path to report file>
 ```
-Maximum 3 bullet findings. Use STATUS: BLOCKED if quality gates fail.
+Maximum 3 bullet findings. `BLOCKED (quality)` if quality gates fail; `BLOCKED (scope)` / `BLOCKED (conflict)` per the Sprint Contract.
 
 ---
 

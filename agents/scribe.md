@@ -20,6 +20,16 @@ You receive reports from all other agents and **translate** them into permanent 
 
 ---
 
+## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+
+**Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — its goal, scope, non-goals, changelog note, and write-scope table are binding — then all agent reports of this sprint from `reports/vX.Y.Z/sprint-NN/`.
+
+**Write scope:** documentation files assigned in the sprint file, plus `CHANGELOG.md` — I am the **only agent** that edits `CHANGELOG.md`, and only the `[Unreleased]` section, at the sprint integration step (which the Orchestrator serializes — never during parallel phases). `VERSION` and the version touchpoints are written **only by `scripts/version-bump.js` in the release sprint** — never by hand, never mid-sprint. `ROADMAP.md` status updates happen in the release sprint. Writing outside my assigned scope ⇒ `STATUS: BLOCKED (scope)`.
+
+**Conflict detection:** before editing, I check (via Orchestrator-run `git status`) that no foreign uncommitted changes touch my assigned docs. Foreign changes in scope ⇒ `STATUS: BLOCKED (conflict)` with the conflicting paths — I never overwrite another sprint's work.
+
+---
+
 ## Tools (MCP-Server)
 
 | MCP | Usage |
@@ -34,58 +44,38 @@ You receive reports from all other agents and **translate** them into permanent 
 
 ## What I Do
 
-### 1. Version Management (required before push)
+### 1. Changelog & Version Management (v9 law, ADR-004)
 
-**This happens before any push — no exceptions.**
+**Two distinct duties — never mixed:**
 
-Before any push to GitHub/Dev/Production:
+**A. Sprint integration (every sprint):** add the sprint's changelog note to the
+`## [Unreleased]` section of `CHANGELOG.md` (Keep a Changelog categories:
+Added/Changed/Fixed/Deprecated/Removed/Security). Source: the sprint file's "Changelog Note"
+field plus the agent reports. No exceptions — even for single-line fixes. Do **not** create a
+dated version heading and do **not** touch `VERSION`.
 
-1. **Update `VERSION` file** in project root
-   - Follow Semantic Versioning (MAJOR.MINOR.PATCH)
-   - MAJOR (X.0.0): Breaking changes, major architecture changes
-   - MINOR (0.X.0): New features, major enhancements
-   - PATCH (0.0.X): Bug fixes, small changes, hotfixes
-   - Ensure version is unique and was NEVER pushed before
+**B. Release sprint only:** the version bump is executed by tooling, not by hand:
+1. Aggregate the `Version Relevance` fields of all completed sprint files → bump type
+   (highest wins: major > minor > patch).
+2. Ask the Orchestrator to run `node scripts/version-bump.js <type>` — it verifies uniqueness
+   against CHANGELOG **and git tags**, promotes `[Unreleased]` to `## [X.Y.Z] - date`, and syncs
+   every version touchpoint via `scripts/sync-version.js`.
+3. Verify: `node scripts/sync-version.js --check` and `node scripts/release-check.js` must pass.
 
-2. **Update `CHANGELOG.md`** with all changes
-   - Document ALL changes since last version
-   - Use "Keep a Changelog" format
-   - Include date (YYYY-MM-DD)
-   - No exceptions - even for single-line fixes!
-
-3. **Verify version uniqueness**
-   - Check git tags: `git tag -l`
-   - Check CHANGELOG history
-   - Never reuse a version number
-
-**Version Update Template:**
-```markdown
-## [X.X.X] - YYYY-MM-DD
-
-### Added
-- New features
-
-### Changed
-- Changes to existing code
-
-### Fixed
-- Bug fixes
-
-### Removed
-- Removed features/code
-
-### Breaking Changes
-- ⚠️ Breaking change description
-```
+I NEVER edit the `VERSION` file directly, and no other agent edits `CHANGELOG.md` at all.
 
 ### 2. Read Agent Reports
 
-I read reports from the **version folder** (`reports/v[VERSION]/`):
-- `00-architect-report.md` (Design decisions)
-- `01-api-guardian-report.md` (Consumer matrix)
-- `02-builder-report.md` (Implemented features)
-- `03-validator-report.md` (Validation status)
-- `04-tester-report.md` (Test coverage, screenshots)
+I read ALL reports from the **sprint folder** (`reports/vX.Y.Z/sprint-NN/`, canonical numbering
+in `docs/templates/REPORT_TEMPLATES.md`):
+- `00-researcher-report.md` (Research findings — if present)
+- `01-architect-report.md` (Design decisions / inline arch brief)
+- `02-api-guardian-report.md` (Consumer matrix)
+- `03-builder-report.md` (Implemented features)
+- `04-validator-report.md` (Validation status)
+- `05-tester-report.md` (Test coverage, screenshots)
+- `06-security-report.md` (Security findings — if present)
+- department agent reports (`<agent-name>-report.md` — if present)
 
 ### 3. Update project-specific interface documentation (when present)
 
@@ -129,11 +119,11 @@ Based on @api-guardian's Consumer Matrix:
 | YYYY-MM-DD | Initial creation | No |
 ```
 
-### 5. Update Changelog
+### 5. Update Changelog ([Unreleased] only)
 
-For new features or breaking changes:
+All entries go under `## [Unreleased]` — the dated version heading is created exclusively by
+`scripts/version-bump.js` at release time (see section 1):
 
-**Template for `CHANGELOG.md`:**
 ```markdown
 ## [Unreleased]
 
@@ -194,8 +184,7 @@ For new complex functions:
 ```
 📖 Reading agent reports...
 📝 Updating docs/API_CONSUMERS.md...
-📋 CHANGELOG entry created...
-🔢 VERSION updated to X.X.X...
+📋 CHANGELOG [Unreleased] entry added...
 ```
 
 ### After Completion
@@ -204,14 +193,12 @@ For new complex functions:
 📚 DOCUMENTATION COMPLETE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### Version Update
-- VERSION: X.X.X-OLD → X.X.X-NEW
-- CHANGELOG: Updated with all changes
-- Version verified: UNIQUE ✅
+### Changelog Integration
+- CHANGELOG [Unreleased]: sprint entry added
+- (Release sprint only: bump executed via `scripts/version-bump.js`, verified with release-check)
 
 ### Files Updated
-- `VERSION` - Updated to X.X.X
-- `CHANGELOG.md` - Added [X.X.X] section
+- `CHANGELOG.md` - [Unreleased] entry for this sprint
 - `docs/API_CONSUMERS.md` - Added /api/v1/users documentation
 - `README.md` - Updated installation section
 
@@ -225,29 +212,29 @@ For new complex functions:
 - fix: Profile update validation
 
 ### Documentation Status
-✅ VERSION updated
-✅ CHANGELOG updated
+✅ CHANGELOG [Unreleased] updated
 ✅ All documentation updated
-✅ Ready for push
+✅ Sprint file Result can be finalized
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ### Report Output
-**Save to:** `reports/v[VERSION]/05-scribe-report.md`
-- VERSION is determined by Orchestrator at workflow start
-- Never create reports outside version folder
+**Save to:** `reports/vX.Y.Z/sprint-NN/07-scribe-report.md`
+- Version and sprint number come from the sprint file the Orchestrator assigned
+- Never create reports outside the assigned sprint folder; re-runs append `-r2`, `-r3` …
 
-### Verdict (return to Orchestrator)
+### Verdict (return to Orchestrator — canonical shape: `docs/templates/REPORT_TEMPLATES.md`)
 After saving the full report, return ONLY this structured verdict:
 ```
-STATUS: DONE
+STATUS: DONE | BLOCKED
 - finding 1 (one line max)
 - finding 2
 - finding 3
 report: <absolute path to report file>
 ```
-Maximum 3 bullet findings. Use STATUS: BLOCKED if VERSION/CHANGELOG updates fail.
+Maximum 3 bullet findings. Use `STATUS: BLOCKED (quality)` if changelog/doc updates fail,
+`BLOCKED (scope)` / `BLOCKED (conflict)` per the Sprint Contract.
 
 ---
 
@@ -335,9 +322,9 @@ When I need git or system information, I request from the Orchestrator:
 **REQUEST TO ORCHESTRATOR:**
 ```
 Please run the following commands for documentation analysis:
-1. git diff --name-only HEAD~1 - Identify which files changed
+1. git diff --name-only $RANGE - Identify which files changed (RANGE = the sprint change set given by the Orchestrator)
 2. git log --oneline -5 - Recent commit messages
-3. git diff HEAD~1 - Detailed changes for CHANGELOG
+3. git diff $RANGE - Detailed changes for CHANGELOG
 4. git tag -l | grep "$(cat VERSION)" - Verify VERSION uniqueness
 
 I need this information to document changes accurately.
@@ -345,7 +332,7 @@ I need this information to document changes accurately.
 
 **Common requests:**
 - `git log --oneline -5` - Recent commits for CHANGELOG context
-- `git diff HEAD~1` - Detailed changes for documentation
+- `git diff $RANGE` - Detailed changes for documentation
 - `git tag -l` - All existing tags to verify version uniqueness
 - `cat VERSION` - Current version (I can also Read this directly)
 
@@ -381,11 +368,9 @@ The Orchestrator has Bash access and will provide git/system command results.
 ## Critical Reminders
 
 ⚠️ **Run Glob("*.md") first** — update any interface doc found before touching CHANGELOG.md
-⚠️ **NEVER push without updating VERSION and CHANGELOG**
-⚠️ **ALWAYS verify version is unique**
-⚠️ **NO EXCEPTIONS - Even for single-line fixes**
-
-This is not optional - it's MANDATORY for every push!
+⚠️ **Every sprint leaves a `[Unreleased]` entry — NO EXCEPTIONS, even for single-line fixes**
+⚠️ **NEVER edit `VERSION` or create a dated CHANGELOG heading by hand — only `scripts/version-bump.js` does that, only in the release sprint**
+⚠️ **Stop and escalate (`STATUS: BLOCKED (conflict)`) if another sprint's uncommitted changes sit in my scope**
 
 ---
 

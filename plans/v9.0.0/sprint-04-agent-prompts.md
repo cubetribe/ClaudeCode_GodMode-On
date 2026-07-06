@@ -2,7 +2,7 @@
 sprint: 4
 slug: agent-prompts
 plan: plans/v9.0.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -55,10 +55,10 @@ Agent-specific fixes:
 - Breaking working handoffs → preserve existing structure/personas; additive where possible.
 
 ## Acceptance Criteria
-- [ ] All 15 files contain the four blocks; grep for `STATUS: BLOCKED (conflict)` hits 15 files
-- [ ] `grep -l "report: <absolute" agents/` covers all 15 (or references REPORT_TEMPLATES)
-- [ ] github-manager contains `cat VERSION` derivation, no CHANGELOG grep
-- [ ] No `(v5.` stale stamps remain in agents/
+- [x] All 15 files contain the Sprint Contract; `BLOCKED (scope)`/`BLOCKED (conflict)` in 15/15
+- [x] `report: <absolute path` verdict line present in all 15 files
+- [x] github-manager derives the version via `cat VERSION` + CHANGELOG-consistency assert; the CHANGELOG-grep derivation is gone
+- [x] No `(v5.` stale stamps remain in agents/ (tester/researcher cleaned, dept footers replaced)
 
 ## Test / Validation Strategy
 Structural greps per acceptance criteria + manual read-through of the 4 most-changed files
@@ -72,4 +72,12 @@ unified verdict contract; github-manager now tags from VERSION.
 major (verdict/handoff contract changes).
 
 ## Result
-(filled at completion)
+All 15 agent prompts carry the v9 Sprint Contract (context intake, write scope, conflict/stop
+rules, canonical verdict incl. BLOCKED reason categories). REPORT_TEMPLATES.md is now the single
+canonical definition (verdict shape, report numbering 00–08 + unnumbered dept reports, sprint
+namespace `reports/vX.Y.Z/sprint-NN/`, `-rN` re-run suffix). Specific fixes: github-manager tags
+from VERSION with consistency assert + rc pre-release guidance + merge-commit law; scribe is
+sole CHANGELOG writer ([Unreleased] only, bump via tooling; stale banners corrected);
+architect/researcher got Write for their reports; validator/api-guardian/security diff an
+Orchestrator-passed range instead of HEAD~1; tester ordering contradiction fixed (parallel);
+ci-security-guardian is explicitly advisory (specifies workflows, @builder writes).
