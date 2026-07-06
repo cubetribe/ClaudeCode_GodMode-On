@@ -5,7 +5,7 @@ description: "Smart Routing — the DEFAULT CC_GodMode routing policy. Risk-base
 
 # Smart Routing (Default Routing Policy)
 
-**This is the default routing mode for CC_GodMode v7.0.0+.** The Orchestrator applies Smart Routing automatically unless the task carries high-risk signals that require Full-Gates (see `skills/workflows/`).
+**This is the default routing mode.** The Orchestrator applies Smart Routing automatically unless the task carries high-risk signals that require Full-Gates (see `skills/workflows/`).
 
 Smart Routing changes routing behavior. It does not silently weaken
 security, contract, or release gates.
@@ -82,7 +82,7 @@ Use existing agent model assignments as the baseline:
 - @architect should be reserved for decisions with long-lived impact.
 - @builder, @validator, @tester stay on balanced models because
   bad implementation or weak validation often costs more than the saved tokens.
-- @scribe is on haiku (v7.0.0+) — templated doc work is sufficient.
+- @scribe is on haiku — templated doc work is sufficient.
 
 `effort` frontmatter fields (Claude Code ≥2.1.152) provide additional budget tuning per agent without model changes.
 
@@ -98,3 +98,10 @@ Run checks that match the changed scope:
 - changed hooks: event payload assumptions and a dry-run where possible
 - changed API/contracts: @api-guardian plus consumer checks
 - changed UI: affected flows only unless release risk is high
+
+## Precedence vs. Parallel-First
+
+Smart Routing decides **which agents** run (smallest useful set). CLAUDE.md's parallel-first
+doctrine decides **how independent units are scheduled** (fan-out with disjoint write scopes).
+They compose: pick the minimal set first, then parallelize only genuinely independent units.
+Smart Routing never skips required gates, and parallel fan-out never overrides ownership rules.

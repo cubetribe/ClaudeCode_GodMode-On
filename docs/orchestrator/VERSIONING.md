@@ -1,57 +1,87 @@
-# CC_GodMode Versioning & Release
+# CC_GodMode Versioning & Release Law (v9, ADR-004)
 
-## Version-First Workflow (MANDATORY)
+> **This document is the single authoritative release law.** `skills/release/` and
+> `skills/sprint-planning/` summarize it; agent prompts reference it. If another doc
+> contradicts this one, this one wins.
 
-**Before ANY work starts:**
-1. **Determine target version** - Read current VERSION file, increment appropriately
-2. **Create CHANGELOG entry** - Document planned changes under new version
-3. **Create report folder** - `mkdir -p reports/vX.X.X/`
-4. **All agent reports go into this folder**
+## Source of truth
 
-```
-VERSION file says: 6.0.0
-New work planned: Bug fix
---> New version: 6.0.1
---> Reports go to: reports/v6.0.1/
-```
+- **`VERSION` (repo root)** is the canonical current version. Every other occurrence
+  (plugin.json, CLAUDE.md, README badge, templates, install prompts, docs) is a **derived
+  copy** managed by the touchpoint manifest in `scripts/sync-version.js`. `package.json` is
+  intentionally version-free.
+- **Release status** is encoded by git tags + GitHub Releases and checked against VERSION by
+  `scripts/release-check.js`. **Invariant:**
+  `VERSION == top dated CHANGELOG heading == latest tag == latest GitHub release`,
+  with `VERSION > latest tag` allowed only while a `release/*` branch is in flight.
+- **Roadmap** = `ROADMAP.md` (living). **Sprint progress** = frontmatter `status` in
+  `plans/vX.Y.Z/sprint-NN-*.md`. **Decisions** = `DECISIONS.md` (ADRs).
 
-## Semantic Versioning
+## When the version changes (and when it does NOT)
 
-- **MAJOR** (X.0.0): Breaking changes, major architecture changes
-- **MINOR** (0.X.0): New features, larger enhancements
-- **PATCH** (0.0.X): Bug fixes, small changes, hotfixes
+- Never at work start, never per task, never by an implementer agent.
+- Exactly once per release, in the **release sprint**, executed by
+  `node scripts/version-bump.js <major|minor|patch>` which:
+  1. verifies uniqueness against CHANGELOG **and git tags**,
+  2. promotes CHANGELOG `[Unreleased]` → `## [X.Y.Z] - date` (aborts if `[Unreleased]` is empty),
+  3. runs `scripts/sync-version.js --sync` over the full touchpoint manifest,
+  4. creates `reports/vX.Y.Z/`.
+- Bump type = highest `Version Relevance` across the plan's sprint files:
+  - **MAJOR** — breaking changes to CLAUDE.md rules, agent handoff/verdict contracts,
+    workflow commands, or install surface
+  - **MINOR** — new agents, skills, workflows, scripts, or backward-compatible features
+  - **PATCH** — fixes, docs, internal improvements
 
-## The VERSION File
+## Changelog law
 
-- Single line containing version number (e.g., `6.0.0`)
-- Must exist in every project root
-- Can be read by frontend/scripts for version display
-- Is the single source of truth for project version
+- Keep a Changelog format; a permanent `## [Unreleased]` section sits at the top.
+- **Every sprint adds its entry to `[Unreleased]` at integration** (single writer: @scribe,
+  serialized by the Orchestrator). No exceptions, even for one-line fixes. PRs that skip this
+  need an explicit no-changelog justification in the PR body.
+- Released entries are immutable history: only objective defects (broken links, date typos)
+  may be corrected, each noted in `[Unreleased]`.
+- Release codenames live ONLY in the CHANGELOG entry and the GitHub Release title — never in
+  version lines of docs/prompts.
 
-## Pre-Push Checklist (MANDATORY)
+## Release procedure (release sprint)
 
-Before ANY push to GitHub, Dev Server, Production, etc.:
+1. Preflight: all sprints `done`, working tree clean, `release-check.js` shows no inherited
+   drift (resolve missing tags/backfills first).
+2. Bump via `version-bump.js` (above). Verify `npm run version:check` + `npm run release:check`.
+3. Release branch `release/vX.Y.Z` → PR → CI (`release-consistency.yml`) green → **merge
+   commit** (`gh pr merge --merge`).
+4. Tag + Release: `.github/workflows/release-tag.yml` creates the annotated tag `vX.Y.Z` and a
+   **draft** GitHub Release from the CHANGELOG section on the merge commit; the maintainer
+   reviews and publishes. Manual fallback: @github-manager (version from `VERSION` only).
+5. Pre-releases / RCs: `vX.Y.Z-rc.N` annotated tag + GitHub pre-release flag. RC changes roll
+   into the final entry; the rc suffix never appears in CHANGELOG headings.
+6. Flip the ROADMAP entry to `released`.
 
-```
-[ ] VERSION file updated
-[ ] CHANGELOG.md entry added
-[ ] README.md updated (if needed)
-[ ] Version number is NEW (never pushed before)
-[ ] User gave explicit permission to push
-```
+**Hard rules:** never reuse a version (tag check enforces it); never push/tag/publish without
+explicit user permission; a merged release PR without its tag+release is a defect
+(`release-check.js` and every subsequent PR's CI will flag it).
 
-**NEVER push the same version twice.** Each push = new version number.
+## Enforcement
 
-## Report File Structure
+| Check | Where |
+|---|---|
+| Touchpoint consistency | `scripts/sync-version.js --check` — local, `npm run version:check`, CI on every PR |
+| Release invariant + phantom releases | `scripts/release-check.js` — local, pre-push-check, CI on every PR |
+| Release tail closure | `.github/workflows/release-tag.yml` on push to main |
+| Report/verdict quality | `scripts/validate-agent-output.js` (SubagentStop hook, stdin mode) |
 
-```
-reports/                                    <-- gitignored, not pushed
-|-- v[VERSION]/                             <-- Grouped by CHANGELOG version
-    |-- 00-researcher-report.md             <-- optional
-    |-- 01-architect-report.md
-    |-- 02-api-guardian-report.md
-    |-- 03-builder-report.md
-    |-- 04-validator-report.md
-    |-- 05-tester-report.md
-    +-- 06-scribe-report.md
-```
+## Repair procedures
+
+- **Phantom release** (CHANGELOG entry without tag): backfill an annotated tag on the merge
+  commit of its release PR + create the GitHub Release from the entry (mark as backfilled), OR
+  mark the entry "folded into vX.Y.Z" — decision documented in the release sprint file.
+- **Version drift across files:** `node scripts/sync-version.js --sync`, review diff, commit.
+- **Wrong bump merged but not tagged:** revert the bump commit via PR (the invariant tolerates
+  VERSION ahead of tags only on release branches).
+
+## Report folders
+
+`reports/` is **gitignored** — local working artifacts under `reports/vX.Y.Z/sprint-NN/`
+(numbering in `docs/templates/REPORT_TEMPLATES.md`). The durable, versioned audit trail is the
+sprint file (`Result` section) plus PLAN.md. Docs and CHANGELOG entries must not cite
+`reports/**` paths as public evidence.

@@ -6,6 +6,8 @@ This document defines the mode layer above the CC_GodMode agent
 workflow. Modes change orchestration behavior; they do not remove mandatory
 safety rules unless the mode explicitly declares a local-only exception.
 
+**v9.0.0 note:** Plan-First orchestration (ADR-004) sits above all modes: non-trivial work is decomposed into sprint files with write-scope ownership before any mode executes (`skills/sprint-planning/`); the version is decided at release, never at work start.
+
 **v8.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
 
 ## Mode Summary

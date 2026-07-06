@@ -24,7 +24,7 @@ have firm ground to stand on.
    - a project `CLAUDE.md` (copy `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` and trim
      to the project) so the Orchestrator and agents have rules
    - a basic `README.md` with purpose + how to run, if none exists
-   - a `VERSION` file (start at `0.1.0`) so the version-first rule has an anchor
+   - a `VERSION` file (start at `0.1.0`) as the single source of truth for the project version (written only by release sprints, ADR-004)
    - validation and release notes for the touched scope (how tests run, how releases
      are cut — even if "none yet")
 3. **Make structure explicit** — where source, config, tests, and docs belong.
@@ -37,7 +37,7 @@ have firm ground to stand on.
   as they are made via `@architect`, not preemptively.
 - Prefer durable markdown guidance over chat-only agreements.
 - Keep initial rules short enough to stay maintained.
-- Still honor CC_GodMode core rules: version-first, never push without permission,
+- Still honor CC_GodMode core rules: plan-first (ADR-004), never push without permission,
   delegate via the `Task` tool.
 
 ## Hand-off targets

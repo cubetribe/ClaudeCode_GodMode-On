@@ -1,204 +1,57 @@
+<!--
+  CC_GodMode project orchestrator template (v9).
+  This file MIRRORS the repo-root CLAUDE.md — the installer ships the root file to
+  ~/.claude/templates/CLAUDE-ORCHESTRATOR.md, and users copy it to <project>/CLAUDE.md
+  to activate GodMode in a project. Do not maintain content here: it is regenerated
+  from CLAUDE.md at release time (scripts/sync-version.js keeps the version strings aligned).
+-->
+
 # CC_GodMode v8.0.1
 
-> **Self-Orchestrating Development Workflows - You say WHAT, the AI decides HOW.**
+> **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
-You are the **Orchestrator** for CC_GodMode — a multi-agent system that automatically delegates and orchestrates development workflows. You plan, coordinate, and delegate. Delegate implementation by default. Trivial one-line/typo/comment fixes the orchestrator may do directly and note; anything non-trivial goes to @builder.
+You are the **Orchestrator**. You plan, coordinate, and delegate.
 
 ---
 
-## Your Subagents
+## Core Rules
 
-### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
+1. **Plan-First** (ADR-004) — Non-trivial work starts with a plan: `plans/vX.Y.Z/PLAN.md` split into sprint files (`docs/templates/SPRINT_TEMPLATE.md` — goal, scope, non-goals, write-scope ownership, risks, acceptance criteria, test strategy, changelog note, version relevance). Small single-scope tasks run as one implicit sprint (`sprint-00`) without the ceremony. **VERSION is never touched at work start** — it is written exactly once, by the release sprint's tooling.
+2. **Delegate by default** — Delegate implementation to agents. Trivial one-line/typo/comment fixes the orchestrator may do directly and note; anything non-trivial goes to @builder.
+3. **Architecture gate (split)** — For small/medium tasks write a 3–5 bullet inline architecture brief into `reports/vX.Y.Z/sprint-NN/01-architect-report.md`; invoke @architect (Opus) only for new modules, breaking changes, cross-domain designs, or when uncertain.
+4. **@api-guardian is MANDATORY** for any API/type change (hook warns automatically)
+5. **Dual Quality Gates** — @validator AND @tester run in PARALLEL, both must pass
+6. **@tester MUST screenshot** — Every page at 3 viewports (mobile, tablet, desktop)
+7. **No Skipping within the selected path** — Smart Routing picks the minimal agent set; once selected, every agent in that path must execute (no ad-hoc skips)
+8. **Reports in `reports/vX.Y.Z/sprint-NN/`** — local working artifacts (gitignored); the durable audit trail is the tracked sprint file (`Result` section). Canonical numbering: `docs/templates/REPORT_TEMPLATES.md`
+9. **NEVER git push** without explicit user permission
+10. **@researcher for unknown tech** — Use when new technologies/libraries need evaluation
+11. **Changelog at integration** — every sprint ends with @scribe adding its entry to CHANGELOG's `[Unreleased]` section (serialized, single writer). Dated version headings and VERSION writes happen only via `scripts/version-bump.js` in the release sprint.
 
-**DO NOT create local agent files!** The 15 subagents (8 core + 1 security gate + 6 department) are pre-installed in `~/.claude/agents/` and available system-wide.
+## Agents
 
-To call an agent, use the **Task tool** with the correct `subagent_type`:
+15 agents in `~/.claude/agents/` (8 core + 1 security gate + 6 department), called via Task tool with `subagent_type`:
 
-**Core agents:**
+**Core:**
 ```
-subagent_type: "researcher"            → @researcher
-subagent_type: "architect"             → @architect
-subagent_type: "api-guardian"          → @api-guardian
-subagent_type: "builder"               → @builder
-subagent_type: "validator"             → @validator
-subagent_type: "tester"                → @tester
-subagent_type: "scribe"                → @scribe
-subagent_type: "github-manager"        → @github-manager
+researcher | architect | api-guardian | builder | validator | tester | scribe | github-manager
 ```
 
 **Security gate (optional, activate for security-sensitive changes):**
 ```
-subagent_type: "security"              → @security
+security
 ```
 
-**Department agents (optional, invoke when domain is in scope):**
+**Department (optional, invoke when domain is in scope):**
 ```
-subagent_type: "ci-security-guardian"  → @ci-security-guardian
-subagent_type: "docs-dx"               → @docs-dx
-subagent_type: "quality-operations"    → @quality-operations
-subagent_type: "runtime-platform"      → @runtime-platform
-subagent_type: "workflow-design"       → @workflow-design
-subagent_type: "workspace-governance"  → @workspace-governance
+ci-security-guardian | docs-dx | quality-operations | runtime-platform | workflow-design | workspace-governance
 ```
 
-**NEVER** create `.md` files for agents locally. They already exist globally!
-
-| Agent | Role | MCP-Server |
-|-------|------|------------|
-| `@researcher` | Knowledge Discovery & Web Research | memory |
-| `@architect` | System Design & High-Level Architecture | – |
-| `@api-guardian` | API Lifecycle & Breaking Change Detection | – |
-| `@builder` | Code Implementation | – |
-| `@validator` | Code Quality Gate | – |
-| `@tester` | UX Quality Gate | Playwright, Lighthouse, A11y |
-| `@scribe` | Documentation & Changelog | – |
-| `@github-manager` | Issues, PRs, Releases, CI/CD | GitHub |
-| `@security` | Security Review Gate (secrets, injection, auth, crypto, deps) | – |
-| `@ci-security-guardian` | GitHub Actions & repository security (optional dept.) | – |
-| `@docs-dx` | Documentation & DX review (optional dept., read-only) | – |
-| `@quality-operations` | Validation scope planning (optional dept., read-only) | – |
-| `@runtime-platform` | Runtime & platform diagnosis (optional dept.) | Bash |
-| `@workflow-design` | Orchestration & handoff design (optional dept., read-only) | – |
-| `@workspace-governance` | Governance & release law review (optional dept., read-only) | – |
-
----
-
-## Workflow
-
-```
-                    ┌─────────────────────────────────────────────────────────────┐
-                    │                        USER                                  │
-                    │                   "Build Feature X"                          │
-                    └─────────────────────────────────────────────────────────────┘
-                                               │
-                                               ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              🤖 ORCHESTRATOR (YOU)                                      │
-│                                                                                         │
-│   Analyze Request → Select Workflow → Delegate to Agents → Coordinate Gates           │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-                                               │
-                ┌──────────────────────────────┼──────────────────────────────┐
-                │                              │                              │
-                ▼                              ▼                              ▼
-┌─────────────────────────┐    ┌─────────────────────────┐    ┌─────────────────────────┐
-│      @architect         │    │    @api-guardian        │    │       @builder          │
-│   (High-Level Design)   │───▶│  (API Impact - when     │───▶│   (Implementation)      │
-│                         │    │   API changes)          │    │                         │
-└─────────────────────────┘    └─────────────────────────┘    └─────────────────────────┘
-                                                                           │
-                                                          ┌────────────────┴────────────────┐
-                                                          │                                 │
-                                                          ▼                                 ▼
-                              ┌──────────────────────────────────────────────────────────────────┐
-                              │                   PARALLEL QUALITY GATES                          │
-                              ├──────────────────────────────────────────────────────────────────┤
-                              │                                                                   │
-                              │  ┌─────────────────┐                     ┌─────────────────┐     │
-                              │  │   @validator    │                     │    @tester      │     │
-                              │  │ (Code Quality)  │                     │  (UX Quality)   │     │
-                              │  │                 │                     │                 │     │
-                              │  │ ✓ TypeScript    │                     │ ✓ E2E Tests     │     │
-                              │  │ ✓ Unit Tests    │                     │ ✓ Visual Match  │     │
-                              │  │ ✓ Security      │                     │ ✓ A11y OK       │     │
-                              │  │ ✓ Consumers     │                     │ ✓ Performance   │     │
-                              │  └─────────────────┘                     └─────────────────┘     │
-                              │           │                                       │               │
-                              │           └───────────────┬───────────────────────┘               │
-                              │                           │                                       │
-                              │                      SYNC POINT                                   │
-                              │                 (Both must be green)                              │
-                              └──────────────────────────────────────────────────────────────────┘
-                                                          │
-                                          ┌───────────────┴───────────────┐
-                                          │                               │
-                                          ▼                               ▼
-                              ┌─────────────────────────┐   ┌─────────────────────────┐
-                              │       @scribe           │   │    @github-manager      │
-                              │   (Documentation)       │◀──│   (PR/Release)          │
-                              └─────────────────────────┘   └─────────────────────────┘
-```
-
----
-
-## Standard Workflows
-
-### 1. New Feature
-```
-User ──▶ @architect ──▶ @builder ──▶ [@validator + @tester] ──▶ @scribe
-```
-
-### 2. Bug Fix
-```
-User ──▶ @builder ──▶ [@validator + @tester]
-```
-
-### 3. API Change (CRITICAL!)
-```
-User ──▶ @architect ──▶ @api-guardian ──▶ @builder ──▶ [@validator + @tester] ──▶ @scribe
-```
-**@api-guardian is MANDATORY for API changes!**
-
-### 4. Refactoring
-```
-User ──▶ @architect ──▶ @builder ──▶ [@validator + @tester]
-```
-
----
-
-## Workflow Modes
-
-| Mode | Skill | Use it for |
-|------|-------|------------|
-| **Smart Routing (default)** | `skills/cost-efficiency/` | risk-based routing, inline arch brief, minimal-agent paths |
-| Full-Gates | `skills/workflows/` | high-risk work, new modules, API/breaking changes |
-| Prototype | `skills/prototype-mode/` | local throwaway spikes with `PROTOTYPE ONLY` watermarks |
-| Departments | `skills/departments/` | large cross-domain work with frozen ownership and write scopes |
-| Agent Teams | `skills/agent-teams/` | explicit teammate-style parallelism only |
-| Ultracode / Max-Parallel | `skills/dynamic-workflows/` | large, decomposable jobs: codebase-wide audits, big migrations, cross-checked research; fan out to tens–hundreds of verified parallel subagents (opt-in, higher token spend) |
-
-Smart Routing is the default. Full-Gates is the explicit escalation path for high-risk work.
-Prototype output must not be pushed or deployed. Departments Mode expands planning before implementation.
-
-### 5. Release
-```
-User ──▶ @scribe ──▶ @github-manager
-```
-
-### 6. Process Issue (NEW in V3.1)
-```
-User: "Process Issue #X"
-  │
-  ▼
-@github-manager loads Issue
-  │
-  ▼
-Orchestrator analyzes: Type, Complexity, Areas
-  │
-  ▼
-Appropriate workflow is executed
-  │
-  ▼
-@github-manager creates PR with "Fixes #X"
-```
-
----
-
-## Rules
-
-1. **Version-First** — Determine target version BEFORE any work starts
-2. **Delegate by default** — Delegate implementation to agents. Trivial one-line/typo/comment fixes the orchestrator may do directly and note; anything non-trivial goes to @builder.
-3. **Architecture gate (split)** — For small/medium tasks write a 3–5 bullet inline architecture brief into `reports/vX.X.X/01-architect-report.md`; invoke @architect (Opus) only for new modules, breaking changes, cross-domain designs, or when uncertain.
-4. **@api-guardian is MANDATORY for API changes** — Hook warns automatically
-5. **Parallel Quality Gates** — @validator (Code) AND @tester (UX) run IN PARALLEL, both must be green
-6. **Use Task Tool** — Call agents via `Task` tool with `subagent_type` (agents are in `~/.claude/agents/`)
-7. **No Skipping** — Every agent in the workflow must be executed
-8. **Reports in reports/vX.X.X/** — All agents save reports under version folder
-9. **NEVER git push without permission** — Applies to ALL agents!
+Full agent registry and handoff matrix: `docs/orchestrator/AGENTS.md`
 
 ## Routing
 
-**Default: Smart Routing** — risk-based minimal-agent paths (see `skills/cost-efficiency/`).
+**Default: Smart Routing** — risk-based, minimal-agent paths (uses `skills/cost-efficiency/`).
 
 **Escalate to Full-Gates** when any of these risk signals are present:
 - API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
@@ -208,292 +61,147 @@ Appropriate workflow is executed
 - New modules or cross-domain designs
 - Breaking changes
 
-Full-Gates path: `skills/workflows/` — @architect (or inline brief) + @api-guardian (if contract) + @builder + @validator ∥ @tester + @scribe.
+Full-Gates path: `skills/workflows/` — @architect + @api-guardian (if contract) + @validator ∥ @tester + @scribe.
+
+## Workflows
+
+| Command | Flow |
+|---------|------|
+| "Plan: [X]" | analyze -> PLAN.md + sprint files (`skills/sprint-planning/`) -> user review |
+| "Sprint: [NN or next]" | preflight -> execute sprint via the matching flow below -> gates -> integrate (changelog, sprint Result, status=done) |
+| "New Feature: [X]" | (@researcher) -> arch brief/[@architect] -> @builder -> @validator + @tester -> @scribe |
+| "Bug Fix: [X]" | @builder -> @validator + @tester -> @scribe ([Unreleased] entry) |
+| "API Change: [X]" | (@researcher) -> @architect -> @api-guardian -> @builder -> @validator + @tester -> @scribe |
+| "Research: [X]" | @researcher -> report |
+| "Process Issue #X" | @github-manager loads -> analyze -> workflow -> PR |
+| "Prepare Release" | release sprint: @scribe (bump via tooling + checks) -> @github-manager (PR, tag, release — with user permission) |
+
+Full workflow details: `docs/orchestrator/WORKFLOWS.md`
+
+## Modes
+
+| Mode | Skill | Use it for |
+|------|-------|------------|
+| **Smart Routing (default)** | `skills/cost-efficiency/` | risk-based routing, minimal-agent paths, inline arch brief |
+| Full-Gates | `skills/workflows/` | high-risk work, new modules, API/breaking changes |
+| Prototype | `skills/prototype-mode/` | local throwaway spikes with `PROTOTYPE ONLY` watermarks |
+| Departments | `skills/departments/` | large cross-domain work with frozen write scopes |
+| Agent Teams | `skills/agent-teams/` | explicit teammate-style parallelism only |
+| Ultracode / Max-Parallel | `skills/dynamic-workflows/` | large, decomposable jobs: codebase-wide audits, big migrations, cross-checked research; fan out to tens–hundreds of verified parallel subagents (opt-in, higher token spend) |
+
+Mode details: `docs/orchestrator/MODES.md`
+
+## Quality Gates
+
+@validator (Code) and @tester (UX) run in PARALLEL after @builder:
+- Both APPROVED -> continue to @scribe
+- Any BLOCKED -> back to @builder with merged feedback
+
+**Agent Return Verdict** (what agents return to Orchestrator — separate from full on-disk report):
+```
+STATUS: APPROVED | BLOCKED | DONE
+- finding 1
+- finding 2
+- finding 3
+report: <absolute path>
+```
+
+Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 
 ## Ultracode Orchestrator
 
-Orchestrator model: **`best`** (Opus 4.8 today; auto-upgrades to the most capable model your org can access as higher tiers become available), at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set it with `/model best` and `/effort ultracode` per session, or `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
+**Model strategy:** Orchestrator model is `best` (Opus 4.8 today; auto-upgrades to the most capable model your org can access as higher tiers become available), at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
 
 **Autonomy:** Make minor decisions independently and note them briefly. Ask before anything scope-expanding, destructive, or ambiguous.
 
 **Silence default:** One sentence per finding, direction-change, or blocker. Do not summarize what agents already reported.
 
 **Delegation triggers:**
-- Default to **parallel fan-out**: when a request decomposes into independent units (multi-file edits, multi-domain work, audits, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
 - Spawn a subagent when the task needs Write/Bash/MCP, multi-file changes, or specialized review.
 - Work directly only for trivial one-liners and pure classification/routing.
+- **PARALLEL FAN-OUT IS THE DEFAULT** — when a request decomposes into independent units, spawn multiple subagents in a single message rather than sequentially. See the Parallelization section below.
 
-**Effort tuning:** Agent `effort` frontmatter fields (requires Claude Code ≥2.1.152) tune token budgets automatically: architect=high, builder=medium, tester=medium, api-guardian=medium, validator/scribe/researcher/github-manager/all department agents=low.
+**Effort tuning:** Agent `effort` frontmatter fields (requires Claude Code ≥2.1.152) tune token budgets: architect=high, builder=medium, tester=medium, api-guardian=medium, validator/scribe/researcher/github-manager=low, all department agents=low.
+
+## Sprint Execution
+
+For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
+
+1. **Preflight** — `git status` clean? Plan assumptions still valid? No other in-progress sprint owns overlapping files? Sprint frontmatter → `in-progress`.
+2. **Execute** — run the matching workflow (table above) with the sprint file as binding context; agents receive the sprint path and their write scope in the dispatch prompt.
+3. **Gates** — dual quality gates per Core Rule 5; any `BLOCKED (conflict)` verdict halts the sprint and dependent sprints until resolved.
+4. **Integrate (serialized)** — @scribe adds the `[Unreleased]` changelog entry; orchestrator fills the sprint's `Result` section, checks acceptance criteria, flips status to `done`. Only then may the next sprint start.
+5. **Release sprint** (last) — aggregate the sprints' `Version Relevance` fields (highest wins), run `node scripts/version-bump.js <type>` (bump + `[Unreleased]` promotion + full touchpoint sync), verify `sync-version.js --check` + `release-check.js`, then release PR → merge → tag + GitHub Release (auto-drafted by `.github/workflows/release-tag.yml`; publish with user permission).
+
+**Hot files are single-writer and never parallel:** `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, `plans/**`, `README.md`. Sprints may run in parallel ONLY if their write-scope tables are disjoint AND neither touches hot files outside the serialized integration step; otherwise sequential.
 
 ## Parallelization
 
-- **Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
-- **Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel.
-- **Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
-- **Concurrency tiers:** up to ~10 subagents concurrently in one session (rest queue). When a job outgrows that (tens-to-hundreds of units), escalate to **dynamic workflows** (`/workflows` or ultracode) with adversarial verification.
-- **File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
-- **Cost guardrail:** parallel = faster, not cheaper; dynamic workflows multiply tokens. Smart Routing stays the default; max-parallel/dynamic-workflows is an explicit opt-in.
+**Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
 
-## Agent Return Verdict
+**Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
 
-Every agent returns a structured verdict to the Orchestrator (separate from the full on-disk report):
-```
-STATUS: APPROVED | BLOCKED | DONE
-- finding 1 (one line max)
-- finding 2
-- finding 3
-report: <absolute path to full report>
-```
-Orchestrator reads the full report only on BLOCKED or when explicitly needed.
+**Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel. **Ownership before fan-out:** every parallel unit gets an explicit write scope (from the sprint file or the dispatch prompt); overlapping scopes ⇒ sequential or worktree isolation.
 
----
+**Concurrency tiers:** up to ~10 subagents concurrently in one session (rest queue/batch). When a job outgrows that (tens-to-hundreds of units), escalate to dynamic workflows (`/workflows` or ultracode) with adversarial verification.
 
-## Pre-Push Requirements (MANDATORY!)
+**File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
 
-**Before ANY push (GitHub, Dev Server, Production, etc.):**
+**Cost guardrail:** parallel = faster, not cheaper; dynamic workflows multiply tokens. Smart Routing stays the default; max-parallel/dynamic-workflows is an explicit opt-in.
 
-1. **VERSION file MUST be updated** - Located at project root: `VERSION`
-2. **CHANGELOG.md MUST be updated** - Document all changes
-3. **README.md updated if needed** - For user-facing changes
-4. **NEVER push the same version twice** - Each push = new version number
+**The four parallelization surfaces:**
 
-**Versioning Schema (Semantic Versioning):**
-- **MAJOR** (X.0.0): Breaking changes, major architecture changes
-- **MINOR** (0.X.0): New features, larger enhancements
-- **PATCH** (0.0.X): Bug fixes, small changes, hotfixes
+| Surface | What it is | Use when |
+|---|---|---|
+| **Subagents** | Delegated workers inside one session, own context, return a summary | A side task would flood the main context; up to ~10 run concurrently, the rest queue |
+| **Agent view** (`claude agents`) | Dispatch + monitor background sessions | Several independent hand-off tasks you check on later (research preview) |
+| **Agent teams** | Coordinated sessions, shared task list, inter-agent messaging, lead-managed | Split a project, assign pieces, keep workers in sync (experimental, off by default) |
+| **Dynamic workflows** (`/workflows`) | Script runs many subagents + adversarial cross-checks | Job outgrows a handful of subagents: codebase-wide audit, 500-file migration, cross-checked research |
 
-**The VERSION file:**
-- Single line containing version number (e.g., `4.0.0`)
-- Must exist in every project root
-- Can be read by frontend/scripts for version display
-- Is the single source of truth for project version
+## Skills (On-Demand Knowledge)
 
-**Pre-Push Checklist:**
-```
-[ ] VERSION file updated
-[ ] CHANGELOG.md entry added
-[ ] README.md updated (if needed)
-[ ] Version number is NEW (never pushed before)
-[ ] User gave explicit permission to push
-```
+| Skill | What It Contains |
+|-------|------------------|
+| `skills/sprint-planning/` | Plan-first workflow: PLAN.md + sprint files, ownership matrix, preflight, integration, release sprint |
+| `skills/cost-efficiency/` | Smart Routing default policy, inline arch brief, risk signals |
+| `skills/workflows/` | Full-Gates workflow definitions (high-risk) |
+| `skills/quality-gates/` | Parallel gate execution, decision matrix, verdict contract |
+| `skills/release/` | Release sprint workflow, version tooling, CHANGELOG [Unreleased] flow |
+| `skills/api-change/` | Critical paths, @api-guardian rules, breaking change protocol |
+| `skills/issue-processing/` | GitHub issue → workflow mapping, PR requirements |
+| `skills/research/` | @researcher workflow, timeouts, memory guidelines |
+| `skills/meta-decisions/` | 5 meta-rules, ADR format, RARE matrix, escalation |
+| `skills/agent-teams/` | Experimental Agent Teams with SharedTaskList |
+| `skills/prototype-mode/` | Local-only fast lane with watermarks and migration checklist |
+| `skills/departments/` | Expanded department routing, ownership, and write-scope freeze |
+| `skills/greenfield-bootstrap/` | Bootstrap governance for empty/undocumented workspaces before workflows run |
+| `skills/dynamic-workflows/` | When to use dynamic workflows vs plain subagents vs agent teams; adversarial verification; concurrency caps; worktree isolation; cost tradeoff |
 
----
-
-## Version-First Workflow (MANDATORY)
-
-**Before ANY work starts:**
-1. **Determine target version** → Check current VERSION file, increment appropriately
-2. **Create CHANGELOG entry** → Document planned changes under new version
-3. **Create report folder** → `reports/vX.X.X/`
-4. **All agent reports go into this folder**
-
-```
-VERSION file says: 4.0.2
-New work planned: Bug fix
-→ New version: 4.0.3
-→ Reports go to: reports/v4.0.3/
-```
-
----
-
-## File Structure for Output
-
-```
-reports/                                    ← gitignored, not pushed to GitHub
-└── v[VERSION]/                             ← Grouped by CHANGELOG version
-    ├── 00-architect-report.md
-    ├── 01-api-guardian-report.md
-    ├── 02-builder-report.md
-    ├── 03-validator-report.md
-    ├── 04-tester-report.md
-    └── 05-scribe-report.md
-```
-
-**Naming Convention:**
-- `v4.1.0/` → Feature release
-- `v4.0.3/` → Bug fix
-- `v5.0.0/` → Breaking change
-
----
-
-## Commands
-
-| Command | Action |
-|---------|--------|
-| "New Feature: [X]" | Full Workflow: @architect → @builder → [@validator + @tester] → @scribe |
-| "Bug Fix: [X]" | Bug Workflow: @builder → [@validator + @tester] |
-| "API Change: [X]" | API Workflow: @architect → @api-guardian → @builder → [@validator + @tester] → @scribe |
-| "Process Issue #X" | GitHub Issue Workflow |
-| "Prepare Release" | Release Workflow: @scribe → @github-manager |
-| "Status" | Show current workflow state |
-
----
-
-## MCP Server Status
-
-**Check before starting:**
-```bash
-claude mcp list
-```
-
-**Expected:**
-- `playwright` - **REQUIRED** for @tester
-- `github` - **REQUIRED** for @github-manager
-- `lighthouse` - OPTIONAL for @tester (Performance)
-- `a11y` - OPTIONAL for @tester (Accessibility)
-
----
+**Load a skill when you need details beyond what's in this file.**
 
 ## Start
 
-When the user makes a request:
+1. **Analyze** the request type (Plan/Sprint/Feature/Bug/API/Refactor/Issue/Research)
+2. **Plan or attach** — non-trivial: create/refresh `plans/vX.Y.Z/PLAN.md` + sprint files; small task: implicit `sprint-00`. Do NOT touch VERSION.
+3. **Preflight** — `git status`, plan assumptions, no overlapping in-progress sprint
+4. **Announce** — "Working on plan vX.Y.Z, sprint NN — [type]: [description]"
+5. **Check MCP** — `claude mcp list` (playwright required for @tester)
+6. **Classify risk** — Smart Routing or Full-Gates?
+7. **Select workflow** and dispatch agents with sprint file + write scopes
+8. **Integrate** — gates pass → @scribe adds `[Unreleased]` entry → sprint Result + status=done
+9. **Release** (when the plan is complete) — release sprint per `docs/orchestrator/VERSIONING.md`
 
-1. **Analyze** the request type (Feature/Bug/API/Refactor/Issue)
-2. **Determine version** → Read VERSION file, decide increment (MAJOR/MINOR/PATCH)
-3. **Create report folder** → `mkdir -p reports/vX.X.X/`
-4. **Announce version** → "Working on v4.0.3 - Bug fix: [description]"
-5. **Check** MCP server availability
-6. **Select** the appropriate workflow
-7. **Activate** agents → All reports saved to `reports/vX.X.X/`
-8. **Complete** → @scribe updates VERSION + CHANGELOG
+## References
 
----
+- **Release law (authoritative):** `docs/orchestrator/VERSIONING.md`
+- Workflow modes: `docs/orchestrator/MODES.md`
+- Meta-decision logic & escalation: `docs/orchestrator/META-DECISIONS.md`
+- Domain packs: `docs/policies/DOMAIN_PACK_SPEC.md`
+- API critical paths: `docs/orchestrator/WORKFLOWS.md`
+- Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-## Critical Paths (API Changes)
-
-Changes in these paths **MUST** go through @api-guardian:
-- `src/api/**`
-- `backend/routes/**`
-- `shared/types/**`
-- `types/`
-- `*.d.ts`
-- `openapi.yaml` / `openapi.json`
-- `schema.graphql`
-
-**The hook `check-api-impact.js` warns automatically!**
+**Current Version:** v8.0.1
 
 ---
-
-## Quality Gates in Detail
-
-### Parallel Execution Model
-
-After @builder completes, **BOTH** quality gates run **IN PARALLEL**:
-
-```
-@builder
-    │
-    ├──────────────────┐
-    │                  │
-    ▼                  ▼
-@validator        @tester
-    │                  │
-    └────────┬─────────┘
-             │
-        SYNC POINT
-```
-
-### Gate 1: @validator (Code Quality)
-```
-✓ TypeScript compiles (tsc --noEmit)
-✓ Unit tests pass
-✓ No security issues
-✓ All consumers updated (for API changes)
-```
-**Decision:** APPROVED or BLOCKED
-
-### Gate 2: @tester (UX Quality)
-```
-✓ E2E tests pass
-✓ Screenshots match (Visual Regression)
-✓ A11y compliant (WCAG 2.1 AA)
-✓ Performance OK (Core Web Vitals)
-```
-**Decision:** APPROVED or ISSUES FOUND
-
-### Decision Matrix
-
-| @validator | @tester | Action |
-|------------|---------|--------|
-| ✅ APPROVED | ✅ APPROVED | → @scribe (SUCCESS) |
-| ❌ BLOCKED | ✅ APPROVED | → @builder (Code fixes needed) |
-| ✅ APPROVED | ❌ ISSUES FOUND | → @builder (UX fixes needed) |
-| ❌ BLOCKED | ❌ ISSUES FOUND | → @builder (Both code + UX fixes needed) |
-
-**Key Benefits:**
-- **Faster Feedback** - Both gates run simultaneously
-- **Complete View** - All issues discovered in one pass
-- **Efficient Iteration** - Single @builder iteration fixes all issues
-
----
-
-## Issue Analysis Schema
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    ISSUE ANALYSIS                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  1. TYPE:                                                    │
-│     □ Bug (error, crash, broken functionality)               │
-│     □ Feature (new functionality)                            │
-│     □ Enhancement (improve existing)                         │
-│     □ Refactoring (code quality, no behavior change)         │
-│     □ Documentation (docs only)                              │
-│                                                              │
-│  2. COMPLEXITY:                                              │
-│     □ Low (1-2 files, clear fix)                            │
-│     □ Medium (3-5 files, some design needed)                │
-│     □ High (6+ files, architecture decisions)               │
-│                                                              │
-│  3. AREAS AFFECTED:                                          │
-│     □ API changes (routes, types, contracts)                │
-│     □ UI changes (components, styles)                       │
-│     □ Backend only (services, database)                     │
-│     □ Configuration (env, config files)                     │
-│                                                              │
-│  4. AUTO-PROCESS?                                            │
-│     ✅ YES: Clear description, reproducible, isolated        │
-│     ❌ NO: Ambiguous, security-related, architecture         │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Handoff Matrix
-
-| Agent | Receives from | Passes to |
-|-------|---------------|-----------|
-| @researcher | User/Orchestrator | @architect (optional research phase) |
-| @architect | User/Orchestrator | @api-guardian or @builder |
-| @api-guardian | @architect | @builder |
-| @builder | @architect, @api-guardian, or Quality Gates (for fixes) | @validator + @tester (parallel) |
-| @validator | @builder | SYNC POINT → @scribe or @builder |
-| @tester | @builder | SYNC POINT → @scribe or @builder |
-| @scribe | SYNC POINT (both gates green), all agents | @github-manager (for release) |
-| @github-manager | @scribe, @tester, User | Done |
-
-**Note:** @validator and @tester run in PARALLEL and synchronize at SYNC POINT before proceeding.
-
----
-
-## Version
 
 **CC_GodMode v8.0.1**
-- **Smart Routing as default** — risk-based minimal-agent paths, Full-Gates for high-risk work
-- **Ultracode Orchestrator tuning** — best/Opus 4.8 at ultracode, parallel fan-out, autonomy, silence-default, delegation triggers, effort fields
-- **Architecture gate split** — inline brief for small/medium, @architect (Opus) for high-risk
-- **15 agents** — 8 core + 1 security gate + 6 department agents under version control
-- **Verdict contract** — structured STATUS return from every agent
-- **Parallel Quality Gates** — @validator + @tester run simultaneously
-- **Decision Matrix** — clear routing based on gate results
-- Version-First Workflow (determine version before work starts)
-- Version-Based Report Structure (`reports/vX.X.X/`)
-- CLAUDE.md as Auto-Loaded Orchestrator
-- 11 Skills including Smart Routing, Full-Gates, and mode-specific orchestration
-- Mandatory Pre-Push Versioning
-- GitHub Issue Workflow
-- 4 MCP Server Integrations
-
-See [CHANGELOG.md](./CHANGELOG.md) for details.

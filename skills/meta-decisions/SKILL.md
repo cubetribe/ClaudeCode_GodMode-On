@@ -15,7 +15,7 @@ The meta-decision layer analyzes user prompts and automatically adapts workflows
 | **breakingChangeEscalation** | breaking change, deprecate, remove API, migration | Require @architect review before any change |
 | **performanceCriticalPath** | performance, optimize, slow, latency, cache | Add performance benchmarks to @tester |
 | **emergencyHotfix** | hotfix, urgent, critical, production down | Streamlined workflow: @builder → @validator only |
-| **documentationOnly** | docs only, readme, changelog, typo fix | Skip @builder, direct to @scribe |
+| **documentationOnly** | docs only, readme, typo fix | Skip @builder, direct to @scribe. **Precedence:** if the change WRITES release artifacts (`VERSION`, `CHANGELOG.md` beyond the sprint-integration `[Unreleased]` entry), the release-artifact risk signal wins and the release law applies (`docs/orchestrator/VERSIONING.md`) |
 
 ## Decision Flow
 

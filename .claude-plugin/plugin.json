@@ -44,6 +44,7 @@
     "agents/workspace-governance.md"
   ],
   "skills": [
+    "skills/sprint-planning/SKILL.md",
     "skills/workflows/SKILL.md",
     "skills/dynamic-workflows/SKILL.md",
     "skills/quality-gates/SKILL.md",

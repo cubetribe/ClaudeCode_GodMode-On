@@ -2,7 +2,7 @@
 sprint: 5
 slug: orchestration
 plan: plans/v9.0.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ---
@@ -50,10 +50,10 @@ contradictions between CLAUDE.md, skills, and orchestrator docs.
 - Doc sprawl → VERSIONING.md authoritative, others reference it.
 
 ## Acceptance Criteria
-- [ ] CLAUDE.md contains Plan-First rule, Sprint Execution section, no version-first bump step
-- [ ] skills/sprint-planning exists and is registered in plugin.json
-- [ ] grep finds no remaining 'increment BEFORE any work' instruction outside CHANGELOG history
-- [ ] The named contradictions have one documented winner each
+- [x] CLAUDE.md contains Plan-First rule (Core Rule 1), Sprint Execution section, rewritten Start checklist without version bump, changelog-at-integration rule (Core Rule 11)
+- [x] skills/sprint-planning exists and is registered in plugin.json (14 skills)
+- [x] No remaining version-first/increment-before-work instruction outside CHANGELOG history
+- [x] Contradictions resolved with documented winners: changelog-keyword vs release-artifact signal (release law wins), Smart-Routing vs parallel-first (compose: minimal set, then fan-out), 'No Skipping' scoped to the selected path, bug-fix path now ends with @scribe integration, quality-gates isolation claim marked as native frontmatter
 
 ## Test / Validation Strategy
 Grep-based consistency sweep (version-first phrases, skill count, numbering) + read-through of
@@ -67,4 +67,11 @@ release law consolidated into VERSIONING.md.
 major (breaking CLAUDE.md change).
 
 ## Result
-(filled at completion)
+CLAUDE.md rewritten to v9 law (Plan-First, Sprint Execution loop, hot-file single-writer rule,
+ownership-before-fan-out). VERSIONING.md is now the single authoritative release law (SSOT
+hierarchy, version-at-release, changelog law, release procedure incl. RCs, enforcement table,
+repair procedures); skills/release reduced to an operational cheat sheet referencing it. New
+skills/sprint-planning registered. templates/CLAUDE-ORCHESTRATOR.md regenerated as a thin
+mirror of root CLAUDE.md (499 stale lines → 209, ends divergence; sync manifest still green).
+ADR-005 records the single-writer release process + CI invariant. MODES/WORKFLOWS docs carry
+the v9 plan-first preamble.

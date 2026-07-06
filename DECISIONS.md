@@ -14,6 +14,7 @@ This document captures significant decisions made during the development of CC_G
 | [ADR-002](#adr-002-mcp-health-check-tiers) | MCP Health Check Tiers | ACCEPTED | v5.6.0 | 2025-01-07 |
 | [ADR-003](#adr-003-phase-2-governance-features) | Phase 2 Governance Features | ACCEPTED | v5.8.0 | 2025-01-08 |
 | [ADR-004](#adr-004-plan-first-orchestration-and-version-at-release) | Plan-First Orchestration & Version-at-Release | ACCEPTED | v9.0.0 | 2026-07-06 |
+| [ADR-005](#adr-005-single-writer-release-process-with-ci-enforced-invariant) | Single-Writer Release Process with CI-Enforced Invariant | ACCEPTED | v9.0.0 | 2026-07-06 |
 
 ---
 
@@ -412,6 +413,57 @@ minute one (the plan folder carries the target instead); one more artifact layer
 ### Related Decisions
 
 - [ADR-001: Parallel Quality Gates](#adr-001-parallel-quality-gates)
+
+---
+
+## ADR-005: Single-Writer Release Process with CI-Enforced Invariant
+
+### Status
+
+**ACCEPTED**
+
+- **Date:** 2026-07-06
+- **Decision Makers:** Orchestrator, based on validated audit findings (plans/v9.0.0/PLAN.md)
+- **Version Introduced:** v9.0.0
+
+### Context
+
+The audit found the release tail structurally unenforced: 42 CHANGELOG versions vs. 3 GitHub
+releases; `[7.1.1]`/`[8.0.1]` merged but never tagged; @github-manager derived the tag version
+from the top CHANGELOG heading (a tag-corruption path); ~15 version touchpoints with tooling
+covering only subsets; WHO writes VERSION/CHANGELOG was specified four inconsistent ways; and
+no CI existed to enforce any of it.
+
+### Decision
+
+1. **Single writers:** only @scribe edits `CHANGELOG.md` (the `[Unreleased]` section, at
+   serialized sprint integration); only `scripts/version-bump.js` (release sprint) writes
+   `VERSION` and the touchpoint manifest; only @github-manager/`release-tag.yml` creates tags —
+   with the version read exclusively from `VERSION`.
+2. **Machine-checked invariant:** `VERSION == top CHANGELOG == latest tag == latest GitHub
+   release` (ahead-of-tag only on `release/*`), enforced by `scripts/release-check.js` locally,
+   in `pre-push-check.js`, and in `.github/workflows/release-consistency.yml` on every PR.
+3. **Automated release tail:** `.github/workflows/release-tag.yml` creates the annotated tag +
+   draft GitHub Release when a merged release PR changes VERSION; publishing stays manual.
+4. **Codenames** live only in CHANGELOG entries and GitHub Release titles.
+
+### Consequences
+
+**Positive:** phantom releases become impossible to miss; version drift is caught at PR time;
+concurrent version writes are structurally excluded. **Negative:** releases require the
+tooling path (intentional friction); GitHub Actions becomes a soft dependency (manual fallback
+documented in VERSIONING.md).
+
+### Alternatives Considered
+
+- **Fully automated publishing (semantic-release):** rejected — violates the repo's
+  "never push/publish without permission" law.
+- **File locks for VERSION:** rejected — don't work across clones; the single-writer +
+  invariant approach removes the race at its source.
+
+### Related Decisions
+
+- [ADR-004: Plan-First Orchestration & Version-at-Release](#adr-004-plan-first-orchestration-and-version-at-release)
 
 ---
 

@@ -46,7 +46,7 @@ Reports should live under `reports/v[VERSION]/` and stay concise.
 
 ## Routing Rules
 
-1. Run the normal governance and version-first preflight.
+1. Run the normal governance and plan-first preflight (sprint file + write scopes, ADR-004).
 2. Use @researcher only for unknown or version-sensitive facts.
 3. Use @architect to freeze the department routing map and write-scope matrix.
 4. Use @api-guardian whenever contracts, schemas, CLI, config, or public behavior change.
