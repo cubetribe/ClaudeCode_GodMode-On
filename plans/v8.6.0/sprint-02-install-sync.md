@@ -1,0 +1,78 @@
+---
+sprint: 02
+slug: install-sync
+plan: plans/v8.6.0/PLAN.md
+status: planned
+execution: sequential
+owner: orchestrator
+---
+
+# Sprint 02 — Install Sync & Drift Guard
+
+## Goal
+Close the repo→install gap: the live `~/.claude/` runs v8.0.0 with broken env-var hook
+wiring, pre-Sprint-Contract agents, and no sprint-planning skill — and the installer
+deliberately never touches `settings.json`, so drift heals only manually today. Give
+the installer a safe hook-repair mode, make drift visible at session start, then
+execute the sync so the running system actually gets Sprint 01's fixes.
+
+## Scope
+- `scripts/apply-global-claude-setup.sh`: new opt-in `--fix-hooks` flag — backs up
+  `~/.claude/settings.json` (timestamped, under `~/.claude/backups/`), then merges the
+  canonical hook wiring from `config/claude-settings.json` (SessionStart, PostToolUse,
+  SubagentStop, TaskCompleted, TeammateIdle; removes hook entries invoking
+  analyze-prompt.js or passing `$CLAUDE_*` variables). JSON editing via embedded
+  `node -e` (no jq dependency). Non-hook settings keys are preserved untouched.
+- `scripts/session-start.js`: drift guard in the banner — (a) compare install marker
+  `~/.cc-godmode-version` against `~/.claude/VERSION` and, when cwd is a GodMode repo
+  (VERSION + CLAUDE.md present), against the repo VERSION; warn on mismatch with the
+  fix command; (b) scan `~/.claude/settings.json` hook commands for `$CLAUDE_`
+  patterns and warn "broken hook wiring detected — run apply-global-claude-setup.sh --fix-hooks".
+- Execute the sync on this machine: run the installer (agents, scripts, skills,
+  templates) + `--fix-hooks`; refresh the GodMode core of `~/.claude/CLAUDE.md` to the
+  v8.5/8.6 orchestrator law while preserving the personal tail (stack defaults,
+  department table, scheduled automations — PLAN.md D5); update `~/.claude/VERSION`
+  marker per installer convention.
+
+## Non-Goals
+- No MCP server configuration changes.
+- No changes to repo-side hook logic (done in sprint 01).
+- No deletion of any user customization in `~/.claude/` — everything backed up first.
+
+## Files / Write Scope (ownership)
+| Path / Glob | Writer | Notes |
+|---|---|---|
+| `scripts/apply-global-claude-setup.sh` | @builder | --fix-hooks |
+| `scripts/session-start.js` | @builder | drift + broken-wiring warnings |
+| `~/.claude/**` (live install) | orchestrator via installer | execution step, with backups |
+
+## Risks
+- Corrupting the user's settings.json → mitigation: timestamped backup + node JSON
+  round-trip (parse-modify-stringify), abort on parse failure.
+- Overwriting personal CLAUDE.md content → mitigation: explicit preserve-tail
+  procedure (documented 2026-06-30 precedent), full pre-sync backup.
+
+## Acceptance Criteria
+- [ ] `apply-global-claude-setup.sh --fix-hooks` on a settings.json fixture with broken env-var wiring produces the canonical argument-free wiring, preserving unrelated keys.
+- [ ] session-start banner warns on version drift and on `$CLAUDE_` hook patterns.
+- [ ] Live `~/.claude/`: agents carry Sprint Contract, `skills/sprint-planning/` present, `validate-agent-output.js` has stdin mode, settings.json hooks argument-free, `hooks:test` passes against the installed scripts.
+- [ ] Backups exist for settings.json and CLAUDE.md.
+
+## Test / Validation Strategy
+Fixture test for --fix-hooks (temp dir); `node scripts/test-hooks-contract.js` re-run
+against installed `~/.claude/scripts`; @validator review; manual banner check.
+
+## Changelog Note
+Added: installer `--fix-hooks` repairs broken settings.json hook wiring (with backup);
+session-start banner now warns on install/repo version drift and broken hook wiring.
+
+## Version Relevance
+patch — installer/diagnostic improvements, no contract change.
+
+## Preflight (checked at sprint start)
+- [ ] Sprint 01 status = done (sync must ship its fixes)
+- [ ] `git status` clean except tracked sprint artifacts
+- [ ] No other in-progress sprint owns overlapping files
+
+## Result (filled at completion)
+_pending_
