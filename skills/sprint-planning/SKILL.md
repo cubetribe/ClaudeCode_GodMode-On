@@ -5,7 +5,7 @@ description: "Plan-first orchestration (ADR-004): comprehensive PLAN.md, sprint 
 
 # Sprint Planning (Plan-First Orchestration)
 
-> Replaces the pre-v9 Version-First rule. Work is planned before it is dispatched; the version
+> Replaces the pre-v8.5 Version-First rule. Work is planned before it is dispatched; the version
 > is decided at release, not at start. Release law: `docs/orchestrator/VERSIONING.md`.
 
 ## When to plan
@@ -22,7 +22,7 @@ description: "Plan-first orchestration (ADR-004): comprehensive PLAN.md, sprint 
 ROADMAP.md                          # living roadmap: initiative → target version → status
 plans/vX.Y.Z/PLAN.md                # master plan: analysis, target architecture, sprint index, global ownership
 plans/vX.Y.Z/sprint-NN-<slug>.md    # per sprint (template: docs/templates/SPRINT_TEMPLATE.md)
-reports/vX.Y.Z/sprint-NN/           # local agent reports (gitignored; durable trail = sprint Result section)
+reports/vX.Y.Z/sprint-NN/           # TRACKED agent/subagent reports (committed at integration)
 ```
 
 `vX.Y.Z` is the **target** version of the plan — a working label. The actual bump happens only
@@ -51,7 +51,8 @@ Per sprint (see CLAUDE.md "Sprint Execution"):
 3. **Gates:** dual quality gates; a `BLOCKED (conflict)` halts this and dependent sprints.
 4. **Integration (serialized — one sprint at a time):** @scribe adds the `[Unreleased]`
    changelog entry; orchestrator fills the sprint `Result`, ticks acceptance criteria,
-   status → `done`. Commit per sprint with a Conventional Commit message.
+   status → `done`. Commit per sprint with a Conventional Commit message — **including the
+   sprint's `reports/` folder** (reports are tracked; temp-dir output is a contract violation).
 
 ## Parallel sprints — decision rule
 

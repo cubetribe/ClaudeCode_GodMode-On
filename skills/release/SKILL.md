@@ -3,10 +3,10 @@ name: release
 description: "Release sprint workflow: version-at-release via tooling, CHANGELOG [Unreleased] flow, release invariant checks, tags, GitHub Releases, RCs. Authoritative law: docs/orchestrator/VERSIONING.md"
 ---
 
-# Release & Versioning (v9)
+# Release & Versioning (v8.5)
 
 > **Authoritative law:** `docs/orchestrator/VERSIONING.md` (ADR-004). This skill is the
-> operational cheat sheet. The pre-v9 "Version-First" rule (bump before work) is retired.
+> operational cheat sheet. The pre-v8.5 "Version-First" rule (bump before work) is retired.
 
 ## The model in one look
 

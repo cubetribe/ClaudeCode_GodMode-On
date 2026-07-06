@@ -20,7 +20,7 @@ You are **automatically activated** when API, type, or route files are changed. 
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) and the **explicit commit range or file list** the Orchestrator passes me — I analyze that change set, never a guessed `HEAD~1` (fix loops and parallel sprints make `HEAD~1` unreliable). If no range/list is provided, I ask for it.
 

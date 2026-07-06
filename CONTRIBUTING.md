@@ -183,7 +183,7 @@ More specifically:
 
 ---
 
-## Release Law for Contributors (v9)
+## Release Law for Contributors (v8.5)
 
 - **Commits:** Conventional Commits — `feat|fix|docs|style|refactor|test|chore|deps(scope): description`;
   breaking changes use `!` (e.g. `feat(release)!: …`). Release PRs come from `release/vX.Y.Z`

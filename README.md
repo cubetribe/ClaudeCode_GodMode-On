@@ -6,7 +6,7 @@
 
 **You're looking at the answer.**
 
-[![Version](https://img.shields.io/badge/Version-9.0.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-8.5.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
@@ -65,7 +65,7 @@ The orchestrator loads from `CLAUDE.md` automatically. But its headline power �
 **Step 1 — Turn on Ultracode.** Set it once per session, in the effort selector at the bottom of Claude Code, or by command:
 
 ```
-/model best        # Opus 4.8 today; auto-upgrades as your org gains access
+/model best        # resolves to Opus 4.8 — the model this system is optimized for
 /effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
 ```
 
@@ -119,7 +119,7 @@ You: *drinks coffee*
 
 v8.0.0's headline: **parallelization is the default**, not an afterthought.
 
-- **Orchestrator on `best` / Opus 4.8 at ultracode** — xhigh reasoning plus automatic dynamic workflows for substantive tasks. The `best` alias auto-upgrades as your org gains access to more capable models, so the system never goes stale.
+- **Orchestrator optimized for Opus 4.8 at ultracode** — xhigh reasoning plus automatic dynamic workflows for substantive tasks. The `best` alias resolves to Opus 4.8; if your org has access to a higher tier it is picked up automatically — strictly optional, no feature depends on it.
 - **Fan-out by default** — independent units (multi-file edits, audits, migrations, multi-angle research) spawn parallel subagents in a single message; the orchestrator fans in and synthesizes their verdicts.
 - **Dynamic-workflows escalation** — when a job outgrows ~10 concurrent subagents, it escalates to tens-to-hundreds of subagents with **adversarial verification** (agents try to refute each other's findings). See [`skills/dynamic-workflows/`](./skills/dynamic-workflows/SKILL.md).
 - **Smart Routing stays the default** — risk-based, minimal-agent paths; ~30–50% token reduction vs. always-Full-Gates. Parallel is *faster, not cheaper*, so max-parallel is a deliberate opt-in.
@@ -196,7 +196,7 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 
 ## Version
 
-**CC_GodMode v9.0.0**
+**CC_GodMode v8.5.0**
 
 What's in the box:
 - **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning

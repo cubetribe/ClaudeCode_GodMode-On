@@ -1,4 +1,4 @@
-# Release Tail Automation (v9, ADR-004)
+# Release Tail Automation (v8.5, ADR-004)
 # Closes the structural hole that produced the v7.1.1/v8.0.1 phantom releases:
 # when a release PR merges to main with a new VERSION, this job creates the
 # annotated tag and a DRAFT GitHub Release from the CHANGELOG section.

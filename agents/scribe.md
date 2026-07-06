@@ -20,7 +20,7 @@ You receive reports from all other agents and **translate** them into permanent 
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — its goal, scope, non-goals, changelog note, and write-scope table are binding — then all agent reports of this sprint from `reports/vX.Y.Z/sprint-NN/`.
 
@@ -44,7 +44,7 @@ You receive reports from all other agents and **translate** them into permanent 
 
 ## What I Do
 
-### 1. Changelog & Version Management (v9 law, ADR-004)
+### 1. Changelog & Version Management (v8.5 law, ADR-004)
 
 **Two distinct duties — never mixed:**
 

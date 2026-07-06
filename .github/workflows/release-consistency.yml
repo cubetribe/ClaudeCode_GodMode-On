@@ -1,4 +1,4 @@
-# Release Consistency Gate (v9, ADR-004)
+# Release Consistency Gate (v8.5, ADR-004)
 # Enforces on every PR: all version touchpoints match VERSION, and the release
 # invariant holds (VERSION == top CHANGELOG == latest tag; ahead-of-tag only
 # for release/* branches — release-check.js reads GITHUB_HEAD_REF in CI).

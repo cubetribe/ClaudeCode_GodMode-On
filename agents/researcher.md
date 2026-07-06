@@ -20,7 +20,7 @@ Before architecture decisions are made, you research current best practices, eva
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — its research questions, scope, and non-goals bound my search; I do not research beyond the sprint's scope.
 

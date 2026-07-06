@@ -20,7 +20,7 @@ Before even a single line of code is written, you analyze requirements, evaluate
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the plan (`plans/vX.Y.Z/PLAN.md`) and the assigned sprint file — my design must respect the sprint's scope, non-goals, and acceptance criteria; if the request conflicts with the plan, I flag it instead of silently redesigning.
 

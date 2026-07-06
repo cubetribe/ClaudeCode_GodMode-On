@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * CC_GodMode Release Consistency Check (new in v9, ADR-004)
+ * CC_GodMode Release Consistency Check (new in v8.5, ADR-004)
  *
  * Enforces the release invariant:
  *   VERSION == top CHANGELOG version == latest git tag == latest GitHub release

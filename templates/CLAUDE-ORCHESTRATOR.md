@@ -1,12 +1,12 @@
 <!--
-  CC_GodMode project orchestrator template (v9).
+  CC_GodMode project orchestrator template (v8.5).
   This file MIRRORS the repo-root CLAUDE.md — the installer ships the root file to
   ~/.claude/templates/CLAUDE-ORCHESTRATOR.md, and users copy it to <project>/CLAUDE.md
   to activate GodMode in a project. Do not maintain content here: it is regenerated
   from CLAUDE.md at release time (scripts/sync-version.js keeps the version strings aligned).
 -->
 
-# CC_GodMode v9.0.0
+# CC_GodMode v8.5.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -23,7 +23,7 @@ You are the **Orchestrator**. You plan, coordinate, and delegate.
 5. **Dual Quality Gates** — @validator AND @tester run in PARALLEL, both must pass
 6. **@tester MUST screenshot** — Every page at 3 viewports (mobile, tablet, desktop)
 7. **No Skipping within the selected path** — Smart Routing picks the minimal agent set; once selected, every agent in that path must execute (no ad-hoc skips)
-8. **Reports in `reports/vX.Y.Z/sprint-NN/`** — local working artifacts (gitignored); the durable audit trail is the tracked sprint file (`Result` section). Canonical numbering: `docs/templates/REPORT_TEMPLATES.md`
+8. **Reports live in the repo and are TRACKED** — every agent AND every subagent/swarm writes its markdown report to `reports/vX.Y.Z/sprint-NN/` inside the repo (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`), committed at sprint integration. NEVER write reports to `/tmp` or session scratch dirs — they vanish on interruption and destroy the who/what/when audit trail.
 9. **NEVER git push** without explicit user permission
 10. **@researcher for unknown tech** — Use when new technologies/libraries need evaluation
 11. **Changelog at integration** — every sprint ends with @scribe adding its entry to CHANGELOG's `[Unreleased]` section (serialized, single writer). Dated version headings and VERSION writes happen only via `scripts/version-bump.js` in the release sprint.
@@ -110,7 +110,7 @@ Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 
 ## Ultracode Orchestrator
 
-**Model strategy:** Orchestrator model is `best` (Opus 4.8 today; auto-upgrades to the most capable model your org can access as higher tiers become available), at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
+**Model strategy:** The system is optimized for **Claude Opus 4.8 at ultracode effort** (xhigh reasoning + automatic dynamic workflows for substantive tasks). Use the `best` alias: it resolves to Opus 4.8 — and only if your org happens to have access to a higher tier does it pick that up automatically (optional, never required; no feature depends on it). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
 
 **Autonomy:** Make minor decisions independently and note them briefly. Ask before anything scope-expanding, destructive, or ambiguous.
 
@@ -140,6 +140,8 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 **Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
 
 **Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
+
+**Subagent reports persist in the repo (Core Rule 8):** whoever spawns subagents — the orchestrator, an agent, or a dynamic-workflow swarm — is responsible for persisting each subagent's report as markdown under `reports/vX.Y.Z/sprint-NN/` (repo path, with frontmatter and a Files-Changed list). Temp/scratch output does not count: interrupted sessions must leave a complete, committed trail of who changed what, when.
 
 **Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel. **Ownership before fan-out:** every parallel unit gets an explicit write scope (from the sprint file or the dispatch prompt); overlapping scopes ⇒ sequential or worktree isolation.
 
@@ -200,8 +202,8 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v8.0.1
+**Current Version:** v8.5.0
 
 ---
 
-**CC_GodMode v9.0.0**
+**CC_GodMode v8.5.0**

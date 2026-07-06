@@ -1,11 +1,11 @@
-# Plan v9.0.0 — Sprint-Native GodMode
+# Plan v8.5.0 — Sprint-Native GodMode
 
-> Master plan for the v9.0.0 release. Produced by a full repository audit (9 subsystem readers,
+> Master plan for the v8.5.0 release. Produced by a full repository audit (9 subsystem readers,
 > 5 adversarial problem validators, 10 best-practice researchers, 2026-07-06). Status of each
 > sprint lives in its sprint file frontmatter. This plan is the source of truth for scope and
 > ordering; ROADMAP.md tracks the initiative, CHANGELOG.md `[Unreleased]` accumulates the entries.
 
-## Why v9.0.0
+## Why v8.5.0
 
 The audit confirmed (with file:line evidence) that the v8 process is single-task-only and that
 its release chain has structural holes. Highlights, all **confirmed**:
@@ -62,9 +62,9 @@ its release chain has structural holes. Highlights, all **confirmed**:
   incl. assigned sprint file), Write Scope, Conflict & Stop rules (foreign changes in scope ⇒
   `STATUS: BLOCKED (conflict)`), unified Return Verdict. @github-manager reads the version from
   VERSION only. Implementer agents get an explicit "never touch VERSION/CHANGELOG" line.
-- **Reports** stay local (gitignored) as working artifacts under `reports/vX.Y.Z/sprint-NN/`;
-  the durable audit trail is the tracked sprint file (`Result` section) — docs stop citing
-  gitignored reports as public evidence.
+- **Reports are tracked repo artifacts** under `reports/vX.Y.Z/sprint-NN/` (maintainer rule
+  2026-07-06, supersedes the earlier local-only design): agents and their subagents persist
+  every report in the repo; commits happen at sprint integration.
 
 ## Sprint index
 
@@ -75,9 +75,9 @@ its release chain has structural holes. Highlights, all **confirmed**:
 | 2 | sprint-02-versioning-changelog.md | Version tooling, manifest, [Unreleased], release-check | sequential |
 | 3 | sprint-03-ci-gates.md | CI workflows, hook fix, deprecate dead scripts | sequential |
 | 4 | sprint-04-agent-prompts.md | 15 agent prompts: standard blocks + specific fixes | sequential (parallelizable by file in future runs) |
-| 5 | sprint-05-orchestration.md | CLAUDE.md v9, sprint-planning skill, contradiction fixes | sequential |
+| 5 | sprint-05-orchestration.md | CLAUDE.md v8.5, sprint-planning skill, contradiction fixes | sequential |
 | 6 | sprint-06-docs.md | README/INSTALLATION/QUICK_START/CONTRIBUTING/registries/CHANGELOG tail | sequential |
-| 7 | sprint-07-release.md | Backfill v8.0.1 tag, final checks, v9.0.0 bump + release PR | sequential, push only with explicit user permission |
+| 7 | sprint-07-release.md | Backfill v8.0.1 tag, final checks, v8.5.0 bump + release PR | sequential, push only with explicit user permission |
 
 ## Global ownership (hot files during this plan)
 
@@ -91,12 +91,12 @@ its release chain has structural holes. Highlights, all **confirmed**:
 
 ## Decisions taken in planning (see also ADR-004)
 
-- v9.0.0 is a MAJOR bump: replacing Core Rule 1 (Version-First) is a breaking CLAUDE.md change
+- v8.5.0 is a MAJOR bump: replacing Core Rule 1 (Version-First) is a breaking CLAUDE.md change
   per the repo's own semver table.
 - VERSION is NOT bumped at plan start — deliberate, documented break with the old rule; the
   bump happens in S7 via the new tooling.
 - v8.0.1 phantom release is resolved by backfilling tag+release on merge commit `114346e`
-  (the state where all surfaces consistently claim 8.0.1) during S7, before v9.0.0 ships.
+  (the state where all surfaces consistently claim 8.0.1) during S7, before v8.5.0 ships.
 - `workflow-state.js` / `.ccgm-state.json` / `parallel-quality-gates.js` are deprecated, not
   rebuilt: sprint files are the new state surface; honest labels beat dead automation.
-- reports/ stays gitignored; durable results go into sprint files.
+- reports/ is TRACKED (maintainer decision 2026-07-06, revised from the initial gitignore design); sprint files stay the condensed summary.

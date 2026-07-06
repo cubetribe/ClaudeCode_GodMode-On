@@ -1,7 +1,7 @@
 ---
 sprint: 5
 slug: orchestration
-plan: plans/v9.0.0/PLAN.md
+plan: plans/v8.5.0/PLAN.md
 status: done
 execution: sequential
 owner: orchestrator
@@ -14,7 +14,7 @@ Rewrite the orchestrator law for plan-first sprint execution and resolve the doc
 contradictions between CLAUDE.md, skills, and orchestrator docs.
 
 ## Scope
-- `CLAUDE.md` v9: Core Rule 1 becomes **Plan-First** (plan + sprints before dispatch for
+- `CLAUDE.md` v8.5: Core Rule 1 becomes **Plan-First** (plan + sprints before dispatch for
   non-trivial work; trivial single-sprint fast path stays Smart-Routed); Rule 8 reports path
   gains sprint namespace; new **Sprint Execution** section (preflight, integration, single-writer
   hot files); Parallelization section gains the ownership/disjoint-scope rule; Start checklist
@@ -29,7 +29,7 @@ contradictions between CLAUDE.md, skills, and orchestrator docs.
   risk signal (release artifacts always win); emergencyHotfix precedence note; 'No Skipping' vs
   Smart Routing (rule rephrased: no skipping within the selected path); quality-gates
   isolation claim aligned with reality; report numbering references.
-- `templates/CLAUDE-ORCHESTRATOR.md`: regenerated from the v9 root CLAUDE.md (thin wrapper +
+- `templates/CLAUDE-ORCHESTRATOR.md`: regenerated from the v8.5 root CLAUDE.md (thin wrapper +
   project header) so the installer's behavior (root CLAUDE.md is what ships) and the template
   stop diverging; stale '11 Skills'/'NEW in V3.1' removed.
 - `docs/orchestrator/MODES.md`, `WORKFLOWS.md`, `QUALITY-GATES.md`: sprint mode row, workflow
@@ -60,18 +60,18 @@ Grep-based consistency sweep (version-first phrases, skill count, numbering) + r
 CLAUDE.md as a whole.
 
 ## Changelog Note
-Changed: orchestrator law v9 — Plan-First replaces Version-First; new sprint-planning skill;
+Changed: orchestrator law v8.5 — Plan-First replaces Version-First; new sprint-planning skill;
 release law consolidated into VERSIONING.md.
 
 ## Version Relevance
 major (breaking CLAUDE.md change).
 
 ## Result
-CLAUDE.md rewritten to v9 law (Plan-First, Sprint Execution loop, hot-file single-writer rule,
+CLAUDE.md rewritten to v8.5 law (Plan-First, Sprint Execution loop, hot-file single-writer rule,
 ownership-before-fan-out). VERSIONING.md is now the single authoritative release law (SSOT
 hierarchy, version-at-release, changelog law, release procedure incl. RCs, enforcement table,
 repair procedures); skills/release reduced to an operational cheat sheet referencing it. New
 skills/sprint-planning registered. templates/CLAUDE-ORCHESTRATOR.md regenerated as a thin
 mirror of root CLAUDE.md (499 stale lines → 209, ends divergence; sync manifest still green).
 ADR-005 records the single-writer release process + CI invariant. MODES/WORKFLOWS docs carry
-the v9 plan-first preamble.
+the v8.5 plan-first preamble.

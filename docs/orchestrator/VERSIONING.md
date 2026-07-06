@@ -1,4 +1,4 @@
-# CC_GodMode Versioning & Release Law (v9, ADR-004)
+# CC_GodMode Versioning & Release Law (v8.5, ADR-004)
 
 > **This document is the single authoritative release law.** `skills/release/` and
 > `skills/sprint-planning/` summarize it; agent prompts reference it. If another doc
@@ -79,9 +79,12 @@ explicit user permission; a merged release PR without its tag+release is a defec
 - **Wrong bump merged but not tagged:** revert the bump commit via PR (the invariant tolerates
   VERSION ahead of tags only on release branches).
 
-## Report folders
+## Report folders (TRACKED — maintainer rule, 2026-07-06)
 
-`reports/` is **gitignored** — local working artifacts under `reports/vX.Y.Z/sprint-NN/`
-(numbering in `docs/templates/REPORT_TEMPLATES.md`). The durable, versioned audit trail is the
-sprint file (`Result` section) plus PLAN.md. Docs and CHANGELOG entries must not cite
-`reports/**` paths as public evidence.
+`reports/` is **version-controlled**. Every agent — and every subagent or swarm an agent
+spawns — writes its full markdown report into `reports/vX.Y.Z/sprint-NN/` **inside the repo**
+(numbering in `docs/templates/REPORT_TEMPLATES.md`). Writing reports to `/tmp`, session
+scratchpads, or any location outside the repo is a contract violation: those directories do not
+survive session interruptions, and the audit trail ("who changed what, when") must persist.
+Reports are committed at sprint integration together with the sprint `Result`. The sprint file
+remains the condensed summary; the reports are the detailed evidence.

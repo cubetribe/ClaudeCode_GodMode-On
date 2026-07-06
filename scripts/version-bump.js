@@ -16,7 +16,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration - resolve from the repo root (script location), never from cwd,
-// so running from a subdirectory cannot silently target the wrong files (v9 fix).
+// so running from a subdirectory cannot silently target the wrong files (v8.5 fix).
 const ROOT = path.resolve(__dirname, '..');
 const VERSION_FILE = path.join(ROOT, 'VERSION');
 const CHANGELOG_FILE = path.join(ROOT, 'CHANGELOG.md');
@@ -201,7 +201,7 @@ function checkChangelogUniqueness(versionString) {
 }
 
 /**
- * Check that the version was never tagged (v9: tags are the release truth,
+ * Check that the version was never tagged (v8.5: tags are the release truth,
  * CHANGELOG uniqueness alone missed the v1.1.0 tag-without-entry class).
  */
 function checkTagUniqueness(versionString) {
@@ -266,7 +266,7 @@ function generateChangelogEntry(version) {
 }
 
 /**
- * Insert or promote CHANGELOG entry (v9 flow, ADR-004):
+ * Insert or promote CHANGELOG entry (v8.5 flow, ADR-004):
  * - If an "## [Unreleased]" section exists and has content, PROMOTE it to
  *   "## [X.Y.Z] - date" and start a fresh empty [Unreleased] section above it.
  * - If [Unreleased] exists but is empty, abort: a release without collected
@@ -554,7 +554,7 @@ function main() {
     writeVersionFile(newVersion);
     insertChangelogEntry(newVersion);
 
-    // Propagate to ALL version touchpoints (v9: bump and sync are one command)
+    // Propagate to ALL version touchpoints (v8.5: bump and sync are one command)
     try {
       execSync(`node ${JSON.stringify(path.join(__dirname, 'sync-version.js'))} --sync`, {
         cwd: ROOT, stdio: 'inherit'

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * ⚠ DEPRECATED since v9.0.0 (ADR-004) — kept for reference only.
+ * ⚠ DEPRECATED since v8.5.0 (ADR-004) — kept for reference only.
  *
  * This single-task state manager was never wired to any hook or agent: nothing
  * writes .ccgm-state.json automatically, and its schema disagrees with what
  * pre-push-check.js/validate-agent-output.js read (validator as string vs.
- * object). The v9 plan-first workflow uses tracked sprint files
+ * object). The v8.5 plan-first workflow uses tracked sprint files
  * (plans/vX.Y.Z/sprint-NN-*.md, status in frontmatter) as the state surface.
  * A multi-sprint successor is on the ROADMAP backlog.
  *

@@ -695,7 +695,7 @@ function checkWorkflowViolation(agentType, validation) {
 }
 
 /**
- * Hook mode (v9 fix): Claude Code hooks (SubagentStop etc.) invoke this script
+ * Hook mode (v8.5 fix): Claude Code hooks (SubagentStop etc.) invoke this script
  * with NO argv and deliver a JSON payload on stdin. The old wiring passed no
  * arguments, so every hook fire died in the usage branch with exit 1 and no
  * report was ever validated. In hook mode we:

@@ -210,7 +210,7 @@ function checkUncommittedChanges() {
 }
 
 /**
- * Release invariant (v9, ADR-004): VERSION == top CHANGELOG == latest tag,
+ * Release invariant (v8.5, ADR-004): VERSION == top CHANGELOG == latest tag,
  * ahead-of-tag only while a release is in flight. Delegates to release-check.js.
  */
 function checkReleaseConsistency() {

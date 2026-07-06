@@ -1,7 +1,7 @@
 ---
 sprint: 3
 slug: ci-gates
-plan: plans/v9.0.0/PLAN.md
+plan: plans/v8.5.0/PLAN.md
 status: done
 execution: sequential
 owner: orchestrator

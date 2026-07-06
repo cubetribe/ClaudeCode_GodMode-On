@@ -24,7 +24,7 @@ you hand back precise, actionable findings.
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) and the explicit commit range or file list the Orchestrator passes me — I review that change set, never a guessed `HEAD~1`.
 

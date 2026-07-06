@@ -1,6 +1,6 @@
 # CC_GodMode Installation Prompt
 
-> **Version:** 9.0.0
+> **Version:** 8.5.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -103,7 +103,7 @@ Before you execute anything, give the user the following message:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation v9.0.0                                          ║
+║   CC_GodMode Installation v8.5.0                                          ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -591,13 +591,13 @@ After completing all steps, provide this summary to the user:
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                                                                           ║
-║   CC_GodMode Installation Successful! v9.0.0                              ║
+║   CC_GodMode Installation Successful! v8.5.0                              ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
 ║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
-║   Version:      9.0.0                                                     ║
+║   Version:      8.5.0                                                     ║
 ║   Agents:       [X]/15 installed (8 core + 1 security gate + 6 department)║
 ║   Skills:       [X]/11 installed                                          ║
 ║   Scripts:      [X]/15 installed                                          ║

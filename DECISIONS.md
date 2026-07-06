@@ -13,8 +13,8 @@ This document captures significant decisions made during the development of CC_G
 | [ADR-001](#adr-001-parallel-quality-gates) | Parallel Quality Gates | ACCEPTED | v5.6.0 | 2025-01-07 |
 | [ADR-002](#adr-002-mcp-health-check-tiers) | MCP Health Check Tiers | ACCEPTED | v5.6.0 | 2025-01-07 |
 | [ADR-003](#adr-003-phase-2-governance-features) | Phase 2 Governance Features | ACCEPTED | v5.8.0 | 2025-01-08 |
-| [ADR-004](#adr-004-plan-first-orchestration-and-version-at-release) | Plan-First Orchestration & Version-at-Release | ACCEPTED | v9.0.0 | 2026-07-06 |
-| [ADR-005](#adr-005-single-writer-release-process-with-ci-enforced-invariant) | Single-Writer Release Process with CI-Enforced Invariant | ACCEPTED | v9.0.0 | 2026-07-06 |
+| [ADR-004](#adr-004-plan-first-orchestration-and-version-at-release) | Plan-First Orchestration & Version-at-Release | ACCEPTED | v8.5.0 | 2026-07-06 |
+| [ADR-005](#adr-005-single-writer-release-process-with-ci-enforced-invariant) | Single-Writer Release Process with CI-Enforced Invariant | ACCEPTED | v8.5.0 | 2026-07-06 |
 
 ---
 
@@ -44,7 +44,7 @@ This sequential approach was simple but created a bottleneck in the development 
 
 > **Note (2026-07-06):** the referenced `scripts/parallel-quality-gates.js` is a decision-matrix
 > simulation (stubbed agents), not an executor — real parallel gates run via parallel Task tool
-> calls. The script carries a SIMULATION header since v9.0.0.
+> calls. The script carries a SIMULATION header since v8.5.0.
 
 **Implementation:**
 - Use parallel Task tool calls to launch both agents simultaneously
@@ -361,8 +361,8 @@ Meta-Decision Rules implemented:
 **ACCEPTED**
 
 - **Date:** 2026-07-06
-- **Decision Makers:** Orchestrator, based on full repository audit (plans/v9.0.0/PLAN.md)
-- **Version Introduced:** v9.0.0
+- **Decision Makers:** Orchestrator, based on full repository audit (plans/v8.5.0/PLAN.md)
+- **Version Introduced:** v8.5.0
 
 ### Context
 
@@ -427,8 +427,8 @@ minute one (the plan folder carries the target instead); one more artifact layer
 **ACCEPTED**
 
 - **Date:** 2026-07-06
-- **Decision Makers:** Orchestrator, based on validated audit findings (plans/v9.0.0/PLAN.md)
-- **Version Introduced:** v9.0.0
+- **Decision Makers:** Orchestrator, based on validated audit findings (plans/v8.5.0/PLAN.md)
+- **Version Introduced:** v8.5.0
 
 ### Context
 

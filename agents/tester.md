@@ -21,7 +21,7 @@ You test the **user experience**, not just the code. You are **thorough** and **
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — I test against its **acceptance criteria and test strategy**, plus the builder report for what changed. The Orchestrator passes me the change scope; I focus flows/pages affected by it.
 

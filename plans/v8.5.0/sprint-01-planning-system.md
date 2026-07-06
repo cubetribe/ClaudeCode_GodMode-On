@@ -1,7 +1,7 @@
 ---
 sprint: 1
 slug: planning-system
-plan: plans/v9.0.0/PLAN.md
+plan: plans/v8.5.0/PLAN.md
 status: done
 execution: sequential
 owner: orchestrator
@@ -16,7 +16,7 @@ records the doctrine change.
 
 ## Scope
 - `ROADMAP.md` (living roadmap, repo root)
-- `plans/v9.0.0/PLAN.md` + all sprint files 01–07
+- `plans/v8.5.0/PLAN.md` + all sprint files 01–07
 - `docs/templates/SPRINT_TEMPLATE.md`
 - ADR-004 in `DECISIONS.md` (Plan-First & version-at-release) + index row
 
@@ -27,13 +27,13 @@ records the doctrine change.
 ## Files / Write Scope
 | Path | Writer |
 |---|---|
-| `ROADMAP.md`, `plans/v9.0.0/**`, `docs/templates/SPRINT_TEMPLATE.md`, `DECISIONS.md` | orchestrator |
+| `ROADMAP.md`, `plans/v8.5.0/**`, `docs/templates/SPRINT_TEMPLATE.md`, `DECISIONS.md` | orchestrator |
 
 ## Risks
 - Template over-engineering → keep it one page; extend only when a real sprint needs it.
 
 ## Acceptance Criteria
-- [x] ROADMAP.md exists with v9.0.0 in-progress entry
+- [x] ROADMAP.md exists with v8.5.0 in-progress entry
 - [x] PLAN.md documents audit findings, target architecture, sprint index, ownership
 - [x] SPRINT_TEMPLATE.md contains all 9 mandatory fields + preflight + result section
 - [x] ADR-004 recorded with status ACCEPTED and index row
@@ -48,5 +48,5 @@ Added: plan-first artifact layer (`ROADMAP.md`, `plans/`, sprint template, ADR-0
 major — introduces the artifact layer that replaces Version-First orchestration.
 
 ## Result
-Delivered as scoped. Audit digests kept locally under `reports/v9.0.0/sprint-00/` (gitignored);
-durable audit summary lives in PLAN.md.
+Delivered as scoped. Audit digests tracked under `reports/v8.5.0/sprint-00/` (reports are
+repo artifacts since the 2026-07-06 maintainer rule); condensed audit summary lives in PLAN.md.

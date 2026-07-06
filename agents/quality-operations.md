@@ -20,7 +20,7 @@ Your job is to determine the minimum viable validation plan that gives real conf
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — goal, scope, non-goals, and acceptance criteria bound my review — plus the role-specific inputs the Orchestrator names in the dispatch.
 

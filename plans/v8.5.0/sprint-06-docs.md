@@ -1,7 +1,7 @@
 ---
 sprint: 6
 slug: docs
-plan: plans/v9.0.0/PLAN.md
+plan: plans/v8.5.0/PLAN.md
 status: done
 execution: sequential
 owner: orchestrator
@@ -10,11 +10,11 @@ owner: orchestrator
 # Sprint 06 — Documentation, README & Consistency
 
 ## Goal
-Bring the public docs in line with the v9 workflow and repair objective defects found by the
+Bring the public docs in line with the v8.5 workflow and repair objective defects found by the
 audit, without rewriting healthy content.
 
 ## Scope
-- `README.md`: v9 workflow summary (plan-first, sprints, release invariant), version box,
+- `README.md`: v8.5 workflow summary (plan-first, sprints, release invariant), version box,
   docs index entry for ROADMAP/plans.
 - `docs/INSTALLATION.md`, `CC-GodMode-Prompts/QUICK_START.md`: sprint workflow mention; fix the
   false "setup script installs MCP servers" claim; skill count corrections (install prompts
@@ -26,7 +26,7 @@ audit, without rewriting healthy content.
   registry gains the 6 department agents in the handoff matrix; `docs/AGENT_ARCHITECTURE.md`
   updated or explicitly marked historical (placeholder URL, 7-agent tree).
 - Install prompts: version/feature claims sweep (CCGM_Prompt_02 v5.6-era content, Prompt_99
-  obsolete law and 'v6.4.0' example, Prompt_01 skill list) — minimal correction to v9 reality.
+  obsolete law and 'v6.4.0' example, Prompt_01 skill list) — minimal correction to v8.5 reality.
 - `CHANGELOG.md` tail repair (objective defects only): year typos ([5.0.0]/[4.1.0] 2025→2026),
   duplicate upgrade-guide heading label, dead footer links, Version History Summary note.
   Released entry BODIES remain untouched.
@@ -64,7 +64,7 @@ defects); Added: contributor release law in CONTRIBUTING.md.
 patch (within the major release).
 
 ## Result
-README rules section rewritten to the v9 law (plan-first, single-writer hot files, machine-
+README rules section rewritten to the v8.5 law (plan-first, single-writer hot files, machine-
 checked release invariant) with ROADMAP/plans/VERSIONING added to the docs index. INSTALLATION
 no longer claims the setup script installs MCP servers. Install prompts: skill count 11→14,
 Prompt_02 (v5.6-era 8-agent/architect-gate content) and Prompt_99 (no-skip law, v6.4.0 example,

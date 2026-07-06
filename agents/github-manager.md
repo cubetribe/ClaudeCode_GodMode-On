@@ -20,7 +20,7 @@ You orchestrate the **complete GitHub workflow**: create issues, manage PRs, pub
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`), the `VERSION` file, and — for releases — @scribe's report plus the `[Unreleased]`/release section of `CHANGELOG.md`.
 

@@ -6,7 +6,7 @@
 
 ## Overview
 
-CC_GodMode v9.0.0 uses **three different Claude models** across its 15 agents (8 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
+CC_GodMode v8.5.0 uses **three different Claude models** across its 15 agents (8 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
 - Which model and effort level each agent uses and why
 - Ultracode Orchestrator economics
 - Cost implications per workflow with Smart Routing
@@ -72,7 +72,7 @@ CC_GodMode positions the `best`/Opus 4.8 orchestrator as the coordinator only �
 | alias `sonnet` → Sonnet 4.6 | Balanced code work, analysis | Medium | Excellent |
 | alias `haiku` → Haiku 4.5 | Simple operations, API calls | Low | Fast |
 
-> Aliases resolve on the Anthropic API: `opus` → `claude-opus-4-8`, `sonnet` → `claude-sonnet-4-6`, `haiku` → `claude-haiku-4-5-20251001`; `best` → Opus 4.8 (`claude-opus-4-8`) today, auto-upgrading to the most capable model your org can access.
+> Aliases resolve on the Anthropic API: `opus` → `claude-opus-4-8`, `sonnet` → `claude-sonnet-4-6`, `haiku` → `claude-haiku-4-5-20251001`; `best` → Opus 4.8 (`claude-opus-4-8`) — the model CC_GodMode is optimized for; higher tiers are picked up automatically only where an org has access (optional, never required).
 
 ### Cost vs Capability
 

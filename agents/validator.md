@@ -21,7 +21,7 @@ You **validate** that @builder's implementation matches the specifications from 
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — I validate against its **acceptance criteria** and scope, not against assumptions — plus the builder report and the **explicit commit range or file list** the Orchestrator passes me.
 

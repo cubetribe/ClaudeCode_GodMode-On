@@ -1,7 +1,7 @@
 ---
 sprint: 4
 slug: agent-prompts
-plan: plans/v9.0.0/PLAN.md
+plan: plans/v8.5.0/PLAN.md
 status: done
 execution: sequential
 owner: orchestrator
@@ -72,7 +72,7 @@ unified verdict contract; github-manager now tags from VERSION.
 major (verdict/handoff contract changes).
 
 ## Result
-All 15 agent prompts carry the v9 Sprint Contract (context intake, write scope, conflict/stop
+All 15 agent prompts carry the v8.5 Sprint Contract (context intake, write scope, conflict/stop
 rules, canonical verdict incl. BLOCKED reason categories). REPORT_TEMPLATES.md is now the single
 canonical definition (verdict shape, report numbering 00–08 + unnumbered dept reports, sprint
 namespace `reports/vX.Y.Z/sprint-NN/`, `-rN` re-run suffix). Specific fixes: github-manager tags

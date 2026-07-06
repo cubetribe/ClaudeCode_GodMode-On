@@ -1,6 +1,6 @@
 # Agent Report Templates
 
-**Last Updated:** 2026-07-06 (v9 sprint contract)
+**Last Updated:** 2026-07-06 (v8.5 sprint contract)
 **Validation:** Enforced by `scripts/validate-agent-output.js`
 
 > **This document is the CANONICAL definition** of the return verdict, the report numbering,
@@ -36,8 +36,10 @@ report: <absolute path to full report>
 
 ## Canonical Report Paths & Numbering
 
-Reports are LOCAL working artifacts (`reports/` is gitignored); the durable audit trail is the
-tracked sprint file (`plans/vX.Y.Z/sprint-NN-*.md`, `Result` section). Within a sprint:
+Reports are **TRACKED repo artifacts** (maintainer rule, 2026-07-06): every agent AND every
+subagent/swarm writes its report into the repo — never into `/tmp` or session scratch dirs,
+which vanish on interruption. Reports are committed at sprint integration; the sprint file
+(`plans/vX.Y.Z/sprint-NN-*.md`, `Result` section) is the condensed summary. Within a sprint:
 
 ```
 reports/vX.Y.Z/sprint-NN/<prefix>-<agent>-report.md
@@ -60,6 +62,11 @@ Rules:
 - One folder per sprint — parallel sprints can never overwrite each other's reports.
 - Re-runs within a sprint (e.g. builder fix loops) append `-r2`, `-r3` … instead of overwriting.
 - Single-task work without a plan uses `sprint-00`.
+- **Subagents/swarms:** an agent that spawns subagents is responsible for persisting their
+  results as `<prefix>-<agent>-<subtask-slug>-report.md` in the same sprint folder (repo path,
+  absolute). Temp-dir output does not count as a report.
+- **Frontmatter is mandatory** (agent, date, task, status) and reports that change files must
+  list them under a `## Files Changed` section — this is the "who/what/when" record.
 
 ## Sprint Contract (referenced by every agent file)
 

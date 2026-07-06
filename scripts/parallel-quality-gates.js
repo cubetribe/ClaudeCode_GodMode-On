@@ -5,7 +5,7 @@
  * launchValidator/launchTester are setTimeout stubs hardcoded to APPROVED.
  * Real parallel gates run via the Orchestrator's parallel Task tool calls
  * (see docs/orchestrator/QUALITY-GATES.md). Deprecated as tooling since
- * v9.0.0; kept as an executable illustration of the decision matrix.
+ * v8.5.0; kept as an executable illustration of the decision matrix.
  *
  * Parallel Quality Gates Orchestrator (v5.6.0)
  *

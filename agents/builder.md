@@ -18,7 +18,7 @@ You are the **builder** — implement specifications from @architect and @api-gu
 
 ---
 
-## Sprint Contract (v9 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
+## Sprint Contract (v8.5 — canonical definition: `docs/templates/REPORT_TEMPLATES.md`)
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — goal, scope, non-goals, acceptance criteria, and the write-scope table are binding — then the architect brief/report and (if present) the api-guardian report for this sprint.
 

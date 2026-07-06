@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [9.0.0] - 2026-07-06
-> *v9.0.0 in progress — plan: `plans/v9.0.0/PLAN.md`. Entries are added at sprint integration; this section is promoted to a dated release heading by `scripts/version-bump.js` (ADR-004).*
+## [8.5.0] - 2026-07-06
+> *v8.5.0 in progress — plan: `plans/v8.5.0/PLAN.md`. Entries are added at sprint integration; this section is promoted to a dated release heading by `scripts/version-bump.js` (ADR-004).*
 
 ### Added
 
@@ -22,18 +22,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Orchestrator law v9** (Sprint 05): Core Rule 1 is now **Plan-First** (plan + sprint files with write-scope ownership before dispatch; VERSION untouched at work start — ADR-004); new Sprint Execution loop (preflight → execute → gates → serialized integration) with single-writer hot files; new `skills/sprint-planning/`; `docs/orchestrator/VERSIONING.md` rewritten as the single authoritative release law (invariant, RC rules, repair procedures — ADR-005); `templates/CLAUDE-ORCHESTRATOR.md` regenerated as a thin mirror of the root CLAUDE.md; routing contradictions resolved (changelog-keyword vs release-artifact signal, minimal-agents vs parallel-first, bug-fix path without changelog entry).
+- **Orchestrator law v8.5** (Sprint 05): Core Rule 1 is now **Plan-First** (plan + sprint files with write-scope ownership before dispatch; VERSION untouched at work start — ADR-004); new Sprint Execution loop (preflight → execute → gates → serialized integration) with single-writer hot files; new `skills/sprint-planning/`; `docs/orchestrator/VERSIONING.md` rewritten as the single authoritative release law (invariant, RC rules, repair procedures — ADR-005); `templates/CLAUDE-ORCHESTRATOR.md` regenerated as a thin mirror of the root CLAUDE.md; routing contradictions resolved (changelog-keyword vs release-artifact signal, minimal-agents vs parallel-first, bug-fix path without changelog entry).
 - **All 15 agent prompts are sprint-aware and parallel-safe** (Sprint 04): every agent carries a Sprint Contract — mandatory sprint-file intake, explicit write scopes (implementers never touch `VERSION`/`CHANGELOG.md`/`ROADMAP.md`/`plans/`), conflict detection with `STATUS: BLOCKED (scope|conflict|quality)` stop rules, and one canonical verdict shape defined in `docs/templates/REPORT_TEMPLATES.md` (report numbering 00–08, per-sprint report namespace, `-rN` re-run suffix). @github-manager now derives the release version exclusively from `VERSION`; @scribe is the single CHANGELOG writer; @architect/@researcher can write their own reports; gates diff an explicitly passed commit range instead of `HEAD~1`.
 - **Version tooling unified** (Sprint 02): `sync-version.js` rewritten around one declarative touchpoint manifest (12 files incl. `plugin.json`, README badge, orchestrator template, install banners with automatic box re-padding); `version-bump.js` now checks git-tag uniqueness, promotes `[Unreleased]` to a dated heading, and chains the full sync — bump and sync are one command. Release codenames now live only in CHANGELOG and GitHub Release titles (resolves the duplicated "The Ultracode Release" codename). `package.json` is a real manifest with `version:*`/`release:*` scripts and stays intentionally version-free.
 
 ### Fixed
 
-- **Documentation consistency sweep** (Sprint 06): install prompts corrected (14 skills, 15 agents, v5.6-era rules replaced), INSTALLATION's false "script installs MCP servers" claim fixed, README rules updated to the v9 law, department agents added to the handoff matrix, CONTRIBUTING gains the contributor release law, CHANGELOG date typos ([5.0.0]/[4.1.0] year) and a mislabeled duplicate upgrade-guide heading repaired as documented corrections.
+- **Documentation consistency sweep** (Sprint 06): install prompts corrected (14 skills, 15 agents, v5.6-era rules replaced), INSTALLATION's false "script installs MCP servers" claim fixed, README rules updated to the v8.5 law, department agents added to the handoff matrix, CONTRIBUTING gains the contributor release law, CHANGELOG date typos ([5.0.0]/[4.1.0] year) and a mislabeled duplicate upgrade-guide heading repaired as documented corrections.
 - **SubagentStop hook never validated** (Sprint 03): `validate-agent-output.js` now reads the Claude Code hook payload from stdin (argument-free wiring), locates the freshest report, and blocks with exit code 2 per the hook contract; the broken env-var hook variants in the install prompt were corrected.
 
 ### Deprecated
 
-- `scripts/workflow-state.js` (never wired, schema mismatch with its consumers) and `scripts/parallel-quality-gates.js` (simulation stubs) — sprint files under `plans/` are the v9 state surface (Sprint 03).
+- `scripts/workflow-state.js` (never wired, schema mismatch with its consumers) and `scripts/parallel-quality-gates.js` (simulation stubs) — sprint files under `plans/` are the v8.5 state surface (Sprint 03).
 
 ---
 

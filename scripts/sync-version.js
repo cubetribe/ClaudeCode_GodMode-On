@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * CC_GodMode Version Sync (v9 rewrite)
+ * CC_GodMode Version Sync (v8.5 rewrite)
  *
  * Single machine-readable manifest of EVERY file that carries the current
  * framework version. `--check` is a hard gate (exit 1 on any mismatch or
  * unresolvable pattern); `--sync` rewrites all touchpoints from VERSION.
  *
- * Design rules (ADR-004 / plans/v9.0.0):
+ * Design rules (ADR-004 / plans/v8.5.0):
  * - VERSION (repo root) is the single source of truth.
  * - Release codenames live ONLY in CHANGELOG.md and the GitHub Release title.
  *   Version lines in docs/prompts are plain `vX.Y.Z` — this script normalizes
