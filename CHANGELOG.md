@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **PostToolUse API-impact hook was a silent no-op** since v8.0.0 — wired with `"$CLAUDE_FILE_PATH"`, an env var Claude Code never populates, while the script read argv only; Core Rule 4's automatic @api-guardian trigger never fired. `check-api-impact.js` now reads the hook's stdin JSON payload (`tool_input.file_path`, `cwd`) with unchanged CLI mode; wiring is argument-free in `config/claude-settings.json`, `.claude-plugin/plugin.json`, and `templates/settings.local.json.template`.
+- **Gate agents reviewed stale state** — `agents/validator.md` and `agents/tester.md` carried `isolation: worktree`, which (a) fails to spawn when the session root is not a git repository and (b) would hand gates a committed-state worktree that cannot see the uncommitted diff under review. Frontmatter removed; gates review the working tree.
+
+### Added
+
+- **Hook contract test** `scripts/test-hooks-contract.js` (`npm run hooks:test`, new "Hook contract check" step in `.github/workflows/release-consistency.yml`): asserts no forbidden `$CLAUDE_*` argument tokens in any hook wiring file (`${CLAUDE_PLUGIN_ROOT}` stays allowed), behavioral stdin-payload probes for every wired script, usage-error guard — 28 checks.
+
+### Deprecated
+
+- `scripts/analyze-prompt.js` (UserPromptSubmit wiring was already dropped in v8.5.0; orchestrator performs meta-decision analysis natively; kept for reference, removal in a future major). Install prompts corrected (hook count, no live-hook presentation).
+
 ---
 
 ## [8.5.0] - 2026-07-06

@@ -2,7 +2,7 @@
 sprint: 01
 slug: hook-repair
 plan: plans/v8.6.0/PLAN.md
-status: planned
+status: done
 execution: parallel
 owner: orchestrator
 ---
@@ -88,4 +88,18 @@ patch — bug fixes + internal test tooling, no contract change.
 - [ ] No other in-progress sprint owns overlapping files
 
 ## Result (filled at completion)
-_pending_
+Done 2026-07-06. All acceptance criteria met; gates: @validator APPROVED (after one
+BLOCKED (quality) round on two stale install-prompt references, fixed by builder-A),
+@ci-security-guardian APPROVED. Hook contract suite: 28/28.
+
+Deviations / scope addenda (orchestrator-noted):
+- builder-A found the same broken wiring in `.claude-plugin/plugin.json` and
+  `templates/settings.local.json.template` (outside his scope) — fixed by orchestrator
+  (one-liners), covered by builder-B's extended `$CLAUDE_*` assert (allows
+  `${CLAUDE_PLUGIN_ROOT}`).
+- NEW DEFECT FOUND DURING GATING: `agents/validator.md` + `agents/tester.md` carried
+  `isolation: worktree` — validator spawn failed outside a git session root, and a
+  worktree would hide the uncommitted diff from the gates entirely. Removed in repo
+  and (as pre-sprint-02 hotfix) in the live install. Recorded in changelog.
+
+Follow-ups: none open; install-side sync of all sprint-01 fixes happens in sprint 02.

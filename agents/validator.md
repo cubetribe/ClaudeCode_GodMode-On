@@ -4,7 +4,6 @@ description: Quality assurance and verification - final quality gate before docu
 tools: Read, Grep, Glob, Bash
 model: sonnet
 effort: low
-isolation: worktree
 ---
 
 # @validator - Code Quality Engineer

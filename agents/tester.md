@@ -4,7 +4,6 @@ description: UX Quality Engineer for E2E Testing, Visual Regression, Accessibili
 tools: Read, Bash, Glob, mcp__playwright, mcp__lighthouse, mcp__a11y
 model: sonnet
 effort: medium
-isolation: worktree
 ---
 
 # @tester - UX Quality Engineer

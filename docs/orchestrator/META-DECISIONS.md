@@ -12,7 +12,11 @@ The orchestrator uses meta-decision rules to automatically adapt workflows based
 | emergencyHotfix | hotfix, urgent, critical | Streamlined workflow |
 | documentationOnlyOptimization | docs only, readme, changelog | Skip @builder, direct to @scribe |
 
-Script: `scripts/analyze-prompt.js` (META_DECISION_LAYER)
+Applied natively by the orchestrator (Core Rule 3 / `skills/meta-decisions/`) —
+not by a wired hook. `scripts/analyze-prompt.js` implemented an earlier,
+now-deprecated (since v8.6.0) version of this logic as a UserPromptSubmit
+hook; that wiring was removed in v8.5.0 and the script is kept for reference
+only.
 
 ## Architecture Decision Records (ADR)
 
@@ -37,7 +41,7 @@ Agent responsibilities follow the RARE model (AI-adapted RACI):
 |------|------------|--------|
 | **R**esponsible | Makes the decision | @architect designs |
 | **A**ccountable | Quality gate | @validator approves |
-| **Re**commends | Provides input | analyze-prompt.js suggests |
+| **Re**commends | Provides input | orchestrator meta-decision analysis suggests |
 | **E**xecutes | Implements | @builder codes |
 
 Full Matrix: `docs/policies/RARE_MATRIX.md`

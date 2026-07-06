@@ -425,15 +425,9 @@ claude mcp list
         "hooks": [
           {
             "type": "command",
-            "command": "node ~/.claude/scripts/check-api-impact.js \"$CLAUDE_FILE_PATH\""
+            "command": "node ~/.claude/scripts/check-api-impact.js"
           }
         ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "type": "command",
-        "command": "node ~/.claude/scripts/analyze-prompt.js \"$CLAUDE_USER_PROMPT\""
       }
     ],
     "SessionStart": [
@@ -463,15 +457,9 @@ claude mcp list
         "hooks": [
           {
             "type": "command",
-            "command": "node \"%USERPROFILE%\\.claude\\scripts\\check-api-impact.js\" \"$CLAUDE_FILE_PATH\""
+            "command": "node \"%USERPROFILE%\\.claude\\scripts\\check-api-impact.js\""
           }
         ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "type": "command",
-        "command": "node \"%USERPROFILE%\\.claude\\scripts\\analyze-prompt.js\" \"$CLAUDE_USER_PROMPT\""
       }
     ],
     "SessionStart": [
@@ -491,12 +479,20 @@ claude mcp list
 ```
 
 **Note:** If the file already exists, merge the hooks section carefully.
+`check-api-impact.js` now reads the changed file from the PostToolUse stdin
+payload (`tool_input.file_path`) — no `$CLAUDE_FILE_PATH` env var is needed or
+exists. `analyze-prompt.js` is deprecated since v8.6.0 and intentionally not
+wired here (no `UserPromptSubmit` hook); the orchestrator performs
+meta-decision analysis natively (`skills/meta-decisions/`).
 
 **Hook Explanations:**
 - **PostToolUse (Write|Edit)**: Checks for API impact after file changes
-- **UserPromptSubmit**: Analyzes user prompts for task type, complexity, and workflow suggestions
 - **SessionStart**: MCP health checks and system diagnostics
 - **SubagentStop**: Validates agent output quality and completeness
+
+(`UserPromptSubmit` is intentionally not installed — `analyze-prompt.js` is
+deprecated since v8.6.0; the orchestrator performs meta-decision analysis
+natively.)
 
 ---
 
@@ -794,11 +790,17 @@ Department agents:
 - adr-template.md
 - CCGM_Prompt_98-Maintenance.md
 
-**Hooks (4):**
+**Hooks (3):**
 - PostToolUse (Write|Edit) - API Impact Check
-- UserPromptSubmit - Prompt Analysis
 - SessionStart - MCP Health & Diagnostics
 - SubagentStop - Agent Output Validation
+
+(`UserPromptSubmit` is not installed by Step 10 above — `analyze-prompt.js`
+is deprecated since v8.6.0. `config/claude-settings.json` in the repo wires
+two additional events not covered by this manual install walkthrough,
+`TaskCompleted` and `TeammateIdle`, both routed to
+`validate-agent-output.js`; add them here too if you want full parity with
+the repo's reference settings file.)
 
 ---
 

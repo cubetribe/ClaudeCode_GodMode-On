@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/check-api-impact.js \"$CLAUDE_FILE_PATH\"",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/check-api-impact.js",
             "timeout": 30
           }
         ]
