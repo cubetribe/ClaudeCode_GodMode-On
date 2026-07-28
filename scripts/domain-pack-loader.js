@@ -245,7 +245,7 @@ class DomainPackLoader {
   /**
    * Resolve an agent with fallback chain: Project > Global > Core
    *
-   * @param {string} agentName - Name of the agent (e.g., 'builder', 'validator')
+   * @param {string} agentName - Name of the agent (e.g., 'builder', 'tester')
    * @param {string|null} domainName - Optional domain to check first
    * @returns {Object} Resolution result with path and source
    */
@@ -375,7 +375,7 @@ class DomainPackLoader {
    * @returns {Array} List of agent resolution info
    */
   listAgents(domainName = null) {
-    const coreAgents = ['architect', 'api-guardian', 'builder', 'validator', 'tester', 'scribe', 'github-manager'];
+    const coreAgents = ['architect', 'api-guardian', 'builder', 'tester', 'scribe', 'github-manager'];
     const results = [];
 
     for (const agent of coreAgents) {

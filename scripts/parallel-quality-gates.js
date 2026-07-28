@@ -7,31 +7,37 @@
 
 /**
  * ⚠ SIMULATION ONLY — this script does NOT execute real quality gates.
- * launchValidator/launchTester are setTimeout stubs hardcoded to APPROVED.
- * Real parallel gates run via the Orchestrator's parallel Task tool calls
- * (see docs/orchestrator/QUALITY-GATES.md). Deprecated as tooling since
- * v8.5.0; kept as an executable illustration of the decision matrix.
+ * launchHookCheck/launchTester are setTimeout stubs hardcoded to APPROVED.
+ * Real gates run via the deterministic verify-changes.js SubagentStop hook
+ * plus, when declared, the Orchestrator's @tester Task tool call (see
+ * docs/orchestrator/QUALITY-GATES.md). Deprecated as tooling since v8.5.0;
+ * kept as an executable illustration of the decision matrix.
  *
- * Parallel Quality Gates Orchestrator (v5.6.0)
+ * Parallel Quality Gates Illustration (v8.7.0 - Sprint 02: Gate-Umbau)
  *
- * Revolutionary performance improvement: 40% faster quality validation
+ * v8.7.0 update: @validator was dissolved. Its deterministic half
+ * (typecheck/lint/test/build) is now the verify-changes.js hook, which runs
+ * unconditionally and costs ~0 context on a pass. @tester is now opt-in —
+ * it only runs when the sprint declared `ux_gate: auto`. This script keeps
+ * illustrating the "run in parallel, coordinate results" shape, with the
+ * hook standing in for the old @validator slot.
  *
- * Sequential (old): @builder → @validator (4min) → @tester (6min) → @scribe
- *                   Total: 10 minutes
+ * Sequential (old): @builder → hook (seconds) → @tester (6min) → @scribe
+ *                   Total: ~6 minutes when the UX gate is declared
  *
- * Parallel (new):   @builder → [@validator, @tester] (6min) → @scribe
- *                   Total: 6 minutes (40% faster!)
+ * Parallel (new):   @builder → [hook, @tester] (6min) → @scribe
+ *                   Total: ~6 minutes, hook adds effectively no time
  *
  * Decision Matrix:
- * | @validator | @tester  | Action                              |
- * |------------|----------|-------------------------------------|
- * | APPROVED   | APPROVED | → @scribe (proceed)                 |
- * | APPROVED   | BLOCKED  | → @builder (tester concerns)        |
- * | BLOCKED    | APPROVED | → @builder (code concerns)          |
- * | BLOCKED    | BLOCKED  | → @builder (merged feedback)        |
+ * | hook (verify-changes) | @tester (if run) | Action                       |
+ * |------------------------|-------------------|------------------------------|
+ * | APPROVED               | APPROVED          | → @scribe (proceed)          |
+ * | APPROVED               | BLOCKED           | → @builder (tester concerns) |
+ * | BLOCKED                | APPROVED          | → @builder (hook concerns)   |
+ * | BLOCKED                | BLOCKED           | → @builder (merged feedback) |
  *
  * Features:
- * - Simultaneous execution of @validator and @tester
+ * - Simultaneous execution of the deterministic hook and @tester
  * - Result coordination and conflict resolution
  * - Sequential fallback for safety
  * - Comprehensive error handling
@@ -70,7 +76,7 @@ const DECISION_MATRIX = {
   'BLOCKED-APPROVED': {
     status: 'BLOCKED',
     nextAgent: 'builder',
-    message: 'Code quality gate failed - returning to builder with validator feedback'
+    message: 'Code quality gate failed - returning to builder with hook feedback'
   },
   'BLOCKED-BLOCKED': {
     status: 'BLOCKED',
@@ -142,7 +148,7 @@ async function executeParallel(context) {
   console.log(`${colors.cyan}║  ⚡ PARALLEL QUALITY GATES (v5.6.0)                        ║${colors.reset}`);
   console.log(`${colors.cyan}╚════════════════════════════════════════════════════════════╝${colors.reset}`);
   console.log('');
-  console.log(`${colors.gray}Launching @validator and @tester simultaneously...${colors.reset}`);
+  console.log(`${colors.gray}Launching the verify-changes hook and @tester simultaneously...${colors.reset}`);
   console.log('');
 
   const startTime = Date.now();
@@ -150,14 +156,14 @@ async function executeParallel(context) {
   try {
     // Launch both agents in parallel
     const results = await Promise.allSettled([
-      launchValidator(context),
+      launchHookCheck(context),
       launchTester(context)
     ]);
 
     const duration = Date.now() - startTime;
 
     // Extract results
-    const validatorResult = results[0].status === 'fulfilled'
+    const hookResult = results[0].status === 'fulfilled'
       ? results[0].value
       : { status: 'ERROR', error: results[0].reason };
 
@@ -171,7 +177,7 @@ async function executeParallel(context) {
     console.log('');
 
     // Coordinate results
-    return coordinateResults(validatorResult, testerResult, duration);
+    return coordinateResults(hookResult, testerResult, duration);
 
   } catch (error) {
     console.log('');
@@ -184,14 +190,15 @@ async function executeParallel(context) {
 }
 
 /**
- * Launch @validator agent
+ * Launch the verify-changes.js deterministic hook (simulated)
  */
-async function launchValidator(context) {
+async function launchHookCheck(context) {
   const startTime = Date.now();
 
-  console.log(`${colors.blue}[@validator]${colors.reset} Starting code quality validation...`);
+  console.log(`${colors.blue}[hook]${colors.reset} Starting verify-changes.js (typecheck/lint/test/build)...`);
 
-  // Simulate validator execution (in real implementation, this would use Task tool)
+  // Simulate the hook execution (in real implementation, this runs the actual
+  // verify-changes.js SubagentStop hook, not a Task tool call)
   // For now, this is a placeholder that shows the pattern
 
   return new Promise((resolve) => {
@@ -200,7 +207,7 @@ async function launchValidator(context) {
 
       // Placeholder result (real implementation would parse actual agent output)
       const result = {
-        agent: 'validator',
+        agent: 'hook',
         status: 'APPROVED', // or 'BLOCKED'
         duration,
         checks: {
@@ -212,7 +219,7 @@ async function launchValidator(context) {
         issues: []
       };
 
-      console.log(`${colors.blue}[@validator]${colors.reset} Completed in ${Math.round(duration / 1000)}s`);
+      console.log(`${colors.blue}[hook]${colors.reset} Completed in ${Math.round(duration / 1000)}s`);
 
       resolve(result);
     }, 2000); // Placeholder timing
@@ -258,7 +265,7 @@ async function launchTester(context) {
 /**
  * Coordinate results from both agents
  */
-function coordinateResults(validatorResult, testerResult, totalDuration) {
+function coordinateResults(hookResult, testerResult, totalDuration) {
   console.log('');
   console.log(`${colors.cyan}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${colors.reset}`);
   console.log(`${colors.cyan}RESULTS COORDINATION${colors.reset}`);
@@ -266,11 +273,11 @@ function coordinateResults(validatorResult, testerResult, totalDuration) {
   console.log('');
 
   // Display individual results
-  displayAgentResult('validator', validatorResult);
+  displayAgentResult('hook', hookResult);
   displayAgentResult('tester', testerResult);
 
   // Determine combined status using decision matrix
-  const matrixKey = `${validatorResult.status}-${testerResult.status}`;
+  const matrixKey = `${hookResult.status}-${testerResult.status}`;
   const decision = DECISION_MATRIX[matrixKey] || {
     status: 'ERROR',
     nextAgent: 'orchestrator',
@@ -287,7 +294,7 @@ function coordinateResults(validatorResult, testerResult, totalDuration) {
   // Merge feedback if both blocked
   let feedback = [];
   if (decision.status === 'BLOCKED') {
-    feedback = mergeFeedback([validatorResult, testerResult]);
+    feedback = mergeFeedback([hookResult, testerResult]);
 
     if (feedback.length > 0) {
       console.log(`${colors.yellow}Feedback for @builder:${colors.reset}`);
@@ -299,7 +306,7 @@ function coordinateResults(validatorResult, testerResult, totalDuration) {
   }
 
   // Performance metrics
-  const sequentialEstimate = validatorResult.duration + testerResult.duration;
+  const sequentialEstimate = hookResult.duration + testerResult.duration;
   const timeSaved = sequentialEstimate - totalDuration;
   const percentageSaved = Math.round((timeSaved / sequentialEstimate) * 100);
 
@@ -314,7 +321,7 @@ function coordinateResults(validatorResult, testerResult, totalDuration) {
     nextAgent: decision.nextAgent,
     message: decision.message,
     feedback,
-    validatorResult,
+    hookResult,
     testerResult,
     performance: {
       parallelDuration: totalDuration,
@@ -395,26 +402,26 @@ async function sequentialFallback(context) {
 
   const startTime = Date.now();
 
-  // Run validator first
-  const validatorResult = await launchValidator(context);
-  displayAgentResult('validator', validatorResult);
+  // Run the hook check first
+  const hookResult = await launchHookCheck(context);
+  displayAgentResult('hook', hookResult);
 
-  // Only run tester if validator approved
+  // Only run tester if the hook approved
   let testerResult = null;
 
-  if (validatorResult.status === 'APPROVED') {
+  if (hookResult.status === 'APPROVED') {
     testerResult = await launchTester(context);
     displayAgentResult('tester', testerResult);
   } else {
-    console.log(`${colors.yellow}⚠ Skipping @tester due to @validator BLOCKED status${colors.reset}`);
+    console.log(`${colors.yellow}⚠ Skipping @tester due to hook BLOCKED status${colors.reset}`);
     console.log('');
 
     return {
       status: 'BLOCKED',
       nextAgent: 'builder',
-      message: 'Validator blocked - fix code issues before testing',
-      feedback: validatorResult.issues || [],
-      validatorResult,
+      message: 'Hook blocked - fix code issues before testing',
+      feedback: hookResult.issues || [],
+      hookResult,
       testerResult: null,
       mode: 'sequential'
     };
@@ -423,7 +430,7 @@ async function sequentialFallback(context) {
   const totalDuration = Date.now() - startTime;
 
   // Coordinate results
-  return coordinateResults(validatorResult, testerResult, totalDuration);
+  return coordinateResults(hookResult, testerResult, totalDuration);
 }
 
 /**
@@ -455,7 +462,7 @@ module.exports = {
   executeParallel,
   coordinateResults,
   prepareContext,
-  launchValidator,
+  launchHookCheck,
   launchTester,
   sequentialFallback
 };

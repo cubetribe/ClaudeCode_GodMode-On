@@ -86,7 +86,7 @@ Return concrete go/no-go recommendations with:
 - Severity: BLOCKER / WARNING / SUGGESTION
 
 ### Report Output
-**Save to:** `reports/vX.Y.Z/sprint-NN/ci-security-guardian-report.md` (version and sprint number from the assigned sprint file)
+**Report output:** I hold no `Write` tool. I return my full findings inline in the verdict; whoever dispatched me persists them to `reports/vX.Y.Z/sprint-NN/ci-security-guardian-report.md` (version and sprint number from the assigned sprint file).
 
 ---
 

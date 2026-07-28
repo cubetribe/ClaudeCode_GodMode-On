@@ -53,12 +53,11 @@ const VALIDATION_RULES_CORE = {
       'Recommendation'
     ],
     requiredPatterns: [
-      /##\s+(Key Findings|Findings)/i,
-      /##\s+Sources/i,
+      /#{2,4}\s+(Key Findings|Findings)/i,
+      /#{2,4}\s+Sources/i,
       /\[.*\]\(https?:\/\//i,  // Must have at least one source link
       /(Recommendation|Handoff)/i
     ],
-    minLength: 500,
     name: '@researcher'
   },
 
@@ -70,11 +69,10 @@ const VALIDATION_RULES_CORE = {
       'Handoff'
     ],
     requiredPatterns: [
-      /##\s+ARCHITECTURAL DECISIONS/i,
-      /##\s+IMPLEMENTATION/i,
-      /##\s+RISK/i
+      /#{2,4}\s+ARCHITECTURAL DECISIONS/i,
+      /#{2,4}\s+IMPLEMENTATION/i,
+      /#{2,4}\s+RISK/i
     ],
-    minLength: 1000,
     name: '@architect'
   },
 
@@ -86,11 +84,10 @@ const VALIDATION_RULES_CORE = {
       'Migration Checklist'
     ],
     requiredPatterns: [
-      /##\s+IMPACT ANALYSIS/i,
-      /##\s+CONSUMER/i,
-      /##\s+BREAKING/i
+      /#{2,4}\s+IMPACT ANALYSIS/i,
+      /#{2,4}\s+CONSUMER/i,
+      /#{2,4}\s+BREAKING/i
     ],
-    minLength: 800,
     name: '@api-guardian'
   },
 
@@ -102,36 +99,26 @@ const VALIDATION_RULES_CORE = {
       'Tests'
     ],
     requiredPatterns: [
-      /###\s+Files Created/i,
-      /###\s+Files Modified/i,
-      /###\s+Quality Gates/i
+      /#{2,4}\s+Files\s+(Created|Added)/i,
+      /#{2,4}\s+Files\s+(Modified|Changed)/i,
+      /#{2,4}\s+(Quality Gates|Verification|Checks)/i
     ],
-    minLength: 500,
     name: '@builder'
   },
 
-  validator: {
-    requiredSections: [
-      'Code Quality',
-      'TypeScript',
-      'Tests',
-      'Decision'
-    ],
-    requiredPatterns: [
-      /##\s+CODE QUALITY/i,
-      /TypeScript/i,
-      /Tests/i,
-      /(APPROVED|BLOCKED)/i
-    ],
-    minLength: 400,
-    name: '@validator'
-  },
+  // NOTE (v8.7.0 - Sprint 02): @validator no longer exists as a standing
+  // agent. Its deterministic half (typecheck/lint/test/build) moved to the
+  // scripts/verify-changes.js SubagentStop hook; its judgment half is pulled
+  // on demand via the native /code-review skill instead of a standing agent.
+  // There is no VALIDATION_RULES_CORE entry for it any more.
 
-  // ENHANCED: @tester with mandatory screenshot enforcement (v5.10.0)
+  // ENHANCED: @tester with mandatory screenshot enforcement (v5.10.0).
+  // Pattern set kept byte-for-byte in sync with docs/templates/REPORT_TEMPLATES.md
+  // (@builder-6, same sprint) - divergence here was Widerspruch H7: a
+  // builder following the template used to fail this hook because the hook
+  // demanded more than the template promised.
   tester: {
     requiredSections: [
-      'E2E Tests',
-      'Visual Regression',
       'Screenshots Created',
       'Console Errors',
       'Performance Metrics',
@@ -139,31 +126,28 @@ const VALIDATION_RULES_CORE = {
       'Decision'
     ],
     requiredPatterns: [
-      /##\s+E2E/i,
-      /Visual/i,
       /(\.playwright-mcp\/|screenshots?\/)/i,  // Screenshot path MUST be present (.playwright-mcp/ or screenshots/)
       /\.(png|jpg|jpeg)/i,                     // Screenshot file MUST be named
       /Console\s*(Error|Message)/i,            // Console errors MUST be reported
       /(LCP|CLS|INP|FCP)/i,                    // Performance metrics MUST be included
-      /A(11y|ccessibility)/i,
       /(APPROVED|BLOCKED)/i
     ],
-    minLength: 800,  // Increased due to mandatory sections
     name: '@tester'
   },
 
+  // NOTE (v8.7.0 - Sprint 02): no VERSION/SemVer pattern here any more.
+  // docs/orchestrator/VERSIONING.md:24 explicitly forbids @scribe from
+  // writing VERSION ("never by an implementer agent") - a hook that
+  // requires a scribe report to contain a SemVer string enforced the wrong
+  // direction of that rule.
   scribe: {
     requiredSections: [
       'CHANGELOG',
-      'VERSION',
       'Documentation'
     ],
     requiredPatterns: [
-      /##\s+CHANGELOG/i,
-      /VERSION/i,
-      /v?\d+\.\d+\.\d+/
+      /#{2,4}\s+CHANGELOG/i
     ],
-    minLength: 300,
     name: '@scribe'
   },
 
@@ -176,9 +160,16 @@ const VALIDATION_RULES_CORE = {
       /(Issue|PR|Release)/i,
       /(Created|Updated|Closed)/i
     ],
-    minLength: 200,
     name: '@github-manager'
   }
+
+  // NOTE (v8.7.0 - Sprint 02, Core Rule 8 / Defekt D1): deliberately no
+  // entries for `security` or the 6 department agents
+  // (ci-security-guardian, docs-dx, quality-operations, runtime-platform,
+  // workflow-design, workspace-governance). None of them hold `Write` - they
+  // return a verdict to whoever dispatched them instead of writing a report
+  // file, so there is nothing on disk for this hook to validate. This is a
+  // deliberate scope decision, not an oversight.
 };
 
 /**
@@ -191,7 +182,6 @@ const VALIDATION_RULES_CORE = {
  *     agentName: {
  *       requiredSections: [...],    // Additional sections required
  *       requiredPatterns: [...],    // Additional patterns to check
- *       minLength: number,          // Override minimum length (optional)
  *       overrides: boolean          // If true, replaces core rules; if false, extends them
  *     }
  *   }
@@ -237,17 +227,9 @@ const VALIDATION_RULES_DOMAINS = {
         /(endpoint|route)/i
       ],
       overrides: false
-    },
-    validator: {
-      requiredSections: [
-        'API Contract Validation',
-        'Database Migration Check'
-      ],
-      requiredPatterns: [
-        /(migration|schema|contract)/i
-      ],
-      overrides: false
     }
+    // NOTE (v8.7.0 - Sprint 02): `validator` domain override removed — the
+    // agent no longer exists (see VALIDATION_RULES_CORE note above).
   },
 
   // Example: Documentation-only domain
@@ -261,7 +243,6 @@ const VALIDATION_RULES_DOMAINS = {
       requiredPatterns: [
         /(README|API|Examples|Guide)/i
       ],
-      minLength: 500, // Higher minimum for docs
       overrides: false
     }
   }
@@ -322,7 +303,6 @@ function getRules(agentName, domain = null) {
       ...coreRules.requiredPatterns,
       ...(domainRules.requiredPatterns || [])
     ],
-    minLength: domainRules.minLength || coreRules.minLength,
     name: coreRules.name
   };
 }
@@ -415,7 +395,6 @@ function validateAgentOutput(agentName, output, domain = null) {
     warnings: [],
     stats: {
       length: output.length,
-      requiredLength: rules.minLength,
       sectionsFound: 0,
       sectionsRequired: rules.requiredSections.length,
       patternsMatched: 0,
@@ -423,13 +402,11 @@ function validateAgentOutput(agentName, output, domain = null) {
     }
   };
 
-  // Check minimum length
-  if (output.length < rules.minLength) {
-    validation.valid = false;
-    validation.issues.push(
-      `Output too short: ${output.length} chars (minimum: ${rules.minLength})`
-    );
-  }
+  // v8.7.0 (Sprint 02): minLength gate removed entirely — see
+  // reports/v8.6.0/sprint-00/00-analysis-gtd-and-fable-gap-digest.md:92,
+  // which names "length minimums" under "do not adopt" (a Goodhart trap:
+  // it rewards padding, not completed work). The pattern/section checks
+  // below are what actually verify the work happened.
 
   // Check required sections
   rules.requiredSections.forEach(section => {
@@ -483,7 +460,7 @@ function displayValidationResults(validation) {
 
   // Stats
   console.log(`${colors.cyan}Statistics:${colors.reset}`);
-  console.log(`  Output length: ${validation.stats.length} chars (min: ${validation.stats.requiredLength})`);
+  console.log(`  Output length: ${validation.stats.length} chars`);
   console.log(`  Required sections: ${validation.stats.sectionsFound}/${validation.stats.sectionsRequired}`);
   console.log(`  Required patterns: ${validation.stats.patternsMatched}/${validation.stats.patternsRequired}`);
   console.log('');
@@ -576,7 +553,6 @@ function detectAgentName(filename) {
     'architect': /architect/i,
     'api-guardian': /api-guardian/i,
     'builder': /builder/i,
-    'validator': /validator/i,
     'tester': /tester/i,
     'scribe': /scribe/i,
     'github-manager': /github-manager/i
@@ -664,19 +640,23 @@ function checkWorkflowViolation(agentType, validation) {
   try {
     const state = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
 
-    // Check if @scribe is called but gates not approved
+    // Check if @scribe is called but a declared gate is not approved.
+    // v8.7.0 (Sprint 02): @validator no longer exists - its deterministic
+    // checks run via the verify-changes.js SubagentStop hook, not as agent
+    // state tracked here. @tester is opt-in (sprint frontmatter `ux_gate:
+    // auto`), so its absence from state is not a violation; only an
+    // explicit BLOCKED verdict from a tester run that actually happened
+    // blocks @scribe.
     if (agentType === 'scribe') {
-      const validatorApproved = state.qualityGates?.validator?.status === 'APPROVED';
-      const testerApproved = state.qualityGates?.tester?.status === 'APPROVED';
+      const testerStatus = state.qualityGates?.tester?.status || state.qualityGates?.tester;
 
-      if (!validatorApproved || !testerApproved) {
+      if (testerStatus === 'BLOCKED') {
         return {
           blocked: true,
           reason: 'WORKFLOW_VIOLATION',
-          message: '@scribe cannot run before quality gates are approved',
+          message: '@scribe cannot run before the UX gate is approved',
           details: {
-            validatorStatus: state.qualityGates?.validator?.status || 'NOT_RUN',
-            testerStatus: state.qualityGates?.tester?.status || 'NOT_RUN'
+            testerStatus
           }
         };
       }

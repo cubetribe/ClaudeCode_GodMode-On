@@ -21,18 +21,22 @@ This policy defines **tool access levels**, **security boundaries**, and **opera
 
 ## 1. Tool Access Matrix
 
-| Tool | @architect | @api-guardian | @builder | @validator | @tester | @scribe | @github-manager |
-|------|-----------|---------------|----------|-----------|---------|---------|----------------|
-| **Read** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Write** | ⚠️ | ❌ | ✅ | ❌ | ⚠️ | ✅ | ❌ |
-| **Edit** | ⚠️ | ❌ | ✅ | ❌ | ⚠️ | ✅ | ❌ |
-| **Bash** | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ⚠️ | ✅ |
-| **Glob** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Grep** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Playwright MCP** | ❌ | ❌ | ⚠️ | ❌ | ✅ | ❌ | ❌ |
-| **GitHub MCP** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Lighthouse MCP** | ❌ | ❌ | ❌ | ❌ | ⚠️ | ❌ | ❌ |
-| **A11y MCP** | ❌ | ❌ | ❌ | ❌ | ⚠️ | ❌ | ❌ |
+@validator was dissolved in v8.7.0 (Sprint 02); its deterministic checks now run in a hook
+outside the Task-tool agent roster entirely, so it no longer holds a tool grant here. @tester
+now runs only when the sprint declares `ux_gate: auto`.
+
+| Tool | @architect | @api-guardian | @builder | @tester | @scribe | @github-manager |
+|------|-----------|---------------|----------|---------|---------|----------------|
+| **Read** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Write** | ⚠️ | ❌ | ✅ | ⚠️ | ✅ | ❌ |
+| **Edit** | ⚠️ | ❌ | ✅ | ⚠️ | ✅ | ❌ |
+| **Bash** | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ |
+| **Glob** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Grep** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Playwright MCP** | ❌ | ❌ | ⚠️ | ✅ | ❌ | ❌ |
+| **GitHub MCP** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Lighthouse MCP** | ❌ | ❌ | ❌ | ⚠️ | ❌ | ❌ |
+| **A11y MCP** | ❌ | ❌ | ❌ | ⚠️ | ❌ | ❌ |
 
 **Legend:**
 - ✅ **Allowed** - Full access for this role
@@ -164,7 +168,7 @@ sudo [anything]
 curl | bash
 ```
 
-**@validator/@tester - Allowed:**
+**Deterministic hook / @tester - Allowed:**
 ```bash
 npm run typecheck
 npm test
@@ -173,7 +177,7 @@ npm run test:e2e
 node scripts/validate-*
 ```
 
-**@validator/@tester - Denied:**
+**Deterministic hook / @tester - Denied:**
 ```bash
 npm install
 git [any command]
@@ -583,7 +587,7 @@ node_modules/               ⚠️ Read only, never write
 - User approves PR creation
 
 **After Quality Gates:**
-- Both @validator and @tester approved
+- Deterministic hook passed (and @tester approved, if `ux_gate: auto` applied)
 - All tests passed
 - No security issues found
 
@@ -668,6 +672,7 @@ node_modules/               ⚠️ Read only, never write
 
 ## Version History
 
+- **v8.7.0** - @validator's tool grant removed (dissolved into a deterministic hook); @tester tool grant now conditional on `ux_gate: auto`
 - **v5.7.0** - Initial security and tooling policy formalization
 - **v5.6.0** - Foundation (agent validation, quality gates)
 

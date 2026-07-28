@@ -122,7 +122,7 @@ Use the [ContextRestore prompt](../CC-GodMode-Prompts/CCGM_Prompt_99-ContextRest
 
 - Claude writes code directly instead of delegating to @builder
 - Claude forgets to call @api-guardian for API or type changes
-- Claude skips quality gates (@validator / @tester)
+- Claude skips the deterministic hook checks, or ignores a declared `ux_gate: auto` and doesn't call @tester
 - Claude tries to git push without asking for explicit permission
 
 Paste the ContextRestore prompt into the current session to re-establish the orchestrator role without starting a new session.

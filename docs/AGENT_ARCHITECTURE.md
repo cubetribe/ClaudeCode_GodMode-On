@@ -3,8 +3,9 @@
 > **Understanding the Two-Location Model in CC_GodMode**
 
 > ⚠️ **Maintenance note (2026-07-06):** the conceptual two-location model below is current, but
-> the agent tree and manual `cp` procedures reflect an older 7-agent generation. For the
-> authoritative roster (15 agents) see `docs/orchestrator/AGENTS.md`; for installation use
+> the agent tree and manual `cp` procedures reflect an older 7-agent generation, and the example
+> deterministic checks moved into a hook, its judgment part into `/code-review`. For the
+> authoritative roster (14 agents) see `docs/orchestrator/AGENTS.md`; for installation use
 > `scripts/apply-global-claude-setup.sh` (see `docs/INSTALLATION.md`).
 
 ---
@@ -31,7 +32,6 @@ This document explains why this architecture exists, how to work with it, and ho
 │  ├── architect.md          ← SOURCE OF TRUTH                        │
 │  ├── api-guardian.md       ← Version controlled                     │
 │  ├── builder.md            ← Shared across projects                 │
-│  ├── validator.md          ← Updated via git                        │
 │  ├── tester.md                                                       │
 │  ├── scribe.md                                                       │
 │  └── github-manager.md                                               │
@@ -65,7 +65,6 @@ This document explains why this architecture exists, how to work with it, and ho
 │  ├── architect.md          ← ACTIVE RUNTIME                         │
 │  ├── api-guardian.md       ← Claude Code reads from here            │
 │  ├── builder.md            ← Global across ALL projects             │
-│  ├── validator.md          ← Task tool uses these                   │
 │  ├── tester.md                                                       │
 │  ├── scribe.md                                                       │
 │  └── github-manager.md                                               │
@@ -133,7 +132,6 @@ ls -la ~/.claude/agents/
 # architect.md
 # api-guardian.md
 # builder.md
-# validator.md
 # tester.md
 # scribe.md
 # github-manager.md

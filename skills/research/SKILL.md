@@ -69,7 +69,7 @@ license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-co
 [HIGH/MEDIUM/LOW] — [reason]
 ```
 
-**Save to:** `reports/vX.X.X/00-researcher-report.md`
+**Save to:** `reports/vX.Y.Z/sprint-NN/00-researcher-report.md`
 
 ## Graceful Degradation
 
@@ -99,3 +99,7 @@ API Change: (@researcher) → @architect → @api-guardian → @builder → gate
 ```
 
 Use when the task involves unfamiliar technology. Skip when working with known patterns.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

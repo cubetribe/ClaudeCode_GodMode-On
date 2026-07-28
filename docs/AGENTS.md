@@ -1,12 +1,12 @@
 # The Agents
 
-15 specialists (8 core + 1 security gate + 6 department), each with one job, its own model assignment, and effort tuning.
+14 specialists (7 core + 1 security gate + 6 department), each with one job, its own model assignment, and effort tuning.
 
 This is the human-facing roster; for the machine handoff matrix see [orchestrator/AGENTS.md](./orchestrator/AGENTS.md), and for per-agent model/cost rationale see [AGENT_MODEL_SELECTION.md](./AGENT_MODEL_SELECTION.md).
 
 ---
 
-## Core Agents (8)
+## Core Agents (7)
 
 Always available. The Orchestrator selects from these on every workflow run.
 
@@ -16,10 +16,11 @@ Always available. The Orchestrator selects from these on every workflow run.
 | `@architect` | System Architect | High-level design, module structure, tech decisions |
 | `@api-guardian` | API Lifecycle Expert | Breaking changes, consumer impact, contract validation |
 | `@builder` | Senior Developer | Implementation, following @architect's specifications |
-| `@validator` | Code Quality Gate | TypeScript, unit tests, security, consumer verification |
-| `@tester` | UX Quality Gate | E2E tests, visual regression, accessibility, performance |
+| `@tester` | UX Quality Gate (opt-in) | E2E tests, visual regression, accessibility, performance — only when the sprint declares `ux_gate: auto` |
 | `@scribe` | Technical Writer | Documentation, changelog, version management |
 | `@github-manager` | GitHub Manager | Issues, PRs, releases, CI/CD orchestration |
+
+**Where did @validator go?** It was dissolved, not deleted. Its deterministic checks (typecheck, lint, tests, build) now run in a hook after every `@builder` pass, at ~0 context cost on success — a compiler result is a fact, not a second opinion. Its judgment part (code review) is pulled on demand via the native `/code-review` skill instead of a standing agent re-reading the same diff.
 
 ---
 
@@ -48,32 +49,37 @@ Optional. The Orchestrator activates them when a task touches their domain.
 
 ---
 
-## Dual Quality Gates
+## Verification Matches the Evidence
 
-@validator and @tester run in **PARALLEL** after @builder — both must pass before the workflow continues. Neither gate can be skipped.
+There is no standing dual-gate pair anymore. After `@builder`, verification is evidence-matched: a deterministic hook always runs; a second *model* pass runs only where it opens evidence `@builder` did not have.
 
 ```
                     @builder completes
                            │
-           ┌───────────────┴───────────────┐
+                           ▼
+              Deterministic hook (always)
+        typecheck · lint · tests · build
+         0 context on success, output only on failure
+                           │
+           ┌───────────────┼───────────────┐
            ▼                               ▼
-    ┌─────────────┐                 ┌─────────────┐
-    │ @validator  │                 │  @tester    │
-    │ Code Quality│                 │ UX Quality  │
-    ├─────────────┤                 ├─────────────┤
-    │ ✓ TypeScript│                 │ ✓ E2E Tests │
-    │ ✓ Unit Tests│                 │ ✓ Visuals   │
-    │ ✓ Security  │                 │ ✓ A11y      │
-    │ ✓ Consumers │                 │ ✓ Perf      │
-    └──────┬──────┘                 └──────┬──────┘
+    ux_gate: auto?                 security surface?
+           │                               │
+           ▼                               ▼
+       @tester runs                  @security runs
+   (screenshots, a11y, CWV)       (secrets, auth, injection)
            │                               │
            └───────────────┬───────────────┘
                            ▼
-                   Both gates passed?
+              risk or doubt on code judgment?
+                    → pull /code-review
+                           │
+                           ▼
+                   All applicable checks passed?
                    → Continue to @scribe
 ```
 
-If either gate returns `BLOCKED`, the Orchestrator merges the feedback and sends it back to @builder before re-running both gates.
+Whichever of @tester / @security / `/code-review` apply run in parallel. If any returns `BLOCKED`, the Orchestrator merges the feedback and sends it back to @builder before re-running the applicable checks. Whatever Smart Routing leaves out (no UX gate declared, no security surface touched) is logged in the sprint's Routing Log with its reason — the unlogged skip is the defect, not the skip.
 
 ---
 
@@ -83,22 +89,22 @@ The Orchestrator selects the right workflow automatically based on request type 
 
 **New Feature:**
 ```
-(@researcher)* → @architect → @builder → (@validator ∥ @tester) → @scribe
+(@researcher)* → @architect → @builder → checks → @scribe
 ```
 
 **Bug Fix:**
 ```
-@builder → (@validator ∥ @tester)
+@builder → checks
 ```
 
 **API Change (Critical!):**
 ```
-(@researcher)* → @architect → @api-guardian → @builder → (@validator ∥ @tester) → @scribe
+(@researcher)* → @architect → @api-guardian → @builder → checks → @scribe
 ```
 
 **Refactoring:**
 ```
-@architect → @builder → (@validator ∥ @tester)
+@architect → @builder → checks
 ```
 
 **Research Task:**
@@ -113,7 +119,7 @@ The Orchestrator selects the right workflow automatically based on request type 
 
 *\* @researcher is optional — invoke when new tech or library evaluation is needed before design decisions.*
 
-**Note:** The `∥` symbol means the gates run in **PARALLEL** for faster validation. Both must pass.
+**Note:** "checks" means the deterministic hook always, plus @tester / @security / `/code-review` where the sprint or the surface calls for it (see Verification Matches the Evidence above). Whichever of those apply run in **PARALLEL**; all applicable ones must pass.
 
 For full workflow definitions including API change protocol and issue processing, see [orchestrator/WORKFLOWS.md](./orchestrator/WORKFLOWS.md).
 

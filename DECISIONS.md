@@ -120,6 +120,12 @@ Performance metrics collected:
 - Parallel execution: 5-7 minutes average
 - Time saved per workflow: 3-5 minutes
 
+> **Correction note (2026-07-28):** the "40% faster (8-12min → 5-7min)" figure above, and the
+> "performance metrics collected" claim, come from the decision-matrix simulation referenced in
+> the 2026-07-06 note four lines up (`scripts/parallel-quality-gates.js`, stubbed agents) — not
+> from a measurement of real agent runs. This ADR is left unchanged as a historical record; do
+> not cite the 40%/8-12min/5-7min figures as evidence of measured performance.
+
 ---
 
 ## ADR-002: MCP Health Check Tiers

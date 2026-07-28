@@ -254,7 +254,7 @@ console.log('━━━━━━━━━━━━━━━━━━━━━━�
 console.log('');
 console.log('   For API changes, use this workflow:');
 console.log('');
-console.log('   @api-guardian → @builder → @validator → @scribe');
+console.log('   @api-guardian → @builder → checks → @scribe');
 console.log('');
 console.log('   The @api-guardian will:');
 console.log('   • Perform detailed impact analysis');

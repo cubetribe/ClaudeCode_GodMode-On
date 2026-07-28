@@ -46,13 +46,12 @@ Two trees, two purposes. The runtime tree is what Claude Code loads. The project
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
-├── agents/                         ← 15 agents (8 core + 1 security gate + 6 department), globally available
+├── agents/                         ← 14 agents (7 core + 1 security gate + 6 department), globally available
 │   ├── researcher.md               ← haiku, effort: low
 │   ├── architect.md                ← opus, effort: high
 │   ├── api-guardian.md             ← sonnet, effort: medium
 │   ├── builder.md                  ← sonnet, effort: medium
-│   ├── validator.md                ← sonnet, effort: low
-│   ├── tester.md                   ← sonnet, effort: medium
+│   ├── tester.md                   ← sonnet, effort: medium (opt-in via ux_gate: auto)
 │   ├── scribe.md                   ← haiku, effort: low
 │   ├── github-manager.md           ← haiku, effort: low
 │   ├── security.md                 ← opus, effort: low  (security gate, optional)
@@ -107,10 +106,9 @@ CC_GodMode separates where agents live from where Claude reads them.
 │                                                                      │
 │   CC_GodMode/                         ~/.claude/                     │
 │   └── agents/           ──INSTALL──►  └── agents/                   │
-│       ├── architect.md  (15 files)        ├── architect.md          │
+│       ├── architect.md  (14 files)        ├── architect.md          │
 │       ├── builder.md                      ├── builder.md            │
-│       ├── validator.md                    ├── validator.md          │
-│       ├── ...8 core...                    ├── ...8 core...          │
+│       ├── ...7 core...                    ├── ...7 core...          │
 │       └── ...6 dept...                    └── ...6 dept...          │
 │                                                                      │
 │   SOURCE                               RUNTIME                       │
@@ -177,7 +175,8 @@ The architecture has a clear lineage:
 **v6.4** Workflow Modes →
 **v7.0** orchestrator tuning + Smart Routing default →
 **v7.1** @security gate + installer scripts (15 agents total) →
-**v8.0** Ultracode orchestrator + parallel-first architecture
+**v8.0** Ultracode orchestrator + parallel-first architecture →
+**v8.7** @validator dissolved into a deterministic hook + on-demand `/code-review`; @tester made opt-in via `ux_gate` (14 agents total)
 
 Each step is additive. The core contract — `CLAUDE.md` auto-loads, agents live in `~/.claude/agents/`, skills load on demand — has been stable since v6.0.
 
@@ -189,9 +188,9 @@ Each step is additive. The core contract — `CLAUDE.md` auto-loads, agents live
 - [`./AGENT_ARCHITECTURE.md`](./AGENT_ARCHITECTURE.md) — full agent install, update, and verification procedures
 - [`./AGENT_MODEL_SELECTION.md`](./AGENT_MODEL_SELECTION.md) — model and effort matrix per agent, cost models
 - [`./orchestrator/MODES.md`](./orchestrator/MODES.md) — Smart Routing, Full-Gates, Prototype, Departments, Agent Teams, Ultracode
+- [`../skills/dynamic-workflows/SKILL.md`](../skills/dynamic-workflows/SKILL.md) — when and how to escalate to dynamic workflows with adversarial verification
 
 
 ---
 
 *CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
-- [`../skills/dynamic-workflows/SKILL.md`](../skills/dynamic-workflows/SKILL.md) — when and how to escalate to dynamic workflows with adversarial verification

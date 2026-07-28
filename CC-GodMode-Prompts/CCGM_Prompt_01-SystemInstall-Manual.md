@@ -62,7 +62,7 @@ git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode
 
 ---
 
-### Step 3: Install agents (15 files)
+### Step 3: Install agents (14 files)
 
 **macOS / Linux:**
 ```bash
@@ -74,14 +74,13 @@ cp /tmp/CC_GodMode/agents/*.md ~/.claude/agents/
 Copy-Item "$env:TEMP\CC_GodMode\agents\*.md" "$env:USERPROFILE\.claude\agents\" -Force
 ```
 
-**Expected files (15 — 8 core + 1 security gate + 6 department):**
+**Expected files (14 — 7 core + 1 security gate + 6 department):**
 
 Core agents:
 - `researcher.md`
 - `architect.md`
 - `api-guardian.md`
 - `builder.md`
-- `validator.md`
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
@@ -263,7 +262,7 @@ claude mcp list
 ```
 
 **Expected result:**
-- 15 agent files (8 core + 1 security gate + 6 department)
+- 14 agent files (7 core + 1 security gate + 6 department)
 - 11 skill directories
 - 15 scripts
 - 3 templates (`CLAUDE-ORCHESTRATOR.md`, `adr-template.md`, `CCGM_Prompt_02-ProjectActivation.md`)
@@ -300,7 +299,7 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 
 | Component | macOS/Linux | Windows |
 |------------|-------------|----------|
-| Agents (15) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
+| Agents (14) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
 | Skills (11) | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
 | Scripts (15) | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
 | Templates (3) | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` |
@@ -314,7 +313,7 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 **macOS / Linux:**
 ```bash
 # Remove agents (core + department)
-rm ~/.claude/agents/{researcher,architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
+rm ~/.claude/agents/{researcher,architect,api-guardian,builder,tester,scribe,github-manager}.md
 rm ~/.claude/agents/{ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
 
 # Remove skills
@@ -395,8 +394,8 @@ See [CHANGELOG.md](./CHANGELOG.md) for details.
 
 ---
 
+*For automatic installation: [`CCGM_Prompt_01-SystemInstall-Auto.md`](./CCGM_Prompt_01-SystemInstall-Auto.md)*
 
 ---
 
 *CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
-*For automatic installation: [`CCGM_Prompt_01-SystemInstall-Auto.md`](./CCGM_Prompt_01-SystemInstall-Auto.md)*

@@ -1,7 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * test-hooks-contract.js (v8.6.0 — sprint-01 hook-repair)
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
+ * test-hooks-contract.js (v8.6.0 sprint-01 hook-repair; v8.7.0 sprint-02
+ * adds probes for scripts/verify-changes.js, the deterministic
+ * SubagentStop hook that replaces @validator's typecheck/lint/test/build
+ * checks, plus in-process probes for the checks/tester/security gate
+ * semantics in pre-push-check.js and workflow-state.js: a gate at `null`
+ * never blocks a push, only a gate that actually ran and did not approve)
  *
  * Contract test for Claude Code hook wiring in config/claude-settings.json.
  *
@@ -463,6 +473,217 @@ without adding any real signal beyond what is already declared above.
   }
 } else {
   check('validate-agent-output.js: wired and probed', false, 'not found among wired hooks — skipped');
+}
+
+// --- verify-changes.js (v8.7.0 - Sprint 02: Gate-Umbau) ---------------------
+// This hook is deliberately NOT wired via config/claude-settings.json (that
+// file is outside this sprint's write scope - only ~/.claude/settings.json
+// is, and that's a local install file, not something CI can read). Probe it
+// directly by its known repo path instead of via hookCommands discovery.
+{
+  const VERIFY_CHANGES_PATH = path.join(REPO_ROOT, 'scripts', 'verify-changes.js');
+  const exists = fs.existsSync(VERIFY_CHANGES_PATH);
+  check('verify-changes.js: exists in scripts/', exists, exists ? VERIFY_CHANGES_PATH : `expected at ${VERIFY_CHANGES_PATH}`);
+
+  if (exists) {
+    // Probe (a): a real git repo with a staged change but no recognized
+    // project type (no package.json / pubspec.yaml / xcodeproj) -> exit 0,
+    // zero bytes of output ("unknown means pass through, never block").
+    {
+      const fixture = makeFixtureCwd();
+      try {
+        const git = spawnSync('git', ['init', '-q'], { cwd: fixture, encoding: 'utf8' });
+        spawnSync('git', ['config', 'user.email', 'test@example.com'], { cwd: fixture, encoding: 'utf8' });
+        spawnSync('git', ['config', 'user.name', 'Test'], { cwd: fixture, encoding: 'utf8' });
+        fs.writeFileSync(path.join(fixture, 'README.md'), 'hello\n');
+        spawnSync('git', ['add', 'README.md'], { cwd: fixture, encoding: 'utf8' });
+
+        const gitAvailable = !git.error;
+        if (!gitAvailable) {
+          check('verify-changes.js: no recognized project -> exit 0, zero output (soft-skip, git unavailable)', true, 'git not available - probe skipped');
+        } else {
+          const payload = JSON.stringify({ cwd: fixture });
+          const res = runScript(VERIFY_CHANGES_PATH, { stdin: payload, cwd: fixture });
+          const zeroOutput = res.stdout === '' && res.stderr === '';
+          check(
+            'verify-changes.js: no recognized project type -> exit 0',
+            res.status === 0,
+            res.status !== 0 ? `exit ${res.status}, stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}` : ''
+          );
+          check(
+            'verify-changes.js: no recognized project type -> zero-byte output',
+            zeroOutput,
+            zeroOutput ? '' : `expected empty stdout/stderr, got stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}`
+          );
+          if (res.status !== 0 || !zeroOutput) overallOk = false;
+          assertNoUsageError('verify-changes.js (no recognized project)', res);
+        }
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    }
+
+    // Probe (b): no changes at all (clean git repo, or no repo) -> exit 0,
+    // zero-byte output.
+    {
+      const fixture = makeFixtureCwd();
+      try {
+        spawnSync('git', ['init', '-q'], { cwd: fixture, encoding: 'utf8' });
+        const payload = JSON.stringify({ cwd: fixture });
+        const res = runScript(VERIFY_CHANGES_PATH, { stdin: payload, cwd: fixture });
+        const zeroOutput = res.stdout === '' && res.stderr === '';
+        check(
+          'verify-changes.js: no changes -> exit 0',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        check(
+          'verify-changes.js: no changes -> zero-byte output',
+          zeroOutput,
+          zeroOutput ? '' : `expected empty stdout/stderr, got stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}`
+        );
+        if (res.status !== 0 || !zeroOutput) overallOk = false;
+        assertNoUsageError('verify-changes.js (no changes)', res);
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    }
+
+    // Probe (c): garbage stdin -> exit 0, never breaks unrelated work.
+    {
+      const fixture = makeFixtureCwd();
+      try {
+        const res = runScript(VERIFY_CHANGES_PATH, { stdin: 'not valid json {{{', cwd: fixture });
+        check(
+          'verify-changes.js: garbage stdin -> exit 0 (never breaks unrelated work)',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        if (res.status !== 0) overallOk = false;
+        assertNoUsageError('verify-changes.js (garbage stdin)', res);
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    }
+  } else {
+    overallOk = false;
+  }
+}
+
+// --- gate semantics (v8.7.0 sprint-02: @validator dissolved, checks/tester/
+// security model) -------------------------------------------------------
+// Not a hook-wiring probe like the ones above — this asserts the *contract*
+// that made this sprint necessary: a gate at `null` (never required for this
+// sprint) must never block a push, while a gate that actually ran and did
+// not approve must block it. Exercised in-process against real fixture cwds,
+// not spawned, since these are plain requires with no argv/stdin surface.
+{
+  const PRE_PUSH_PATH = path.join(REPO_ROOT, 'scripts', 'pre-push-check.js');
+  const WORKFLOW_STATE_PATH = path.join(REPO_ROOT, 'scripts', 'workflow-state.js');
+
+  function withFixtureState(state, fn) {
+    const fixture = makeFixtureCwd();
+    const prevCwd = process.cwd();
+    try {
+      fs.writeFileSync(path.join(fixture, '.ccgm-state.json'), JSON.stringify(state));
+      process.chdir(fixture);
+      return fn();
+    } finally {
+      process.chdir(prevCwd);
+      fs.rmSync(fixture, { recursive: true, force: true });
+    }
+  }
+
+  if (fs.existsSync(PRE_PUSH_PATH)) {
+    delete require.cache[require.resolve(PRE_PUSH_PATH)];
+    const { checkWorkflowState } = require(PRE_PUSH_PATH);
+
+    // (a) checks APPROVED, tester/security never ran (null) -> push-eligible.
+    {
+      const result = withFixtureState(
+        { workflowComplete: true, qualityGates: { checks: 'APPROVED', tester: null, security: null } },
+        checkWorkflowState
+      );
+      check(
+        'pre-push-check.js: checks=APPROVED, tester/security=null -> passed (never-run gate does not block)',
+        result.passed === true,
+        result.passed ? '' : `expected passed:true, got: ${JSON.stringify(result)}`
+      );
+      if (result.passed !== true) overallOk = false;
+    }
+
+    // (b) tester actually ran and is BLOCKED -> not push-eligible.
+    {
+      const result = withFixtureState(
+        { workflowComplete: true, qualityGates: { checks: 'APPROVED', tester: 'BLOCKED', security: null } },
+        checkWorkflowState
+      );
+      check(
+        'pre-push-check.js: tester=BLOCKED -> not passed',
+        result.passed === false,
+        result.passed === false ? '' : `expected passed:false, got: ${JSON.stringify(result)}`
+      );
+      if (result.passed !== false) overallOk = false;
+    }
+
+    // (c) checks itself missing/null -> not push-eligible (mandatory gate).
+    {
+      const result = withFixtureState(
+        { workflowComplete: true, qualityGates: { checks: null, tester: null, security: null } },
+        checkWorkflowState
+      );
+      check(
+        'pre-push-check.js: checks=null -> not passed (mandatory gate missing)',
+        result.passed === false,
+        result.passed === false ? '' : `expected passed:false, got: ${JSON.stringify(result)}`
+      );
+      if (result.passed !== false) overallOk = false;
+    }
+  } else {
+    check('pre-push-check.js: exists for gate-semantics probe', false, `expected at ${PRE_PUSH_PATH}`);
+    overallOk = false;
+  }
+
+  if (fs.existsSync(WORKFLOW_STATE_PATH)) {
+    delete require.cache[require.resolve(WORKFLOW_STATE_PATH)];
+    const ws = require(WORKFLOW_STATE_PATH);
+
+    withFixtureState(null, () => {
+      // No state file yet at this fixture cwd -> initWorkflow starts fresh.
+      const state = ws.initWorkflow('bug', '0.0.0', 'gate-semantics fixture');
+      const gatesOk =
+        state.qualityGates.checks === null &&
+        state.qualityGates.tester === null &&
+        state.qualityGates.security === null;
+      check(
+        'workflow-state.js: initWorkflow() qualityGates shape is {checks,tester,security}, all null',
+        gatesOk,
+        gatesOk ? '' : `got: ${JSON.stringify(state.qualityGates)}`
+      );
+      if (!gatesOk) overallOk = false;
+
+      const rejectedOldGate = ws.setGateResult('validator', 'APPROVED') === null;
+      check(
+        'workflow-state.js: setGateResult("validator", ...) is rejected (agent no longer exists)',
+        rejectedOldGate,
+        rejectedOldGate ? '' : 'setGateResult accepted a "validator" gate name'
+      );
+      if (!rejectedOldGate) overallOk = false;
+
+      ws.setGateResult('security', 'APPROVED');
+      const afterSecurity = ws.getResumeInfo();
+      const securityTracked = afterSecurity.qualityGates.security === 'APPROVED';
+      check(
+        'workflow-state.js: setGateResult("security", "APPROVED") is tracked in getResumeInfo()',
+        securityTracked,
+        securityTracked ? '' : `got: ${JSON.stringify(afterSecurity.qualityGates)}`
+      );
+      if (!securityTracked) overallOk = false;
+    });
+  } else {
+    check('workflow-state.js: exists for gate-semantics probe', false, `expected at ${WORKFLOW_STATE_PATH}`);
+    overallOk = false;
+  }
 }
 
 // ---------------------------------------------------------------------------

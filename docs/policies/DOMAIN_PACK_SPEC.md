@@ -52,7 +52,6 @@ project-root/
       domain-config.json      # Required: Domain configuration
       agents/                 # Optional: Agent prompt overrides
         builder.md
-        validator.md
         tester.md
       validation-rules.json   # Optional: Validation rule extensions
       hooks/                  # Optional: Domain-specific hooks
@@ -115,7 +114,7 @@ project-root/
   },
 
   "workflows": {
-    "newFeature": ["architect", "builder", "validator", "tester", "mobile-qa", "scribe"]
+    "newFeature": ["architect", "builder", "tester", "mobile-qa", "scribe"]
   },
 
   "hooks": {
@@ -368,7 +367,7 @@ CC_GodMode ships with reference domain packs:
 | Name | Description | Agents Modified |
 |------|-------------|-----------------|
 | `react-native` | Mobile app development | builder, tester |
-| `backend` | Backend/API development | architect, validator |
+| `backend` | Backend/API development | architect, api-guardian |
 | `docs` | Documentation projects | scribe |
 
 These are located in the global domains directory and serve as templates for custom domain packs.

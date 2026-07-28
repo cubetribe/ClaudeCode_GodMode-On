@@ -1,25 +1,38 @@
-# CC_GodMode Quality Gates (Parallel Execution)
+# CC_GodMode Quality Gates
 
 ## Overview
 
-After @builder completes, BOTH quality gates run simultaneously for faster validation.
+"Checks" after @builder means (Core Rule 5):
+
+1. **Deterministic checks — always.** Typecheck, lint, tests, build, run by hook. A compiler result is a fact, not a second opinion, and it costs no context when it passes.
+2. **UX gate — when the sprint declared `ux_gate: auto`.** @tester.
+3. **Security gate — on security surfaces.** @security (auth code, secrets handling, `.github/workflows/`).
+4. **Review pass — on risk or doubt.** Pull the `/code-review` skill. No standing agent re-reads the same diff.
+
+Whichever of 2–4 apply run in PARALLEL, after the deterministic hook:
 
 ```
 @builder
     |
-    +------------------+
-    |                  |
-    v                  v
-@validator        @tester
-(Code Quality)    (UX Quality)
-    |                  |
-    +--------+---------+
+    v
+[hook: typecheck / lint / test / build]  (always; 0 bytes context on success)
+    |
+    +---------------+---------------+
+    |               |               |
+    v               v               v
+@tester         @security      /code-review
+(ux_gate:auto)  (security      (risk or
+                 surface)       doubt)
+    |               |               |
+    +-------+-------+-------+-------+
              |
         SYNC POINT
              |
     +--------+--------+
     |                 |
-BOTH APPROVED     ANY BLOCKED
+ALL APPROVED      ANY BLOCKED
+(among gates      (among gates
+ that ran)         that ran)
     |                 |
     v                 v
 @scribe          @builder
@@ -28,43 +41,55 @@ BOTH APPROVED     ANY BLOCKED
 
 ## Decision Matrix
 
-| @validator | @tester | Action |
-|------------|---------|--------|
-| APPROVED | APPROVED | --> @scribe |
-| APPROVED | BLOCKED | --> @builder (tester concerns) |
-| BLOCKED | APPROVED | --> @builder (code concerns) |
-| BLOCKED | BLOCKED | --> @builder (merged feedback) |
+Applies only to the gates the sprint actually ran (2–4 above); a gate that
+did not run is not counted against the sprint.
+
+| @tester | @security | /code-review | Action |
+|---------|-----------|--------------|--------|
+| APPROVED or n/a | APPROVED or n/a | APPROVED or n/a | --> @scribe |
+| BLOCKED | any | any | --> @builder (tester concerns) |
+| any | BLOCKED | any | --> @builder (security concerns) |
+| any | any | BLOCKED | --> @builder (review concerns) |
 
 ## Execution Pattern
 
-Use parallel Task tool calls to run both agents simultaneously:
-1. Launch @validator and @tester in parallel using Task tool
-2. Wait for both to complete
-3. Apply Decision Matrix above
-4. If both blocked: merge feedback into single @builder instruction
+1. The hook runs deterministic checks after every @builder pass. A passing
+   run costs ~0 bytes of context; a failing run reports what failed.
+2. Launch whichever of @tester / @security / `/code-review` apply, in
+   parallel, using the Task tool.
+3. Wait for all of them to complete.
+4. Apply the Decision Matrix above.
+5. If more than one is BLOCKED: merge feedback into a single @builder
+   instruction.
 
-## Gate 1: @validator (Code Quality)
-
-- TypeScript compiles (`tsc --noEmit`)
-- Unit tests pass
-- No security issues
-- All consumers updated (for API changes)
-
-## Gate 2: @tester (UX Quality)
+## Gate: @tester (UX Quality — when `ux_gate: auto`)
 
 - E2E tests pass
-- Screenshots at 3 viewports (mobile, tablet, desktop)
+- Screenshots at 3 viewports (375×667 / 768×1024 / 1920×1080)
 - A11y compliant (WCAG 2.1 AA)
 - Performance OK (Core Web Vitals: LCP, CLS, INP, FCP)
 - Console errors captured and reported
+- If `ux_gate: human` or `skip`, this gate does not run for the sprint (Core Rule 6)
+
+## Gate: @security (Security Quality — on security surfaces)
+
+- Auth code, secrets/credentials handling, `.github/workflows/`, crypto,
+  file/path access, external integrations
+- BLOCKED routes back to @builder, same as the other gates
+
+## Gate: /code-review (Judgment Pass — on risk or doubt)
+
+- Pulled ad hoc via the native `/code-review` skill, not a standing agent
+- Used when risk or doubt warrants a second read of the diff — the part of
+  the old @validator role a hook cannot replace
 
 ## Finding-Conflict Adjudication
 
 The Decision Matrix above resolves plain **verdict** combinations
 (APPROVED/BLOCKED). It does not, by itself, resolve contradictory **findings**
-between gate agents or parallel subagents — e.g. @validator reports "unused
-code" while a builder report claims "consumed by X", or @tester and @validator
-disagree about whether a behavior is in scope. That is a separate, narrower
+between gate agents or parallel subagents — e.g. a `/code-review` pass reports
+"unused code" while a builder report claims "consumed by X", or @tester and
+`/code-review` disagree about whether a behavior is in scope. That is a separate, narrower
 procedure and applies ONLY when two findings actually contradict each other,
 not to ordinary APPROVED/BLOCKED disagreement (the matrix already covers that).
 
@@ -94,11 +119,11 @@ question: same-tier judge panels tend to share the same blind spots as the
 agents being judged, so a panel vote does not add independent evidence — it
 just re-runs the same judgment with extra steps.
 
-**Example:** @validator: "unused import in utils.ts" (cites lint rule).
+**Example:** hook/lint: "unused import in utils.ts" (cites lint rule).
 @builder: "consumed dynamically via require()" (no rule cited) → Step 1: only
-validator cites a checkable rule → validator's finding wins; orchestrator logs
-"utils.ts: lint rule X vs unverified dynamic-use claim → lint wins" → proceed.
-No panel needed.
+the lint result cites a checkable rule → the lint finding wins; orchestrator
+logs "utils.ts: lint rule X vs unverified dynamic-use claim → lint wins" →
+proceed. No panel needed.
 
 ### Scope note
 
@@ -159,7 +184,9 @@ made — same posture as the other Tier 3 mandatory escalations in
 
 ## Agent Return Contract
 
-Every agent writes a **full report** to `reports/vX.Y.Z/sprint-NN/<NN>-<agent>-report.md` (validated by `scripts/validate-agent-output.js` — min-length rules check the file, not the return message). The agent's **return message to the Orchestrator** is the structured verdict only:
+Agents holding `Write` (@architect, @builder, @researcher, @scribe) write a **full report** to `reports/vX.Y.Z/sprint-NN/<NN>-<agent>-report.md` (validated by `scripts/validate-agent-output.js` — min-length rules check the file, not the return message). Read-only agents (@api-guardian, @tester, @security, department agents) have no `Write` tool and cannot produce that file themselves — they return their verdict only, and whoever dispatched them persists it as the report (Core Rule 8).
+
+Every agent's **return message to the Orchestrator** is the structured verdict only:
 
 ```
 STATUS: APPROVED | BLOCKED | DONE
@@ -172,4 +199,4 @@ report: <absolute path to full report>
 Rules:
 - Maximum 3 bullet findings.
 - Orchestrator reads the full report only on BLOCKED or when explicitly needed.
-- Full report min-lengths are unchanged: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.
+- Full report min-lengths (agents holding Write): architect 1000, builder 500, researcher 500, scribe 300.

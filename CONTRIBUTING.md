@@ -23,7 +23,7 @@ For all three cases: Welcome!
 
 ```markdown
 **What should happen:**
-The @validator should find all consumers.
+The @api-guardian should find all consumers.
 
 **What happens instead:**
 It finds only half of them and then takes a lunch break.
@@ -169,6 +169,24 @@ Before creating a PR:
 
 - Open an Issue with the label `question`
 - Or write to me directly (see README for contact)
+
+---
+
+## Contributor License
+
+By submitting a pull request or otherwise contributing content to this
+repository, you:
+
+1. certify that you authored the contribution yourself or have the right to
+   submit it,
+2. grant the project owner (Dennis Westermann) a perpetual, worldwide,
+   irrevocable, royalty-free right to use, modify, sublicense, and
+   distribute your contribution as part of the Work — under the project
+   LICENSE and under separate commercial licenses,
+3. agree that no compensation is owed for the contribution.
+
+If you cannot agree to these terms, please open an issue instead of a pull
+request.
 
 ---
 

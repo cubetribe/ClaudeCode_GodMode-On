@@ -49,7 +49,9 @@ out of scope for this plan.
 | Sprint | Slug | Content | Version Relevance | Execution |
 |---|---|---|---|---|
 | 01 | license-hardening | LICENSE v2, NOTICE, README badge + notice, SKILL.md license frontmatter + footers, agent/prompt/doc footers, script headers, package.json/plugin.json metadata, MIT-decoy fix, CONTRIBUTING clause, installer LICENSE copy | minor | parallel within sprint (4 disjoint builder scopes) |
-| 02 | release | bump 8.6.0→8.7.0 via tooling, changelog promotion, invariant checks, PR (with permission) | — (aggregates: minor) | last |
+| 02 | gate-restructure | @validator in deterministischen Hook + bedarfsweises `/code-review` auflösen; @tester über neues `ux_gate`-Feld opt-in (Default `human`); Core Rules 5/6/8 nachziehen; Kohärenz-Sweep | minor | sequential (Write Scopes überlappen) |
+| 03 | coherence-sweep | verbleibende Regel-Widersprüche: eine kanonische API-Pfadliste statt fünf, Eskalationsmodell zusammengeführt, Architecture-Gate auf eine Schwelle, @scribe von VERSION getrennt, Versions-Header unter `sync-version.js`-Aufsicht, Skript-Audit | patch | parallel (6 disjunkte Scopes) |
+| 04 | release | bump 8.6.0→8.7.0 via tooling, changelog promotion, invariant checks, PR (with permission) | — (aggregates: minor) | last |
 
 ## Global ownership matrix (hot files)
 

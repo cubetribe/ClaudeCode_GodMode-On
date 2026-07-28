@@ -1,6 +1,6 @@
 # Agent Report Templates
 
-**Last Updated:** 2026-07-06 (v8.5 sprint contract)
+**Last Updated:** 2026-07-28 (v8.7.0 sprint 02 — @validator dissolved into deterministic hook + opt-in @tester, `ux_gate` gate)
 **Validation:** Enforced by `scripts/validate-agent-output.js`
 
 > **This document is the CANONICAL definition** of the return verdict, the report numbering,
@@ -13,7 +13,7 @@
 
 Each agent saves a **full report** to disk and returns only a structured verdict to the Orchestrator. These are two distinct outputs.
 
-**Verdict shape (identical for ALL 15 agents, including department agents):**
+**Verdict shape (identical for ALL 14 agents, including department agents):**
 ```
 STATUS: APPROVED | BLOCKED | DONE
 - finding 1 (one line max)
@@ -24,7 +24,7 @@ report: <absolute path to full report>
 
 **Rules:**
 - Maximum 3 bullet findings in the verdict.
-- `STATUS: APPROVED` — gate agents only (@validator, @tester, @security): work passed; proceed.
+- `STATUS: APPROVED` — gate agents only (@tester, @security): work passed; proceed.
 - `STATUS: DONE` — non-gate agents: task completed.
 - `STATUS: BLOCKED` — any agent, always with a reason category in parentheses:
   - `BLOCKED (scope)` — the task requires writing outside the agent's assigned write scope.
@@ -32,7 +32,7 @@ report: <absolute path to full report>
   - `BLOCKED (quality)` — gate failure, missing inputs, or unresolvable errors (details in report).
   - Legacy `FAILED`/`PARTIAL` statuses are retired: report them as `BLOCKED (quality)` with the partial results documented in the on-disk report.
 - The Orchestrator opens the full report **only on BLOCKED** or when explicitly needed.
-- Min-length validation (`scripts/validate-agent-output.js`) checks the **on-disk file**, not the verdict. Thresholds: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.
+- Validation (`scripts/validate-agent-output.js`) checks the **on-disk file's content coverage**, not the verdict, and carries no minimum-length threshold (see "Length calibration, not length minimums" below).
 
 ## Canonical Report Paths & Numbering
 
@@ -51,11 +51,10 @@ reports/vX.Y.Z/sprint-NN/<prefix>-<agent>-report.md
 | 01 | architect (also used for the Orchestrator's inline arch brief) |
 | 02 | api-guardian |
 | 03 | builder |
-| 04 | validator |
-| 05 | tester |
-| 06 | security |
-| 07 | scribe |
-| 08 | github-manager |
+| 04 | tester (was validator through v8.6; retired — folded into the deterministic hook, see Core Rule 8/5) |
+| 05 | security |
+| 06 | scribe |
+| 07 | github-manager |
 | — | department agents: `<agent-name>-report.md` (unnumbered) |
 
 Rules:
@@ -67,6 +66,14 @@ Rules:
   absolute). Temp-dir output does not count as a report.
 - **Frontmatter is mandatory** (agent, date, task, status) and reports that change files must
   list them under a `## Files Changed` section — this is the "who/what/when" record.
+- **Report authorship is gated by tool access.** Only agents holding `Write`
+  (@architect, @builder, @researcher, @scribe) write the on-disk report themselves. Every other
+  agent — @api-guardian, @tester, @security, @github-manager, @ci-security-guardian, and the four
+  read-only department agents (@docs-dx, @quality-operations, @workflow-design,
+  @workspace-governance) — returns only the verdict defined above; whoever dispatched it
+  (Orchestrator or a spawning agent) persists that verdict as the report file at the canonical
+  path, using the relevant template below for shape. No agent is held to a report obligation its
+  tool set cannot fulfill.
 
 ## Sprint Contract (referenced by every agent file)
 
@@ -74,10 +81,12 @@ Every agent follows these four blocks; agent files state role-specific specializ
 
 1. **Context intake** — read the assigned sprint file first (goal, scope, non-goals, acceptance
    criteria, write-scope table are binding), then the role-specific inputs listed in the agent file.
-2. **Write scope** — write only the paths assigned in the sprint file plus the own report path.
-   `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, and `plans/**` are release/orchestrator artifacts:
-   no agent writes them except @scribe (CHANGELOG `[Unreleased]` entries at sprint integration,
-   release promotion via `scripts/version-bump.js`). Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+2. **Write scope** — write only the paths assigned in the sprint file plus the own report path
+   (Write-holders only — see the report-authorship rule above; read-only agents have no file
+   write scope beyond their verdict). `VERSION`, `CHANGELOG.md`, `ROADMAP.md`, and `plans/**` are
+   release/orchestrator artifacts: no agent writes them except @scribe (CHANGELOG `[Unreleased]`
+   entries at sprint integration, release promotion via `scripts/version-bump.js`). Outside scope
+   ⇒ `STATUS: BLOCKED (scope)`.
 3. **Conflict detection** — before writing, check `git status`/`git diff` for the assigned paths;
    foreign modifications ⇒ `STATUS: BLOCKED (conflict)` listing the conflicting paths.
 4. **Return verdict** — exactly the shape defined above.
@@ -86,11 +95,12 @@ Every agent follows these four blocks; agent files state role-specific specializ
 
 ## Overview
 
-This document defines standardized report templates for all 8 CC_GodMode agents. Each template includes:
+This document defines standardized report templates for all 14 CC_GodMode agents (7 core + 1
+security gate + 6 department). Each template includes:
 - **Frontmatter Schema** - YAML metadata for machine-readable parsing
 - **Required Sections** - Core content blocks that must be present
 - **Required Patterns** - Critical regex patterns for validation
-- **Minimum Length** - Character count thresholds for completeness
+- **Length Calibration** - Content coverage guidance, not a character-count floor
 
 Reports are validated automatically via the **SubagentStop Hook** which enforces these standards.
 
@@ -128,9 +138,10 @@ task: Design authentication system architecture
 **Purpose:** High-level system design and architectural decisions
 
 **Validation Rules:**
-- Minimum length: 1000 characters
 - Required sections: Architectural Decisions, Implementation Strategy, Risk Assessment, Handoff
 - Required patterns: `## ARCHITECTURAL DECISIONS`, `## IMPLEMENTATION`, `## RISK`
+- Length calibration: cover every section below with real content; do not pad with filler
+  bullets, restated goals, or boilerplate to hit a word count.
 
 **Template:**
 
@@ -250,9 +261,11 @@ Routing Log: <date> | path: smart-routing | signals: <risk signals seen or "none
 **Purpose:** API lifecycle management and breaking change detection
 
 **Validation Rules:**
-- Minimum length: 800 characters
 - Required sections: Impact Analysis, Consumer Files, Breaking Changes, Migration Checklist
 - Required patterns: `## IMPACT ANALYSIS`, `## CONSUMER`, `## BREAKING`
+- Length calibration: cover every section below with real content; do not pad.
+- `api-guardian` holds no `Write` tool — see the report-authorship rule above. This template
+  defines the shape of the verdict-derived report the dispatcher persists on its behalf.
 
 **Template:**
 
@@ -338,9 +351,9 @@ All consumer files listed above must be updated before completion.
 **Purpose:** Code implementation and quality gate execution
 
 **Validation Rules:**
-- Minimum length: 500 characters
 - Required sections: Files Created, Files Modified, Quality Gates, Tests
 - Required patterns: `### Files Created`, `### Files Modified`, `### Quality Gates`
+- Length calibration: cover every section below with real content; do not pad.
 
 **Template:**
 
@@ -392,108 +405,34 @@ npm run lint
 - [x] No lint errors
 - [ ] Issues found: [description]
 
-## READY FOR VALIDATION
+## READY FOR NEXT STEP
 
 - [x] All changes complete
 - [x] Types compile
 - [x] Tests pass
 - [x] Code follows standards
 
-## HANDOFF TO @validator + @tester
+## HANDOFF
 
-Implementation complete. Ready for parallel quality gates.
+Implementation complete. The deterministic hook runs the typecheck/lint/test/build facts
+automatically; @tester runs only if this sprint declared `ux_gate: auto`.
 ```
 
 ---
 
-## 4. @validator Report Template
+## 4. @tester Report Template
 
-**Purpose:** Code quality validation gate
+**Purpose:** UX quality validation gate — runs only when the sprint's `ux_gate: auto`
+(see `docs/templates/SPRINT_TEMPLATE.md`). Under `ux_gate: human` or `skip`, this template does
+not apply and no @tester report is produced for the sprint. `tester` holds no `Write` tool — see
+the report-authorship rule above; this template defines the shape of the verdict-derived report
+the dispatcher persists on its behalf.
 
-**Validation Rules:**
-- Minimum length: 400 characters
-- Required sections: Code Quality, TypeScript, Tests, Decision
-- Required patterns: `## CODE QUALITY`, `TypeScript`, `Tests`, `(APPROVED|BLOCKED)`
-
-**Template:**
-
-```markdown
----
-agent: validator
-version: [VERSION]
-date: [DATE]
-status: [approved|blocked]
-task: [TASK_DESCRIPTION]
----
-
-# Code Quality Validation: [FEATURE_NAME]
-
-## CODE QUALITY ASSESSMENT
-
-### TypeScript Validation
-```bash
-npm run typecheck
-```
-**Result:** [PASS|FAIL]
-- [x] No type errors
-- [ ] Issues: [description]
-
-### Unit Test Coverage
-```bash
-npm test -- --coverage
-```
-**Result:** [PASS|FAIL]
-- Coverage: [N]%
-- All tests passing: [Yes|No]
-- Missing tests: [description if any]
-
-### Security Scan
-**Result:** [PASS|FAIL]
-- No vulnerabilities: [Yes|No]
-- Issues: [description if any]
-
-### Code Standards
-- [x] Follows naming conventions
-- [x] No console.logs in production code
-- [x] Error handling implemented
-- [x] No `any` types used
-
-## CONSUMER VALIDATION
-(For API changes only)
-
-- [x] All consumers updated
-- [x] Consumer tests pass
-- [ ] Consumers need attention: [list]
-
-## DECISION
-
-**STATUS:** [✅ APPROVED | 🔴 BLOCKED]
-
-**Rationale:** [Explanation of decision]
-
-### Blocking Issues (if blocked)
-1. [Issue 1]
-2. [Issue 2]
-
-### Recommendations
-- [Recommendation 1]
-- [Recommendation 2]
-
-## SYNC POINT
-
-Waiting for @tester validation to complete.
-```
-
----
-
-## 5. @tester Report Template
-
-**Purpose:** UX quality validation gate
-
-**Validation Rules:**
-- Minimum length: 400 characters
-- Required sections: E2E Tests, Visual Regression, Accessibility, Decision
-- Required patterns: `## E2E`, `Visual`, `A11y|Accessibility`, `(APPROVED|BLOCKED)`
+**Validation Rules (must match `scripts/validate-agent-output.js` exactly):**
+- Required sections: Screenshots Created, Console Errors, Performance Metrics, Accessibility, Decision
+- Required patterns: a screenshot path, an image file reference, a console-errors statement,
+  `(LCP|CLS|INP|FCP)`, `(APPROVED|BLOCKED)`
+- Length calibration: cover every section below with real content; do not pad.
 
 **Template:**
 
@@ -508,34 +447,35 @@ task: [TASK_DESCRIPTION]
 
 # UX Quality Validation: [FEATURE_NAME]
 
-## E2E TEST RESULTS
+Precondition: sprint frontmatter has `ux_gate: auto`. If `playwright` MCP was unreachable and
+the sprint fell back to `human`, this report does not apply — log the fallback in the sprint's
+Routing Log instead.
 
-### Test Execution
-```bash
-npm run test:e2e
-```
-**Result:** [PASS|FAIL]
-- Tests run: [N]
-- Passed: [N]
-- Failed: [N]
+## Screenshots Created
 
-### Failed Tests (if any)
-- **Test:** [test name]
-  - **Error:** [description]
-  - **Screenshot:** [path/to/screenshot.png]
-
-## VISUAL REGRESSION
-
-### Screenshots Captured
-- Desktop (1920x1080): [path/to/screenshot.png]
-- Tablet (768x1024): [path/to/screenshot.png]
-- Mobile (375x667): [path/to/screenshot.png]
+- Mobile (375x667): `[path/to/screenshot-mobile.png]`
+- Tablet (768x1024): `[path/to/screenshot-tablet.png]`
+- Desktop (1920x1080): `[path/to/screenshot-desktop.png]`
 
 ### Visual Changes Detected
 - [Component]: [Description of visual change]
 - **Status:** [Expected|Unexpected]
 
-## ACCESSIBILITY (A11y)
+## Console Errors
+
+- Console errors: [count] (`[list, or "none"]`)
+
+## Performance Metrics
+
+### Core Web Vitals
+- **LCP:** [N]s (target: <2.5s)
+- **CLS:** [N] (target: <0.1)
+- **INP:** [N]ms (target: <200ms)
+- **FCP:** [N]s (target: <1.8s)
+
+**Result:** [PASS|FAIL]
+
+## Accessibility
 
 ### WCAG 2.1 AA Compliance
 **Result:** [PASS|FAIL]
@@ -548,16 +488,7 @@ npm run test:e2e
 - [Issue 1]
 - [Issue 2]
 
-## PERFORMANCE
-
-### Core Web Vitals
-- **LCP:** [N]s (target: <2.5s)
-- **FID:** [N]ms (target: <100ms)
-- **CLS:** [N] (target: <0.1)
-
-**Result:** [PASS|FAIL]
-
-## DECISION
+## Decision
 
 **STATUS:** [✅ APPROVED | 🔴 BLOCKED]
 
@@ -570,22 +501,22 @@ npm run test:e2e
 ### Recommendations
 - [Recommendation 1]
 - [Recommendation 2]
-
-## SYNC POINT
-
-Waiting for @validator validation to complete.
 ```
 
 ---
 
-## 6. @scribe Report Template
+## 5. @scribe Report Template
 
-**Purpose:** Documentation and changelog updates
+**Purpose:** `[Unreleased]` changelog entry at sprint integration, plus related documentation
+updates. Per `docs/orchestrator/VERSIONING.md`, VERSION is written exactly once, by
+`scripts/version-bump.js` in the release sprint — never by @scribe, never per sprint, never with
+a dated heading. @scribe's changelog contribution during a normal sprint is the undated
+`[Unreleased]` bullet only.
 
 **Validation Rules:**
-- Minimum length: 300 characters
-- Required sections: CHANGELOG, VERSION, Documentation
-- Required patterns: `## CHANGELOG`, `VERSION`, `v?\d+\.\d+\.\d+`
+- Required sections: Unreleased Entry, Documentation Updates
+- Required patterns: `## \[Unreleased\]` or `### Unreleased Entry`, `Documentation`
+- Length calibration: cover every section below with real content; do not pad.
 
 **Template:**
 
@@ -600,64 +531,57 @@ task: [TASK_DESCRIPTION]
 
 # Documentation Update: [FEATURE_NAME]
 
-## VERSION UPDATE
+## Unreleased Entry
 
-**Previous Version:** [OLD_VERSION]
-**New Version:** [NEW_VERSION]
-**Type:** [MAJOR|MINOR|PATCH]
-
-## CHANGELOG ENTRY
-
-### [NEW_VERSION] - [DATE]
+Added to `CHANGELOG.md` under `## [Unreleased]` (no dated heading, no VERSION write):
 
 #### Added
 - [Feature 1]
-- [Feature 2]
 
 #### Changed
 - [Change 1]
-- [Change 2]
 
 #### Fixed
 - [Bug fix 1]
-- [Bug fix 2]
 
 #### Removed
 - [Removed item 1]
 
-## DOCUMENTATION UPDATES
+## Documentation Updates
 
 ### Files Updated
-- `CHANGELOG.md` - Added version [NEW_VERSION] entry
-- `VERSION` - Updated to [NEW_VERSION]
+- `CHANGELOG.md` - Appended `[Unreleased]` bullet(s) above
 - `README.md` - [Description of changes if any]
 
 ### API Documentation (if applicable)
 - Updated: [path/to/api-docs.md]
 - Sections modified: [section names]
 
-## READY FOR RELEASE
+## Ready For Next Step
 
-- [x] VERSION file updated
-- [x] CHANGELOG.md updated
+- [x] CHANGELOG.md `[Unreleased]` entry added
 - [x] README.md updated (if needed)
 - [x] All documentation consistent
+- [x] VERSION untouched — release sprint only
 
-## HANDOFF TO @github-manager
+## HANDOFF
 
-Ready for PR creation or release publication.
+Sprint integration continues (Result section, acceptance criteria, status=done). VERSION and
+dated CHANGELOG headings are out of scope here — release sprint territory.
 ```
 
 ---
 
-## 7. @github-manager Report Template
+## 6. @github-manager Report Template
 
-**Purpose:** GitHub operations (Issues, PRs, Releases)
+**Purpose:** GitHub operations (Issues, PRs, Releases). `github-manager` holds no `Write` tool —
+see the report-authorship rule above; this template defines the shape of the verdict-derived
+report the dispatcher persists on its behalf.
 
 **Validation Rules:**
-- Minimum length: 200 characters
 - Required sections: Action, Result
 - Required patterns: `(Issue|PR|Release)`, `(Created|Updated|Closed)`
+- Length calibration: cover every section below with real content; do not pad.
 
 **Template:**
 
@@ -729,20 +653,22 @@ All templates are automatically validated by `scripts/validate-agent-output.js` 
 
 1. **Required Sections** - Warns if recommended sections are missing
 2. **Required Patterns** - Blocks if critical patterns are absent
-3. **Minimum Length** - Blocks if output is too short
+3. **Length Calibration** - No minimum-length floor; content coverage is judged qualitatively
+   against the required sections/patterns, not a character count (length minimums are a
+   Goodhart trap — see the v8.6.0 analysis under "not to adopt")
 4. **Completeness Score** - Calculates based on section/pattern coverage
 
 ### Running Validation Manually
 
 ```bash
-node scripts/validate-agent-output.js reports/v5.7.0/00-architect-plan.md architect
+node scripts/validate-agent-output.js reports/v8.7.0/sprint-02/01-architect-report.md architect
 ```
 
 ### Validation Output Example
 
 ```
 ╔════════════════════════════════════════════════════════════╗
-║  AGENT OUTPUT VALIDATION (v5.6.0)                          ║
+║  AGENT OUTPUT VALIDATION                                    ║
 ╚════════════════════════════════════════════════════════════╝
 
 Agent: @architect
@@ -750,7 +676,6 @@ Status: ✓ VALID
 Completeness: 95%
 
 Statistics:
-  Output length: 2341 chars (min: 1000)
   Required sections: 4/4
   Required patterns: 3/3
 
@@ -778,6 +703,13 @@ Statistics:
 
 ## Version History
 
+- **v8.7.0 (sprint 02)** - @validator template removed (deterministic hook + opt-in `/code-review`
+  replace it); @tester template gated on `ux_gate: auto` and aligned to
+  `scripts/validate-agent-output.js`'s exact sections/patterns; @scribe template stripped of
+  VERSION/dated-heading fields (release-sprint-only, per `docs/orchestrator/VERSIONING.md`);
+  minimum-length thresholds replaced with length calibration guidance; agent count corrected to 14;
+  report-authorship rule added (Write-holders write, read-only agents return a verdict the
+  dispatcher persists).
 - **v5.7.0** - Initial standardized templates with validation integration
 - **v5.6.0** - SubagentStop hook implementation (validation automation)
 

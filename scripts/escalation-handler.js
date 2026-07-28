@@ -301,7 +301,7 @@ class EscalationHandler {
       case 'feedback_loop':
         result.recommendation = {
           action: 'feedback_to_builder',
-          blockedBy: escalation.details.blockedBy || ['validator', 'tester'],
+          blockedBy: escalation.details.blockedBy || ['checks', 'tester'],
           issues: escalation.details.issues || []
         };
         result.action = 'feedback_loop_initiated';

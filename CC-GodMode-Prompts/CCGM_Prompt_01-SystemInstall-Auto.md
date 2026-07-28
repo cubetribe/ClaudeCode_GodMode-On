@@ -112,7 +112,7 @@ Before you execute anything, give the user the following message:
 ║   What I will do for you:                                                ║
 ║                                                                           ║
 ║   1. Download the CC_GodMode repository from GitHub                      ║
-║   2. Install 15 AI agents (8 core + 1 security gate + 6 department)       ║
+║   2. Install 14 AI agents (7 core + 1 security gate + 6 department)       ║
 ║   3. Set up 15 automation scripts                                         ║
 ║   4. Install 14 skills, config files, and templates                       ║
 ║   5. Install the Memory MCP Server (for persistent knowledge)             ║
@@ -231,14 +231,13 @@ Copy-Item "$env:TEMP\CC_GodMode_install\agents\*.md" "$env:USERPROFILE\.claude\a
 Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 ```
 
-**Expected agents (15 files):**
+**Expected agents (14 files):**
 
-Core agents (8):
+Core agents (7):
 - `researcher.md`
 - `architect.md`
 - `api-guardian.md`
 - `builder.md`
-- `validator.md`
 - `tester.md`
 - `scribe.md`
 - `github-manager.md`
@@ -576,7 +575,7 @@ After installation, test by typing:
 You are the Orchestrator. List your available agents.
 ```
 
-The system should recognize all 15 agents (8 core + 1 security gate + 6 department).
+The system should recognize all 14 agents (7 core + 1 security gate + 6 department).
 
 ---
 
@@ -594,7 +593,7 @@ After completing all steps, provide this summary to the user:
 ║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
 ║   Version:      8.6.0                                                     ║
-║   Agents:       [X]/15 installed (8 core + 1 security gate + 6 department)║
+║   Agents:       [X]/14 installed (7 core + 1 security gate + 6 department)║
 ║   Skills:       [X]/11 installed                                          ║
 ║   Scripts:      [X]/15 installed                                          ║
 ║   Config:       [X]/1 installed                                           ║
@@ -642,9 +641,8 @@ After completing all steps, provide this summary to the user:
 ║   │      ├── 00-architect-report.md                                    │ ║
 ║   │      ├── 01-api-guardian-report.md                                 │ ║
 ║   │      ├── 02-builder-report.md                                      │ ║
-║   │      ├── 03-validator-report.md                                    │ ║
-║   │      ├── 04-tester-report.md                                       │ ║
-║   │      └── 05-scribe-report.md                                       │ ║
+║   │      ├── 03-tester-report.md (only if ux_gate: auto)               │ ║
+║   │      └── 04-scribe-report.md                                       │ ║
 ║   └─────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
@@ -718,7 +716,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
-| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 15 |
+| Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 14 |
 | Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 14 |
 | Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 15 |
 | Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
@@ -729,14 +727,13 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **Details:**
 
-**Agents (15 — 8 core + 1 security gate + 6 department):**
+**Agents (14 — 7 core + 1 security gate + 6 department):**
 
 Core agents:
 - researcher.md
 - architect.md
 - api-guardian.md
 - builder.md
-- validator.md
 - tester.md
 - scribe.md
 - github-manager.md
@@ -809,7 +806,7 @@ the repo's reference settings file.)
 **macOS / Linux:**
 ```bash
 # Remove agents (core + department)
-rm ~/.claude/agents/{researcher,architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
+rm ~/.claude/agents/{researcher,architect,api-guardian,builder,tester,scribe,github-manager}.md
 rm ~/.claude/agents/{ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
 
 # Remove scripts
@@ -848,7 +845,6 @@ Remove-Item "$env:USERPROFILE\.claude\agents\researcher.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\architect.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\api-guardian.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\builder.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\validator.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\tester.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\scribe.md"
 Remove-Item "$env:USERPROFILE\.claude\agents\github-manager.md"
@@ -890,9 +886,4 @@ claude mcp remove memory
 
 ---
 
-## License
-
-Copyright (c) 2025 Dennis Westermann
-www.dennis-westermann.de
-
-Private use permitted. Commercial use requires permission.
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

@@ -85,7 +85,7 @@ Before even a single line of code is written, you analyze requirements, evaluate
 
 - **No API Contract Validation** - That's @api-guardian
 - **No Consumer Impact Analysis** - That's @api-guardian
-- **No Cross-File Consistency Checks** - That's @validator
+- **No Cross-File Consistency Checks** - That's the deterministic hook / `/code-review`
 - **No Code Implementation** - That's @builder
 - **No Documentation** - That's @scribe
 

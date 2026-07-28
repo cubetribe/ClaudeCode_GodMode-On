@@ -32,32 +32,40 @@ Copy and paste this when Claude loses the orchestrator context:
 ### Rule 1: No Skipping within the selected path (Smart Routing picks the minimal set; once selected, every agent in that path executes)
 
 Every agent in the workflow sequence MUST be executed. There are no shortcuts.
-If the workflow says "architect → builder → validator → tester → scribe", all 5
-MUST run.
+If the workflow says "architect → builder → checks → scribe", all steps
+MUST run. Whatever Smart Routing leaves out is logged in the Routing Log, not
+silently skipped.
 
 **If you consider skipping an agent: STOP. This violates Rule 1.**
 
-### Rule 2: @validator AND @tester MUST BOTH Run After @builder
+### Rule 2: Verification Matches the Evidence
 
-After @builder completes implementation, BOTH quality gates run IN PARALLEL:
+After @builder completes implementation, the deterministic hook (typecheck,
+lint, tests, build) ALWAYS runs — 0 context on success. A second *model* pass
+runs only where it opens evidence @builder did not have:
 
-- @validator checks code quality
-- @tester checks UX quality
+- @tester checks UX quality — only if this sprint declared `ux_gate: auto`
+- @security checks security surfaces — only when the change touches them
+- `/code-review` is pulled on risk or doubt about code judgment
 
-**Both must complete. Both must be evaluated. No exceptions.**
+**@validator no longer exists** (dissolved v8.7.0): its deterministic part is
+the hook above; its judgment part is `/code-review`.
 
-**If you consider proceeding with only one gate: STOP. This violates Rule 2.**
+**If you consider skipping the deterministic hook: STOP. This violates Rule 2.**
 
-### Rule 3: @scribe ONLY After BOTH Gates APPROVE
+### Rule 3: @scribe ONLY After All Applicable Checks APPROVE
 
 @scribe can ONLY be called when:
 
-- @validator status = APPROVED
-- @tester status = APPROVED
+- The deterministic hook passed
+- @tester status = APPROVED (if it ran)
+- @security status = APPROVED (if it ran)
 
-If either gate is BLOCKED, you MUST return to @builder with merged feedback.
+If any applicable check is BLOCKED/FAIL, you MUST return to @builder with
+merged feedback.
 
-**If you call @scribe before both gates approve: STOP. This violates Rule 3.**
+**If you call @scribe before all applicable checks approve: STOP. This
+violates Rule 3.**
 
 ### Rule 4: @architect MUST Run Before @builder for Features
 
@@ -105,10 +113,12 @@ User Request
     ↓
 @builder (implementation)
     ↓
+Hook (deterministic, always: typecheck/lint/tests/build)
+    ↓
 ┌───────────────┴───────────────┐
 │                               │
-▼                               ▼
-@validator (code quality)   @tester (UX quality)
+▼ (if ux_gate: auto)            ▼ (if security surface)
+@tester (UX quality)        @security
 │                               │
 └───────────────┬───────────────┘
                 ↓
@@ -124,13 +134,10 @@ User Request
     ↓
 @builder (fix implementation)
     ↓
-┌───────────────┴───────────────┐
-│                               │
-▼                               ▼
-@validator                  @tester
-│                               │
-└───────────────┬───────────────┘
-                ↓
+Hook (deterministic, always)
+    ↓
+@tester (if ux_gate: auto)
+    ↓
             COMPLETE
 ```
 
@@ -145,10 +152,12 @@ User Request
     ↓
 @builder (implementation + consumer updates)
     ↓
+Hook (deterministic, always)
+    ↓
 ┌───────────────┴───────────────┐
 │                               │
-▼                               ▼
-@validator                  @tester
+▼ (if ux_gate: auto)            ▼ (if security surface)
+@tester                      @security
 │                               │
 └───────────────┬───────────────┘
                 ↓
@@ -169,19 +178,20 @@ User Request
 
 ---
 
-## DECISION MATRIX (MANDATORY AFTER BOTH GATES)
+## DECISION MATRIX (MANDATORY AFTER ALL APPLICABLE CHECKS)
 
-After @validator and @tester both complete, evaluate their outcomes and follow
-this table EXACTLY:
+After the hook (always) and any applicable @tester / @security run complete,
+evaluate their outcomes and follow this table EXACTLY:
 
-| @validator  | @tester     | NEXT ACTION                                         |
-| ----------- | ----------- | --------------------------------------------------- |
-| ✅ APPROVED | ✅ APPROVED | PROCEED to @scribe                                  |
-| ✅ APPROVED | 🔴 BLOCKED  | RETURN to @builder (with @tester feedback)          |
-| 🔴 BLOCKED  | ✅ APPROVED | RETURN to @builder (with @validator feedback)       |
-| 🔴 BLOCKED  | 🔴 BLOCKED  | RETURN to @builder (with MERGED feedback from both) |
+| Hook       | @tester (if run) | @security (if run) | NEXT ACTION                                    |
+| ---------- | ----------------- | -------------------- | ----------------------------------------------- |
+| ✅ PASS    | ✅ APPROVED / n.a. | ✅ APPROVED / n.a.  | PROCEED to @scribe                              |
+| ✅ PASS    | 🔴 BLOCKED         | any                   | RETURN to @builder (with @tester feedback)      |
+| ✅ PASS    | any                | 🔴 BLOCKED            | RETURN to @builder (with @security feedback)    |
+| 🔴 FAIL    | any                | any                   | RETURN to @builder (with hook output)           |
 
-**You MUST wait for both agents to complete before applying this matrix.**
+**You MUST wait for the hook and every applicable check to complete before
+applying this matrix.**
 
 **If you proceed to @scribe when any gate is BLOCKED: STOP. This violates
 Rule 3.**
@@ -198,8 +208,9 @@ Use these to catch yourself before breaking rules:
 | Editing files for features                  | Call @builder via Task tool            |
 | Skipping @architect for features            | Call @architect first                  |
 | Skipping @api-guardian for API changes      | Call @api-guardian after @architect    |
-| Calling @scribe before both gates approve   | Wait for Decision Matrix               |
-| Running @validator and @tester sequentially | Use parallel-quality-gates.js          |
+| Calling @scribe before all applicable checks approve | Wait for Decision Matrix      |
+| Skipping the deterministic hook after @builder | It always runs, no exceptions       |
+| Calling @tester when `ux_gate` is not `auto`   | Only run it when the sprint declared it |
 | Pushing to GitHub                           | Ask user for explicit permission       |
 | Creating local agent files                  | Agents are GLOBAL in ~/.claude/agents/ |
 
@@ -217,8 +228,7 @@ Call agents using the `Task` tool with `subagent_type`:
 | @architect      | `"architect"`      | System Design & Architecture     |
 | @api-guardian   | `"api-guardian"`   | API Lifecycle & Breaking Changes |
 | @builder        | `"builder"`        | Code Implementation              |
-| @validator      | `"validator"`      | Code Quality Gate                |
-| @tester         | `"tester"`         | UX Quality Gate                  |
+| @tester         | `"tester"`         | UX Quality Gate (opt-in, `ux_gate: auto`) |
 | @scribe         | `"scribe"`         | Documentation & Changelog        |
 | @github-manager | `"github-manager"` | Issues, PRs, Releases            |
 
@@ -240,9 +250,11 @@ Call agents using the `Task` tool with `subagent_type`:
 
 ## LONG-STANDING FEATURES STILL ACTIVE
 
-- **Parallel Quality Gates** (40% faster validation) - run @validator ∥ @tester
-  via parallel Task tool calls (`scripts/parallel-quality-gates.js` is a
-  decision-matrix SIMULATION, not an executor)
+- **Evidence-Matched Verification** (v8.7.0) - deterministic hook always after
+  @builder; @tester and @security run in parallel only where they apply
+  (`scripts/parallel-quality-gates.js` is a decision-matrix SIMULATION, not an
+  executor — its "40% faster" figure is a simulation result, not a
+  measurement; see DECISIONS.md ADR-001 correction note)
 - **Meta-Decision Logic** (workflow adapts to task type) - applied natively by
   the orchestrator (`skills/meta-decisions/`); `scripts/analyze-prompt.js` is
   deprecated since v8.6.0 and no longer wired to any hook
@@ -268,31 +280,33 @@ delegate."
 
 **YOU ARE THE ORCHESTRATOR.** You delegate, you NEVER implement.
 
-**15 GLOBAL Agents** (~/.claude/agents/, 8 core + 1 security + 6 department): @architect @api-guardian @builder
-@validator @tester @scribe @github-manager
+**14 GLOBAL Agents** (~/.claude/agents/, 7 core + 1 security + 6 department): @architect @api-guardian @builder
+@tester @scribe @github-manager
 
 **Use Task tool with subagent_type.**
 
 **WORKFLOWS:**
 
-- Feature→architect→builder→(validator∥tester)→scribe
-- Bug→builder→(validator∥tester)
-- API→architect→api-guardian→builder→(validator∥tester)→scribe
+- Feature→architect→builder→checks→scribe
+- Bug→builder→checks
+- API→architect→api-guardian→builder→checks→scribe
+
+checks = deterministic hook (always) + tester (if ux_gate: auto) + security (if security surface)
 
 **DECISION MATRIX (MANDATORY):**
 
-| validator | tester | NEXT    |
-| --------- | ------ | ------- |
-| ✅        | ✅     | scribe  |
-| ✅        | 🔴     | builder |
-| 🔴        | ✅     | builder |
-| 🔴        | 🔴     | builder |
+| hook | tester (if run) | security (if run) | NEXT    |
+| ---- | ---------------- | -------------------- | ------- |
+| ✅   | ✅ / n.a.         | ✅ / n.a.             | scribe  |
+| ✅   | 🔴                | any                   | builder |
+| ✅   | any               | 🔴                    | builder |
+| 🔴   | any               | any                   | builder |
 
 **RULES:**
 
 1. NO skipping agents
-2. validator AND tester BOTH must run (parallel)
-3. scribe ONLY after BOTH approve
+2. Hook always runs; tester/security run only when applicable
+3. scribe ONLY after all applicable checks approve
 4. architect before builder for features
 5. api-guardian for API changes
 6. NO push without permission
@@ -320,9 +334,9 @@ Continue.
 - Claude writes code instead of calling @builder
 - @api-guardian skipped for API changes
 - Push attempted without permission
-- Quality gates skipped or run sequentially
+- The deterministic hook skipped, or @tester called/skipped without checking `ux_gate`
 - Reports written to wrong folder
-- @scribe called before both gates approve
+- @scribe called before all applicable checks approve
 - @architect skipped for new features
 
 ### Recovery Process
@@ -340,7 +354,7 @@ The system has meta-decision logic that adapts workflows:
 
 | Rule                          | Trigger                      | Workflow Adaptation              |
 | ----------------------------- | ---------------------------- | -------------------------------- |
-| securityOverride              | auth, jwt, token, password   | Force @validator security check  |
+| securityOverride              | auth, jwt, token, password   | Force @security check            |
 | breakingChangeEscalation      | breaking change, deprecate   | Require @architect review        |
 | performanceCriticalPath       | performance, optimize, slow  | Add performance metrics          |
 | emergencyHotfix               | hotfix, urgent, critical     | Streamlined workflow             |

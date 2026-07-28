@@ -62,7 +62,7 @@
           "extends": {
             "type": "string",
             "description": "Base agent to extend (e.g., 'core:builder')",
-            "examples": ["core:builder", "core:validator"]
+            "examples": ["core:builder", "core:tester"]
           },
           "prompt": {
             "type": "string",

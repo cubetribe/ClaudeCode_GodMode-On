@@ -20,7 +20,7 @@ implement code yourself. You ALWAYS delegate to agents.
 
 ### ⚠️ IMPORTANT: Agents are GLOBALLY installed!
 
-**DO NOT create local agent files!** The 15 subagents (8 core + 1 security + 6 department) are pre-installed in
+**DO NOT create local agent files!** The 14 subagents (7 core + 1 security + 6 department) are pre-installed in
 `~/.claude/agents/` and available system-wide.
 
 To call an agent, use the **Task tool** with the correct `subagent_type`:
@@ -29,12 +29,16 @@ To call an agent, use the **Task tool** with the correct `subagent_type`:
 - `subagent_type: "architect"` → @architect
 - `subagent_type: "api-guardian"` → @api-guardian
 - `subagent_type: "builder"` → @builder
-- `subagent_type: "validator"` → @validator
 - `subagent_type: "tester"` → @tester
 - `subagent_type: "scribe"` → @scribe
 - `subagent_type: "github-manager"` → @github-manager
 
 **NEVER** create `.md` files for agents locally. They already exist globally!
+
+**What happened to @validator?** Dissolved (v8.7.0) — its deterministic checks (typecheck,
+lint, tests, build) moved into a hook that runs after every `@builder` pass at no context
+cost on success; its judgment part is pulled on demand via `/code-review` instead of a
+standing agent.
 
 ### Subagents
 
@@ -44,23 +48,25 @@ To call an agent, use the **Task tool** with the correct `subagent_type`:
 | `@architect`      | High-level design, module structure              | -            |
 | `@api-guardian`   | API contracts, breaking changes, consumer impact | -            |
 | `@builder`        | Code implementation                              | -            |
-| `@validator`      | Code quality gate (TypeScript, tests, security)  | -            |
-| `@tester`         | UX quality gate (E2E, visual, a11y, performance) | Playwright   |
+| `@tester`         | UX quality gate (E2E, visual, a11y, performance), only when `ux_gate: auto` | Playwright   |
 | `@scribe`         | Documentation, changelog, VERSION management     | -            |
 | `@github-manager` | Issues, PRs, Releases, CI/CD                     | GitHub       |
 
 ### Workflows
 
-**v5.6.0+: Quality gates run IN PARALLEL (40% faster)**
+**v8.7.0+: after @builder, a deterministic hook always runs; @tester runs only if the sprint declared `ux_gate: auto`**
 
 | Task Type       | Workflow                                                                             |
 | --------------- | ------------------------------------------------------------------------------------ |
-| **New Feature** | `@architect` → `@builder` → (`@validator` ∥ `@tester`) → `@scribe`                   |
-| **Bug Fix**     | `@builder` → (`@validator` ∥ `@tester`)                                              |
-| **API Change**  | `@architect` → `@api-guardian` → `@builder` → (`@validator` ∥ `@tester`) → `@scribe` |
-| **Refactoring** | `@architect` → `@builder` → (`@validator` ∥ `@tester`)                               |
+| **New Feature** | `@architect` → `@builder` → checks → `@scribe`                                       |
+| **Bug Fix**     | `@builder` → checks                                                                  |
+| **API Change**  | `@architect` → `@api-guardian` → `@builder` → checks → `@scribe`                     |
+| **Refactoring** | `@architect` → `@builder` → checks                                                   |
 | **Release**     | `@scribe` → `@github-manager`                                                        |
 | **Issue #X**    | `@github-manager` loads → analyze → run workflow → PR with "Fixes #X"                |
+
+"checks" = the deterministic hook always, plus `@tester` when `ux_gate: auto`, plus `@security`
+on security surfaces, plus a `/code-review` pull on risk or doubt.
 
 ### Workflow Modes
 
@@ -77,28 +83,37 @@ Use mode skills only when the task shape requires them:
 Prototype output must not be pushed or deployed. Cost-Efficiency does not skip
 mandatory safety gates.
 
-### Quality Gates (PARALLEL since v5.6.0)
+### Verification (evidence-matched, since v8.7.0)
 
-After @builder completes, both gates run SIMULTANEOUSLY:
+After @builder completes, the deterministic hook always runs; @tester and @security run only
+where they open evidence @builder didn't have:
 
 ```
                     @builder
                        │
+                       ▼
+              Hook (deterministic, always)
+              ├─ TypeScript ✓
+              ├─ Lint ✓
+              ├─ Unit tests ✓
+              └─ Build ✓  (0 context on success)
+                       │
        ┌───────────────┴───────────────┐
-       ▼                               ▼
-@validator (Code)               @tester (UX)
-├─ TypeScript ✓                 ├─ E2E tests ✓
-├─ Unit tests ✓                 ├─ Screenshots ✓
-├─ Security ✓                   ├─ A11y (WCAG 2.1 AA) ✓
-└─ Consumers ✓                  └─ Performance ✓
+       ▼ (if ux_gate: auto)             ▼ (if security surface)
+@tester (UX)                    @security
+├─ E2E tests ✓                  ├─ Secrets/Auth ✓
+├─ Screenshots ✓                ├─ Injection ✓
+├─ A11y (WCAG 2.1 AA) ✓         └─ Dependencies ✓
+└─ Performance ✓
        │                               │
        └───────────────┬───────────────┘
                   SYNC POINT
                        │
-              Both APPROVED → @scribe
+        All applicable checks APPROVED → @scribe
 ```
 
-**Performance:** Sequential: 8-12min | Parallel: 5-7min (40% faster)
+**Note:** the historical "40% faster (8-12min → 5-7min)" figure came from a decision-matrix
+simulation with stubbed agents, not a measurement — see DECISIONS.md ADR-001 correction note.
 
 ### Rules
 
@@ -106,8 +121,9 @@ After @builder completes, both gates run SIMULTANEOUSLY:
 2. **Architecture gate (split)** - inline arch brief for small/medium tasks; @architect for new modules, breaking changes, cross-domain designs
 3. **@api-guardian is MANDATORY** for changes in `src/api/`, `**/types/`,
    `*.d.ts`
-4. **Dual Quality Gates (PARALLEL)** - Both @validator AND @tester run
-   simultaneously, both must pass
+4. **Verification matches the evidence** - deterministic hook always runs after @builder;
+   @tester only if the sprint declared `ux_gate: auto`; @security only on security surfaces;
+   `/code-review` pulled on risk or doubt
 5. **Reports in `reports/v[VERSION]/`** - Version-based folder structure
 6. **Pre-Push Requirements:**
    - VERSION file MUST be updated
@@ -142,8 +158,8 @@ Check availability: `claude mcp list`
 **Agent Handoffs:**
 
 ```
-User → @architect → @api-guardian* → @builder → (@validator ∥ @tester) → @scribe → @github-manager
-                    (* only for API changes)      └── PARALLEL ──┘
+User → @architect → @api-guardian* → @builder → checks → @scribe → @github-manager
+                    (* only for API changes)      └── hook always; @tester if ux_gate: auto ──┘
 ```
 
 **Critical Paths (trigger @api-guardian):**
@@ -159,9 +175,8 @@ reports/
     ├── 00-architect-report.md
     ├── 01-api-guardian-report.md
     ├── 02-builder-report.md
-    ├── 03-validator-report.md
-    ├── 04-tester-report.md
-    └── 05-scribe-report.md
+    ├── 03-tester-report.md         ← only if ux_gate: auto
+    └── 04-scribe-report.md
 ```
 
 ---

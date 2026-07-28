@@ -18,7 +18,7 @@
  * Features:
  * - Initialize new workflow with task type and version
  * - Update workflow stage and agent progress
- * - Track dual quality gate status
+ * - Track quality gate status (checks always, tester/security when required)
  * - Persist state to .ccgm-state.json
  * - Generate human-readable resume instructions
  *
@@ -48,11 +48,14 @@ const STAGES = {
 };
 
 // Agent-to-stage mapping
+// @validator was dissolved in v8.7.0 sprint-02 (Gate-Umbau): the deterministic
+// part lives in a hook (scripts/verify-changes.js), the judgment part is
+// pulled on demand via /code-review. @tester keeps its stage mapping but only
+// actually runs when the sprint declared `ux_gate: auto`.
 const AGENT_STAGES = {
   '@architect': STAGES.ARCHITECTURE,
   '@api-guardian': STAGES.API_ANALYSIS,
   '@builder': STAGES.IMPLEMENTATION,
-  '@validator': STAGES.QUALITY_GATES,
   '@tester': STAGES.QUALITY_GATES,
   '@scribe': STAGES.DOCUMENTATION,
   '@github-manager': STAGES.RELEASE_PREP
@@ -138,13 +141,18 @@ function validateState(state) {
     return { valid: false, error: `Invalid workflowStage: ${state.workflowStage}` };
   }
 
-  // Validate quality gates
+  // Validate quality gates. `null` means "did not run" and is always valid —
+  // a gate that was never required (e.g. tester/security on a sprint that
+  // didn't call for it) must not be forced into a PENDING/APPROVED state.
   const validGateStatuses = ['PENDING', 'APPROVED', 'BLOCKED', null];
-  if (!validGateStatuses.includes(state.qualityGates.validator)) {
-    return { valid: false, error: `Invalid validator status: ${state.qualityGates.validator}` };
+  if (!validGateStatuses.includes(state.qualityGates.checks)) {
+    return { valid: false, error: `Invalid checks status: ${state.qualityGates.checks}` };
   }
   if (!validGateStatuses.includes(state.qualityGates.tester)) {
     return { valid: false, error: `Invalid tester status: ${state.qualityGates.tester}` };
+  }
+  if (!validGateStatuses.includes(state.qualityGates.security)) {
+    return { valid: false, error: `Invalid security status: ${state.qualityGates.security}` };
   }
 
   return { valid: true };
@@ -172,24 +180,30 @@ function initWorkflow(taskType, version, description, options = {}) {
   let requiresArchitect = false;
   let isApiChange = false;
 
+  // @validator no longer exists as a pipeline agent (v8.7.0 sprint-02): the
+  // deterministic checks run via hook after every @builder step, unconditionally,
+  // and are not tracked here as a pending agent. @tester is opt-in per sprint
+  // (`ux_gate: auto`); this function has no sprint context, so it defaults to
+  // NOT including @tester — callers that know the sprint declared `ux_gate: auto`
+  // should push '@tester' onto agentsPending themselves after initWorkflow().
   switch (taskType) {
     case 'feature':
-      agentsPending = ['@architect', '@builder', '@validator', '@tester', '@scribe'];
+      agentsPending = ['@architect', '@builder', '@scribe'];
       requiresArchitect = true;
       break;
 
     case 'bug':
-      agentsPending = ['@builder', '@validator', '@tester'];
+      agentsPending = ['@builder'];
       break;
 
     case 'api':
-      agentsPending = ['@architect', '@api-guardian', '@builder', '@validator', '@tester', '@scribe'];
+      agentsPending = ['@architect', '@api-guardian', '@builder', '@scribe'];
       requiresArchitect = true;
       isApiChange = true;
       break;
 
     case 'refactor':
-      agentsPending = ['@architect', '@builder', '@validator', '@tester'];
+      agentsPending = ['@architect', '@builder'];
       requiresArchitect = true;
       break;
 
@@ -214,8 +228,9 @@ function initWorkflow(taskType, version, description, options = {}) {
     agentsCompleted: [],
     agentsPending,
     qualityGates: {
-      validator: null,
-      tester: null
+      checks: null,   // deterministic hook (typecheck/lint/tests/build) — always runs
+      tester: null,   // only if the sprint declared ux_gate: auto
+      security: null  // only on security surfaces
     },
     filesChanged: [],
     pushApproved: false,
@@ -302,7 +317,7 @@ function markAgentComplete(agentName) {
 /**
  * Set quality gate result
  *
- * @param {string} gate - 'validator' or 'tester'
+ * @param {string} gate - 'checks', 'tester', or 'security'
  * @param {string} result - 'PENDING', 'APPROVED', or 'BLOCKED'
  * @returns {object|null} - Updated state or null
  */
@@ -314,7 +329,7 @@ function setGateResult(gate, result) {
     return null;
   }
 
-  if (gate !== 'validator' && gate !== 'tester') {
+  if (gate !== 'checks' && gate !== 'tester' && gate !== 'security') {
     console.error(`Invalid gate: ${gate}`);
     return null;
   }
@@ -432,13 +447,18 @@ function getResumeInfo() {
     nextAction = 'Workflow complete - ready for push';
   }
 
-  // Check if quality gates are blocking
+  // Check if quality gates are blocking. A gate at `null` was never required
+  // for this sprint and must not be treated as missing — only a real
+  // 'BLOCKED' blocks, and only gates that actually ran count toward APPROVED.
+  const gateEntries = ['checks', 'tester', 'security'].map(g => state.qualityGates[g]);
+  const ranGates = gateEntries.filter(g => g !== null && g !== undefined);
+
   let gateStatus = null;
-  if (state.qualityGates.validator === 'BLOCKED' || state.qualityGates.tester === 'BLOCKED') {
+  if (ranGates.includes('BLOCKED')) {
     gateStatus = 'BLOCKED - Fix issues and re-run gates';
-  } else if (state.qualityGates.validator === 'APPROVED' && state.qualityGates.tester === 'APPROVED') {
+  } else if (state.qualityGates.checks === 'APPROVED' && ranGates.every(g => g === 'APPROVED')) {
     gateStatus = 'APPROVED - Ready for documentation';
-  } else if (state.qualityGates.validator !== null || state.qualityGates.tester !== null) {
+  } else if (ranGates.length > 0) {
     gateStatus = 'IN PROGRESS';
   }
 
@@ -457,8 +477,9 @@ function getResumeInfo() {
     completed: state.agentsCompleted,
     pending: state.agentsPending,
     qualityGates: {
-      validator: state.qualityGates.validator || 'NOT_STARTED',
+      checks: state.qualityGates.checks || 'NOT_STARTED',
       tester: state.qualityGates.tester || 'NOT_STARTED',
+      security: state.qualityGates.security || 'NOT_STARTED',
       status: gateStatus
     },
     nextAction,

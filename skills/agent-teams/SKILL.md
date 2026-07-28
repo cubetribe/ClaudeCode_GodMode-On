@@ -51,8 +51,8 @@ Add to your environment or `settings.json`:
 |----------|------|-------|----------|
 | Architect | Design & planning | opus | — |
 | Builder | Implementation | sonnet | worktree |
-| Validator | Code quality | sonnet | worktree |
-| Tester | UX quality | sonnet | worktree |
+| Tester | UX quality (when `ux_gate: auto`) | sonnet | worktree |
+| Security | Security gate (on security surfaces) | sonnet | worktree |
 | Scribe | Documentation | haiku | — |
 
 **Recommended team size:** 3–5 teammates for optimal coordination.
@@ -78,7 +78,7 @@ pending → in_progress → completed
     {"id": "1", "name": "Design auth module", "assignee": "architect", "status": "completed"},
     {"id": "2", "name": "Implement auth API", "assignee": "builder", "blockedBy": ["1"], "status": "in_progress"},
     {"id": "3", "name": "Implement auth UI", "assignee": "builder", "blockedBy": ["1"], "status": "in_progress"},
-    {"id": "4", "name": "Validate auth code", "assignee": "validator", "blockedBy": ["2", "3"], "status": "pending"},
+    {"id": "4", "name": "Security-check auth code", "assignee": "security", "blockedBy": ["2", "3"], "status": "pending"},
     {"id": "5", "name": "Test auth UX", "assignee": "tester", "blockedBy": ["2", "3"], "status": "pending"}
   ]
 }

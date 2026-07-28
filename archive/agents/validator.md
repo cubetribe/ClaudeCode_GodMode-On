@@ -1,3 +1,13 @@
+> **ARCHIVED — Sprint 02, v8.7.0 (2026-07-28).** @validator is dissolved, not deleted.
+> Its deterministic checks (typecheck, lint, tests, build) moved into a hook (see
+> `scripts/` — built in parallel by @builder-5); its judgment part is pulled on demand
+> via the native `/code-review` skill instead of a standing agent. Kept here for
+> historical reference only — this agent is no longer dispatchable
+> (`~/.claude/agents/validator.md` was removed). See
+> `plans/v8.7.0/sprint-02-gate-restructure.md`.
+
+---
+
 ---
 name: validator
 description: Quality assurance and verification - final quality gate before documentation
@@ -270,3 +280,7 @@ Return to @builder (detailed list)
 - Part of dual quality gate with @tester
 - Before any merge/push
 - API consumer verification
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

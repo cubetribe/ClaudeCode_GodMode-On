@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- License hardening: LICENSE v2 (explicit GitHub-fork permission, mandatory attribution, explicit re-hosting/scraping prohibition), NOTICE file, license metadata on every scrapeable surface (SKILL.md frontmatter, agent/prompt/doc footers, script headers, package.json/plugin.json), MIT example-string defusal, contributor-license clause, installer now ships LICENSE+NOTICE.
+- Verification model restructured for Claude 5: @validator agent dissolved into a deterministic SubagentStop hook (`verify-changes.js`) that runs project-native checks (npm scripts or dart/Swift tooling) plus optional `/code-review` for judgment calls. @tester (UX gate) moved from mandatory to opt-in via new sprint-frontmatter field `ux_gate: auto | human | skip` (default `human`, only triggered when write scope touches UI paths). Core Rules 5–7 updated to reflect evidence-based verification: hook costs zero context on success; only gates opening new evidence (UX, security) run; gate skips are logged, not forbidden.
+- Gate coordination simplified: new Routing Log section in sprint files documents each agent skip with reason and `ux_gate` fallback status; pre-push check no longer requires impossible `@validator: APPROVED` state.
+
+### Fixed
+
+- Report authorship rule (Core Rule 8, defect D1): 11 of 15 agents were ordered to write reports without holding a `Write` tool. Resolved by matching the declared toolset to what each agent actually does: the four evidence-producing gates (api-guardian, tester, security, github-manager) received `Write` — their "read-only" declaration was untrue, since all four already held `Bash` — while the six purely advisory agents (ci-security-guardian, docs-dx, quality-operations, runtime-platform, workflow-design, workspace-governance) now return their verdict for the dispatcher to persist. Physically unfulfillable `Save to:` instructions removed from every agent without `Write`.
+- Minimum-length thresholds for reports removed from validation rules and templates (Goodhart-trap finding: length checks suppress signal and incentivize padding instead of substance).
+- Agent count in documentation corrected from 8 to 14 (7 core + 1 security gate + 6 department).
+- `@validator` removed as a running gate from all core documentation; archived (not deleted) under `archive/agents/validator.md` with dissolution note.
+
 ---
 
 ## [8.6.0] - 2026-07-06

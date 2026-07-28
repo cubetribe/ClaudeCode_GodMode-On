@@ -17,10 +17,10 @@ is a prototype, cross-domain department run, or explicit Agent Teams run.
 
 | Command Pattern | Workflow | Agents |
 |----------------|----------|--------|
-| "New Feature: [X]" | Feature | (@researcher) → @architect → @builder → @validator ∥ @tester → @scribe |
-| "Bug Fix: [X]" | Bug Fix | @builder → @validator ∥ @tester |
-| "API Change: [X]" | API Change | (@researcher) → @architect → @api-guardian → @builder → @validator ∥ @tester → @scribe |
-| "Refactor: [X]" | Refactor | @architect → @builder → @validator ∥ @tester |
+| "New Feature: [X]" | Feature | (@researcher) → @architect → @builder → checks → @scribe |
+| "Bug Fix: [X]" | Bug Fix | @builder → checks |
+| "API Change: [X]" | API Change | (@researcher) → @architect → @api-guardian → @builder → checks → @scribe |
+| "Refactor: [X]" | Refactor | @architect → @builder → checks |
 | "Research: [X]" | Research | @researcher → report |
 | "Process Issue #X" | Issue | @github-manager loads → analyze → select workflow → PR |
 | "Prepare Release" | Release | @scribe → @github-manager |
@@ -43,7 +43,7 @@ User Request → "New Feature: [X]"
    → Implementation following @architect specs
    → All code changes, tests, types
     ↓
-4. @validator ∥ @tester (PARALLEL — both MUST pass)
+4. checks (Core Rule 5 — deterministic hook always; @tester, @security, /code-review as declared/applicable, PARALLEL)
    → See quality-gates skill for decision matrix
     ↓
 5. @scribe
@@ -57,7 +57,7 @@ User Request → "Bug Fix: [X]"
     ↓
 1. @builder (fix implementation)
     ↓
-2. @validator ∥ @tester (PARALLEL)
+2. checks (Core Rule 5 — deterministic hook always; @tester, @security, /code-review as declared/applicable, PARALLEL)
     ↓
 3. INTEGRATE — @scribe adds the `[Unreleased]` CHANGELOG entry (Core Rule 11: every sprint, even one-line fixes)
 ```
@@ -80,7 +80,7 @@ User Request → "API Change: [X]"
     ↓
 4. @builder (implementation + consumer updates)
     ↓
-5. @validator ∥ @tester (PARALLEL)
+5. checks (Core Rule 5 — deterministic hook always; @tester, @security, /code-review as declared/applicable, PARALLEL)
     ↓
 6. @scribe (document breaking changes)
 ```
@@ -152,8 +152,8 @@ All agents are called via the `Task` tool with `subagent_type`:
 Task tool → subagent_type: "architect"     → @architect
 Task tool → subagent_type: "api-guardian"   → @api-guardian
 Task tool → subagent_type: "builder"        → @builder
-Task tool → subagent_type: "validator"      → @validator
 Task tool → subagent_type: "tester"         → @tester
+Task tool → subagent_type: "security"       → @security
 Task tool → subagent_type: "scribe"         → @scribe
 Task tool → subagent_type: "github-manager" → @github-manager
 Task tool → subagent_type: "researcher"     → @researcher

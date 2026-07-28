@@ -107,7 +107,7 @@ Before architecture decisions are made, you research current best practices, eva
 - **No Architecture Decisions** - That's @architect (I provide input)
 - **No Code Implementation** - That's @builder
 - **No API Design** - That's @architect + @api-guardian
-- **No Testing** - That's @validator + @tester
+- **No Testing** - That's the deterministic hook + @tester (when `ux_gate: auto`)
 - **No Documentation Writing** - That's @scribe
 
 ---

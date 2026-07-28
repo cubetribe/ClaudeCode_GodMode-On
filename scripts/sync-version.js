@@ -52,9 +52,12 @@ const MANIFEST = [
     { find: new RegExp(`^# CC_GodMode v${V}.*$`, 'm'), make: v => `# CC_GodMode v${v}` },
     { find: new RegExp(`^\\*\\*Current Version:\\*\\* v${V}.*$`, 'm'), make: v => `**Current Version:** v${v}` },
   ]},
+  // Mirrors CLAUDE.md verbatim below an 8-line header comment, so its body patterns are
+  // CLAUDE.md's. The header carries its own version string — tracked here, previously untracked.
   { file: 'templates/CLAUDE-ORCHESTRATOR.md', patterns: [
+    { find: new RegExp(`orchestrator template \\(v${V}\\)`), make: v => `orchestrator template (v${v})` },
     { find: new RegExp(`^# CC_GodMode v${V}.*$`, 'm'), make: v => `# CC_GodMode v${v}` },
-    { find: new RegExp(`^\\*\\*CC_GodMode v${V}[^*]*\\*\\*$`, 'm'), make: v => `**CC_GodMode v${v}**` },
+    { find: new RegExp(`^\\*\\*Current Version:\\*\\* v${V}.*$`, 'm'), make: v => `**Current Version:** v${v}` },
   ]},
   { file: 'README.md', patterns: [
     { find: new RegExp(`Version-${V}-blue`), make: v => `Version-${v}-blue` },

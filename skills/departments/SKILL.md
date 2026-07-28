@@ -26,10 +26,10 @@ through the normal quality gates.
 
 | Department | Owns | Usual agent support |
 | --- | --- | --- |
-| Runtime Platform | `config/`, hooks, MCP setup, install/runtime behavior | @architect, @builder, @validator |
+| Runtime Platform | `config/`, hooks, MCP setup, install/runtime behavior | @architect, @builder |
 | Workflow Design | `CLAUDE.md`, `skills/`, `docs/orchestrator/`, orchestration loops | @researcher, @architect |
 | Workspace Governance | `VERSION`, `CHANGELOG.md`, `DECISIONS.md`, policies, templates | @architect, @scribe |
-| Quality Operations | validation scripts, report templates, gate behavior | @validator, @tester |
+| Quality Operations | validation scripts, report templates, gate behavior | @tester, @security |
 | Docs & Developer Experience | `README.md`, prompts, onboarding docs, examples | @scribe |
 | CI & GitHub | PR/release framing, CI/CD, GitHub workflow surfaces | @github-manager |
 | API & Contracts | API/type/schema/CLI/public contract surfaces | @api-guardian |
@@ -43,7 +43,7 @@ Create or update these before implementation begins:
 - write-scope matrix: which files each department owns or must not touch
 - handoff checklist: what each department must report back
 
-Reports should live under `reports/v[VERSION]/` and stay concise.
+Reports should live under `reports/vX.Y.Z/sprint-NN/` and stay concise.
 
 ## Routing Rules
 
@@ -52,7 +52,9 @@ Reports should live under `reports/v[VERSION]/` and stay concise.
 3. Use @architect to freeze the department routing map and write-scope matrix.
 4. Use @api-guardian whenever contracts, schemas, CLI, config, or public behavior change.
 5. Keep @builder as the single implementation writer unless a temporary write lease is explicit.
-6. Use @validator and @tester as the joint quality gate.
+6. Use the Core Rule 5 gate combination for this sprint (deterministic hook always;
+   @tester if `ux_gate: auto`; @security on security surfaces; `/code-review` on
+   risk or doubt) as the quality gate.
 7. Use @scribe only after quality gates pass.
 8. Use @github-manager only for issue, PR, release, or GitHub surfaces.
 

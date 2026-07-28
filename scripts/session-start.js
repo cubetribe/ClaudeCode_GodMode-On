@@ -79,16 +79,37 @@ const MCP_SERVERS = {
   optional: ['lighthouse', 'a11y']
 };
 
-// Available agents
-const AGENTS = [
-  '@architect',
-  '@api-guardian',
-  '@builder',
-  '@validator',
-  '@tester',
-  '@scribe',
-  '@github-manager'
+// Fallback agent roster (v8.7.0 - Sprint 02): 7 core + 1 security gate + 6
+// department agents. @validator was dissolved into the verify-changes.js
+// hook + on-demand /code-review (see scripts/validate-agent-output.js).
+// Used only if the filesystem read below (Widerspruch W6 fix) fails.
+const FALLBACK_AGENTS = [
+  '@researcher', '@architect', '@api-guardian', '@builder', '@tester', '@scribe', '@github-manager',
+  '@security',
+  '@ci-security-guardian', '@docs-dx', '@quality-operations', '@runtime-platform', '@workflow-design', '@workspace-governance'
 ];
+
+/**
+ * Read the agent roster from ~/.claude/agents/*.md instead of hardcoding it
+ * (v8.7.0 - Sprint 02, Widerspruch W6). Falls back to the static list above
+ * if the directory is missing/unreadable/empty - a SessionStart hook must
+ * never throw.
+ */
+function loadAgentList() {
+  try {
+    const agentsDir = path.join(CLAUDE_DIR, 'agents');
+    if (!fs.existsSync(agentsDir)) return FALLBACK_AGENTS;
+    const names = fs.readdirSync(agentsDir)
+      .filter(f => f.endsWith('.md'))
+      .map(f => '@' + f.replace(/\.md$/, ''))
+      .sort();
+    return names.length > 0 ? names : FALLBACK_AGENTS;
+  } catch (error) {
+    return FALLBACK_AGENTS;
+  }
+}
+
+const AGENTS = loadAgentList();
 
 /**
  * Print styled box output
@@ -538,17 +559,17 @@ function displayWorkflowResume(resumeInfo) {
     ''
   ];
 
-  // Quality gates status
-  const validatorIcon = resumeInfo.qualityGates.validator === 'APPROVED' ? colors.green + '✓' :
-                        resumeInfo.qualityGates.validator === 'BLOCKED' ? colors.red + '✗' :
-                        resumeInfo.qualityGates.validator === 'PENDING' ? colors.yellow + '○' :
-                        colors.gray + '–';
-  const testerIcon = resumeInfo.qualityGates.tester === 'APPROVED' ? colors.green + '✓' :
-                     resumeInfo.qualityGates.tester === 'BLOCKED' ? colors.red + '✗' :
-                     resumeInfo.qualityGates.tester === 'PENDING' ? colors.yellow + '○' :
-                     colors.gray + '–';
+  // Quality gates status — only gates that actually ran are shown.
+  // null means the gate was not required, not that it is outstanding.
+  const gateIcon = (v) => v === 'APPROVED' ? colors.green + '✓' :
+                          v === 'BLOCKED' ? colors.red + '✗' :
+                          v === 'PENDING' ? colors.yellow + '○' :
+                          colors.gray + '–';
+  const gateParts = ['checks', 'tester', 'security']
+    .filter(g => resumeInfo.qualityGates[g] != null)
+    .map(g => `${g}=${gateIcon(resumeInfo.qualityGates[g])}${colors.reset} ${resumeInfo.qualityGates[g]}`);
 
-  lines.push(`${colors.cyan}Quality Gates:${colors.reset} validator=${validatorIcon}${colors.reset} ${resumeInfo.qualityGates.validator}, tester=${testerIcon}${colors.reset} ${resumeInfo.qualityGates.tester}`);
+  lines.push(`${colors.cyan}Quality Gates:${colors.reset} ${gateParts.join(', ') || colors.gray + 'none required' + colors.reset}`);
 
   if (resumeInfo.qualityGates.status) {
     lines.push(`${colors.bright}Gate Status:${colors.reset} ${resumeInfo.qualityGates.status}`);
@@ -686,15 +707,14 @@ function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPac
     lines.push('');
   }
 
-  // Agents Section
-  lines.push(`${colors.cyan}Agents Ready${colors.reset}`);
+  // Agents Section (v8.7.0 - Sprint 02: dynamic roster, wraps to fit any count)
+  lines.push(`${colors.cyan}Agents Ready (${AGENTS.length})${colors.reset}`);
 
-  // Format agents in two rows
-  const row1 = AGENTS.slice(0, 4).join(' ');
-  const row2 = AGENTS.slice(4).join(' ');
-
-  lines.push(`  ${colors.gray}${row1}${colors.reset}`);
-  lines.push(`  ${colors.gray}${row2}${colors.reset}`);
+  const AGENTS_PER_ROW = 5;
+  for (let i = 0; i < AGENTS.length; i += AGENTS_PER_ROW) {
+    const row = AGENTS.slice(i, i + AGENTS_PER_ROW).join(' ');
+    lines.push(`  ${colors.gray}${row}${colors.reset}`);
+  }
 
   // v8.6.0 - Sprint 02: Drift Guard section (only rendered when triggered)
   const hasDriftWarnings = Array.isArray(driftWarnings) && driftWarnings.length > 0;

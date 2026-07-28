@@ -72,8 +72,8 @@ in `docs/templates/REPORT_TEMPLATES.md`):
 - `01-architect-report.md` (Design decisions / inline arch brief)
 - `02-api-guardian-report.md` (Consumer matrix)
 - `03-builder-report.md` (Implemented features)
-- `04-validator-report.md` (Validation status)
-- `05-tester-report.md` (Test coverage, screenshots)
+- deterministic hook output (typecheck/lint/tests/build — surfaced by the Orchestrator, only on failure)
+- `05-tester-report.md` (Test coverage, screenshots — if `ux_gate: auto` was declared)
 - `06-security-report.md` (Security findings — if present)
 - department agent reports (`<agent-name>-report.md` — if present)
 
@@ -173,7 +173,7 @@ For new complex functions:
 - **No Consumer Discovery** - That's @api-guardian
 - **No Impact Analysis** - That's @api-guardian
 - **No Code Implementation** - That's @builder
-- **No Quality Validation** - That's @validator
+- **No Quality Validation** - That's the deterministic hook / @tester / @security / `/code-review`
 - **No Design Decisions** - That's @architect
 
 ---
@@ -241,7 +241,7 @@ Maximum 3 bullet findings. Use `STATUS: BLOCKED (quality)` if changelog/doc upda
 ## Workflow Position
 
 ```
-@validator / @tester ──▶ @scribe ──▶ ✅ Ready for commit
+deterministic hook / (optional @tester / @security) ──▶ @scribe ──▶ ✅ Ready for commit
 ```
 
 I am the **last agent** in the workflow. After me, everything is ready for:
@@ -355,9 +355,8 @@ The Orchestrator has Bash access and will provide git/system command results.
 - List of new features
 - Changed functionality
 
-**From @validator:**
-- Validation report (for changelog)
-- Final status
+**From the deterministic hook (via the Orchestrator):**
+- Pass/fail status (for changelog)
 
 **From @tester:**
 - Test coverage summary
@@ -381,12 +380,12 @@ The Orchestrator has Bash access and will provide git/system command results.
 **Cost Impact:** Low
 
 **When to use @scribe:**
-- After both quality gates pass (@validator + @tester)
+- After the deterministic hook passes and any declared gates (@tester, @security) approve
 - VERSION and CHANGELOG updates (required before push)
 - API Consumer Registry maintenance
 - Documentation updates
+- Before ANY push to GitHub/production
 
 ---
 
 *CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
-- Before ANY push to GitHub/production

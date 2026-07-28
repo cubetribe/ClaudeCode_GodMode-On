@@ -9,7 +9,7 @@
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary_(non--commercial)-red.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-8.6.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
-[![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
+[![Agents](https://img.shields.io/badge/Agents-7%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
 [![Ultracode Ready](https://img.shields.io/badge/Ultracode-Ready-brightgreen)](./docs/ARCHITECTURE.md)
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./docs/STORY.md)
@@ -99,8 +99,8 @@ Orchestrator:
   → Delegates to @architect for design
   → Delegates to @api-guardian for API impact
   → Delegates to @builder for implementation
-  → @validator checks code quality  ┐ in parallel
-  → @tester checks UX quality        ┘
+  → Deterministic hook runs typecheck/lint/tests/build (always, ~0 context on success)
+  → @tester checks UX quality, only if the sprint declared `ux_gate: auto`
   → @scribe documents everything
   → @github-manager opens the PR
 
@@ -133,13 +133,13 @@ v8.0.0's headline: **parallelization is the default**, not an afterthought.
 
 ## The Agents
 
-**15 specialists**, each with one job, a model assignment, and effort tuning:
+**14 specialists**, each with one job, a model assignment, and effort tuning:
 
-- **8 core** — `@researcher` `@architect` `@api-guardian` `@builder` `@validator` `@tester` `@scribe` `@github-manager` (always available).
+- **7 core** — `@researcher` `@architect` `@api-guardian` `@builder` `@tester` `@scribe` `@github-manager` (always available).
 - **1 security gate** — `@security`, for secrets, injection, auth/authz, crypto, and dependency review.
 - **6 department** — `@ci-security-guardian` `@docs-dx` `@quality-operations` `@runtime-platform` `@workflow-design` `@workspace-governance` (activate when their domain is in scope).
 
-After `@builder`, the **dual quality gates** — `@validator` (code) and `@tester` (UX) — run **in parallel** and both must pass before `@scribe` documents and ships.
+After `@builder`, a deterministic hook (typecheck, lint, tests, build) always runs and costs no context on success. `@tester` (UX) runs only when the sprint declared `ux_gate: auto`; `@security` runs on security surfaces; a `/code-review` pass is pulled when risk or doubt warrants it. No standing agent re-reads the diff a compiler already checked.
 
 → Full roster, quality gates, and workflows: **[The Agents](./docs/AGENTS.md)**.
 
@@ -151,9 +151,9 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 2. **Smart Routing default** — Risk-based routing; Full-Gates for high-risk signals
 3. **Architecture gate (split)** — Inline brief for small/medium; @architect (Opus) for new modules / breaking changes
 4. **@api-guardian is MANDATORY** — For any API/schema/type change (enforced by hook)
-5. **Dual Quality Gates** — Both @validator AND @tester must pass (parallel execution)
-6. **@tester MUST create screenshots** — Every page tested at 3 viewports
-7. **No Skipping within the selected path** — Smart Routing picks the minimal set; that set executes fully
+5. **Verification matches the evidence** — After @builder, a deterministic hook (typecheck/lint/tests/build) always runs; @tester or @security only run where they open evidence @builder didn't have; a `/code-review` pass is pulled on risk or doubt
+6. **The UX gate is declared, not assumed** — Every sprint carries `ux_gate: auto | human | skip`, decided once at planning (default `human`); under `auto`, @tester screenshots every page at 3 viewports (375×667 / 768×1024 / 1920×1080)
+7. **No Skipping within the selected path** — Smart Routing picks the minimal set; that set executes fully. Whatever it leaves out is logged in the Routing Log, not silently dropped
 8. **Sprint-scoped reports & single-writer hot files** — parallel agents get disjoint write scopes; `VERSION`/`CHANGELOG.md` have exactly one writer (the release tooling / @scribe)
 9. **NEVER push without permission** — Applies to ALL agents
 10. **Release invariant, machine-checked** — `VERSION == CHANGELOG == tag == GitHub release`, enforced locally and in CI
@@ -165,7 +165,7 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 **Guides** (start here):
 - **[Installation Guide](./docs/INSTALLATION.md)** — script install, MCP servers, prompt-based fallback, recovery
 - **[Architecture](./docs/ARCHITECTURE.md)** — parallel-first orchestration, file structure, dual-location model, the hook
-- **[The Agents](./docs/AGENTS.md)** — the 15-agent roster, quality gates, workflows, and modes
+- **[The Agents](./docs/AGENTS.md)** — the 14-agent roster, quality gates, workflows, and modes
 - **[The Story & Design Philosophy](./docs/STORY.md)** — how (and why) the system builds itself
 - **[ROADMAP.md](./ROADMAP.md)** — living roadmap · **[plans/](./plans/)** — active plans & sprint files
 
@@ -184,11 +184,14 @@ After `@builder`, the **dual quality gates** — `@validator` (code) and `@teste
 
 ## FAQ
 
-**Q: Why 15 agents?**
-A: 8 core cover the standard workflow, 1 optional `@security` gate activates for security-sensitive changes, and 6 optional department agents activate only when their domain is in scope. Separation of concerns — each agent has ONE job.
+**Q: Why 14 agents?**
+A: 7 core cover the standard workflow, 1 optional `@security` gate activates for security-sensitive changes, and 6 optional department agents activate only when their domain is in scope. Separation of concerns — each agent has ONE job.
 
-**Q: What's the difference between @validator and @tester?**
-A: `@validator` = code quality (TypeScript, tests, security). `@tester` = UX quality (E2E, visual, a11y, perf). They run in parallel.
+**Q: What happened to @validator?**
+A: It was dissolved, not replaced. Its deterministic part (typecheck, lint, tests, build) moved into a hook that runs after every @builder pass and costs no context on success. Its judgment part (code review) is pulled on demand via `/code-review` instead of a standing agent re-reading the same diff.
+
+**Q: What does @tester do now?**
+A: UX quality (E2E, visual, a11y, perf) — but only when the sprint declares `ux_gate: auto`. It's the one true writer-verifier left in the system because it opens evidence (browser, screenshots) @builder never had.
 
 **Q: Can agents push without my permission?**
 A: No. "NEVER git push without permission" is enforced across all agents.
@@ -202,10 +205,10 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 **CC_GodMode v8.6.0**
 
 What's in the box:
-- **15 agents** (8 core + 1 security gate + 6 department) with effort-field budget tuning
+- **14 agents** (7 core + 1 security gate + 6 department) with effort-field budget tuning
 - **13 skills** for workflows, quality gates, release, research, API changes, modes, teams, bootstrap, and dynamic workflows
 - **Parallel-first orchestration** — fan-out by default, dynamic-workflows escalation with adversarial verification
-- **Dual quality gates** (parallel execution for speed)
+- **Evidence-matched verification** — deterministic hook always, @tester opt-in via `ux_gate`, @security on security surfaces, `/code-review` on risk
 - **Smart Routing by default** (~30–50% token savings vs. old always-Full-Gates)
 - **Version-first workflow** with automated checks
 

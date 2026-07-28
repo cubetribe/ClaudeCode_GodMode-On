@@ -6,7 +6,7 @@
 
 ## Overview
 
-CC_GodMode v8.6.0 uses **three different Claude models** across its 15 agents (8 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
+CC_GodMode v8.6.0 uses **three different Claude models** across its 14 agents (7 core + 1 security gate + 6 department) to optimize for cost vs. performance. This document explains:
 - Which model and effort level each agent uses and why
 - Ultracode Orchestrator economics
 - Cost implications per workflow with Smart Routing
@@ -19,13 +19,17 @@ CC_GodMode v8.6.0 uses **three different Claude models** across its 15 agents (8
 
 Every agent carries an `effort` field in its frontmatter (consumed by Claude Code ≥2.1.152). This tunes the token budget per invocation without changing the model.
 
+> **Calibration note:** the effort values below were set on an earlier model generation and
+> have not been re-swept since. Treat them as a starting point, not a fresh measurement — a
+> real eval sweep, not opinion, is what would justify changing them (see CLAUDE.md, Ultracode
+> Orchestrator).
+
 | Agent | Model | Effort | Rationale |
 |-------|-------|--------|-----------|
 | @architect | opus | high | Complex trade-off analysis; long-lived decisions |
 | @builder | sonnet | medium | Implementation quality needs reasoning depth |
-| @tester | sonnet | medium | MCP coordination + test evaluation |
+| @tester | sonnet | medium | MCP coordination + test evaluation; opt-in via `ux_gate: auto` |
 | @api-guardian | sonnet | medium | Consumer discovery + breaking change analysis |
-| @validator | sonnet | low | Mostly execution (tsc, tests) + checklist |
 | @scribe | haiku | low | Templated doc work; CHANGELOG/VERSION updates |
 | @researcher | haiku | low | Retrieval + synthesis, not deep reasoning |
 | @github-manager | haiku | low | API operations; MCP does the heavy lifting |
@@ -36,6 +40,11 @@ Every agent carries an `effort` field in its frontmatter (consumed by Claude Cod
 | @runtime-platform | sonnet | low | Diagnostic; environment constraint analysis |
 | @workflow-design | sonnet | low | Advisory; sequence design |
 | @workspace-governance | sonnet | low | Advisory; text + policy analysis |
+
+**@validator dissolved (Sprint 02, v8.7.0):** its deterministic part (typecheck, lint, tests,
+build) moved into a hook that costs no model tokens on success; its judgment part is pulled
+on demand via `/code-review` rather than a standing agent invocation, so it no longer carries
+a model/effort assignment.
 
 ---
 
@@ -132,9 +141,8 @@ path is unavailable; nothing in this system depends on Fable access.
 High Cost   │                    ●  opus (Opus 4.8)
             │                   (@architect)
             │
-Medium Cost │          ●●●●●    sonnet (Sonnet 4.6)
-            │       (@api-guardian, @builder, @validator,
-            │        @tester, @scribe)
+Medium Cost │          ●●●●     sonnet (Sonnet 4.6)
+            │       (@api-guardian, @builder, @tester)
             │
 Low Cost    │  ●●     haiku (Haiku 4.5)
             │  (@researcher, @github-manager)
@@ -262,32 +270,7 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @validator — sonnet / Sonnet 4.6 (MEDIUM COST)
-
-**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
-
-**Rationale:**
-- Needs analytical capability for code review
-- Must execute multiple quality checks
-- Requires thorough consumer verification
-- Part of mandatory quality gate
-
-**Cost Impact:** Medium (~$0.70 per invocation)
-
-**When Invoked:**
-- After EVERY implementation (mandatory)
-- Part of dual quality gate with @tester
-- Before ANY merge/push
-
-**Quality Gates:**
-- TypeScript compilation
-- Unit tests
-- Consumer updates verification
-- Security checks
-
----
-
-### @tester — sonnet / Sonnet 4.6 (MEDIUM COST)
+### @tester — sonnet / Sonnet 4.6 (MEDIUM COST, OPT-IN)
 
 **Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
 
@@ -295,13 +278,12 @@ Savings: 60-70% with minimal quality difference
 - Coordinates multiple MCP servers (Playwright, Lighthouse, A11y)
 - Needs analytical capability for test evaluation
 - Must write comprehensive test reports
-- Part of mandatory quality gate
+- The one real writer-verifier left in the system — it opens evidence (browser, screenshots, CWV) @builder never had
 
 **Cost Impact:** Medium (~$1.20 per invocation)
 
 **When Invoked:**
-- After EVERY implementation (mandatory)
-- Runs IN PARALLEL with @validator
+- Only when the sprint declares `ux_gate: auto` (default is `human`, decided once at planning)
 - Visual regression testing
 - E2E test execution
 
@@ -388,26 +370,29 @@ User: "Build user authentication"
   │
   ├─ @builder (sonnet): $1.00
   │
-  ├─ @validator (sonnet): $0.70  ┐
-  ├─ @tester (sonnet): $1.20     ├─ Parallel
-  │                               ┘
+  ├─ deterministic hook (typecheck/lint/tests/build): $0 (0 context on success)
+  ├─ @tester (sonnet, if ux_gate: auto): $1.20
+  │
   ├─ @scribe (haiku): $0.20       ← haiku (downgraded from sonnet $0.60)
   │
   └─ @github-manager (haiku): $0.10
 
-Total: ~$5.70 per feature (Full-Gates)
+Total: ~$5.00 per feature (Full-Gates, ux_gate: auto) / ~$3.80 (ux_gate: human or skip)
 
-Smart Routing (no @architect invocation, scoped gates):
+Smart Routing (no @architect invocation, scoped hook + gate):
   ├─ inline arch brief: $0
   ├─ @builder (sonnet): $1.00
-  ├─ @validator scoped: $0.50  ┐
-  ├─ @tester scoped: $0.80     ├─ Parallel
-  │                             ┘
+  ├─ deterministic hook: $0
+  ├─ @tester scoped (if ux_gate: auto): $0.80
   ├─ @scribe (haiku): $0.20
   └─ @github-manager (haiku): $0.10
-Total: ~$2.60 per standard feature (Smart Routing)
-Note: risk escalation to Full-Gates raises this toward ~$6.10
+Total: ~$1.30 per standard feature (Smart Routing, no UX gate) / ~$2.10 (with ux_gate: auto)
+Note: risk escalation to Full-Gates raises this toward ~$5.00
 ```
+
+> These per-workflow dollar figures predate the @validator dissolution and have been adjusted
+> by simple subtraction (removing @validator's line item), not re-measured. Treat them as
+> directional, not exact — same caveat as the effort matrix above.
 
 ### Bug Fix Workflow
 
@@ -416,11 +401,10 @@ User: "Fix login validation"
   │
   ├─ @builder (sonnet): $1.00
   │
-  ├─ @validator (sonnet): $0.70  ┐
-  ├─ @tester (sonnet): $1.20     ├─ Parallel
-  │                               ┘
+  ├─ deterministic hook: $0 (0 context on success)
+  ├─ @tester (sonnet, if ux_gate: auto): $1.20
 
-Total: ~$2.90 per bug fix
+Total: ~$1.00 per bug fix (ux_gate: human or skip) / ~$2.20 (ux_gate: auto)
 ```
 
 ### API Change Workflow (MANDATORY)
@@ -434,14 +418,14 @@ User: "Change user endpoint response"
   │
   ├─ @builder (sonnet): $1.00
   │
-  ├─ @validator (sonnet): $0.70  ┐
-  ├─ @tester (sonnet): $1.20     ├─ Parallel
-  │                               ┘
+  ├─ deterministic hook: $0 (0 context on success)
+  ├─ @tester (sonnet, if ux_gate: auto): $1.20
+  │
   ├─ @scribe (haiku): $0.20   ← haiku (downgraded from sonnet)
   │
   └─ @github-manager (haiku): $0.10
 
-Total: ~$6.50 per API change
+Total: ~$4.60 per API change (ux_gate: human or skip) / ~$5.80 (ux_gate: auto)
 ```
 
 ### Documentation Update Workflow
@@ -460,45 +444,46 @@ Total: ~$0.30 per doc update
 
 ## Monthly Cost Estimates
 
-> **Note:** These figures use the **Full-Gates upper-bound baseline** (every agent invoked, no Smart Routing).
-> Under the **Smart Routing default**, standard features cost ~$2.60 each and doc updates ~$0.30 each — see the Summary table below and the Workflow Cost Analysis section above for per-workflow breakdowns.
+> **Note:** These figures use the **Full-Gates upper-bound baseline** (every agent invoked, `ux_gate: auto`, no Smart Routing).
+> Under the **Smart Routing default**, standard features cost ~$1.30–2.10 each and doc updates ~$0.30 each — see the Summary table below and the Workflow Cost Analysis section above for per-workflow breakdowns.
+> Per-unit figures below are adjusted from the pre-dissolution baseline by subtracting @validator's former $0.70 line item — simple subtraction, not a fresh measurement.
 
 ### Small Project (5 features/month) — Full-Gates upper bound
 
 ```
-Features (5):        5 × $6.10 = $30.50
-Bug fixes (10):     10 × $2.90 = $29.00
-API changes (2):     2 × $6.50 = $13.00
+Features (5):        5 × $5.40 = $27.00
+Bug fixes (10):     10 × $2.20 = $22.00
+API changes (2):     2 × $5.80 = $11.60
 Docs (5):            5 × $0.30 =  $1.50
 ────────────────────────────────────────
-Monthly Total:                   $74.00
-  (Smart Routing estimate: ~$35–45 depending on feature complexity)
+Monthly Total:                   $62.10
+  (Smart Routing estimate: ~$30–40 depending on feature complexity)
 ```
 
 ### Medium Project (20 features/month) — Full-Gates upper bound
 
 ```
-Features (20):      20 × $6.10 = $122.00
-Bug fixes (40):     40 × $2.90 = $116.00
-API changes (8):     8 × $6.50 =  $52.00
+Features (20):      20 × $5.40 = $108.00
+Bug fixes (40):     40 × $2.20 =  $88.00
+API changes (8):     8 × $5.80 =  $46.40
 Docs (15):          15 × $0.30 =   $4.50
-Refactoring (5):     5 × $6.10 =  $30.50
+Refactoring (5):     5 × $5.40 =  $27.00
 ────────────────────────────────────────
-Monthly Total:                  $325.00
-  (Smart Routing estimate: ~$150–200 depending on feature complexity)
+Monthly Total:                  $273.90
+  (Smart Routing estimate: ~$130–175 depending on feature complexity)
 ```
 
 ### Large Project (50 features/month) — Full-Gates upper bound
 
 ```
-Features (50):      50 × $6.10 = $305.00
-Bug fixes (100):   100 × $2.90 = $290.00
-API changes (20):   20 × $6.50 = $130.00
+Features (50):      50 × $5.40 = $270.00
+Bug fixes (100):   100 × $2.20 = $220.00
+API changes (20):   20 × $5.80 = $116.00
 Docs (30):          30 × $0.30 =   $9.00
-Refactoring (15):   15 × $6.10 =  $91.50
+Refactoring (15):   15 × $5.40 =  $81.00
 ────────────────────────────────────────
-Monthly Total:                  $825.50
-  (Smart Routing estimate: ~$380–480 depending on feature complexity)
+Monthly Total:                  $696.00
+  (Smart Routing estimate: ~$330–420 depending on feature complexity)
 ```
 
 ---
@@ -528,28 +513,29 @@ Loss: $47.50
 ✅ GOOD: Batch similar changes
 User: "Fix 5 validation bugs"
 → One @builder session: $1.00
-→ One @validator + @tester: $1.90
-Total: $2.90
+→ Deterministic hook (free) + one @tester run (if ux_gate: auto): $1.20
+Total: $2.20
 
 ❌ BAD: Fix bugs individually
-→ 5 × (@builder + @validator + @tester)
-→ 5 × $2.90 = $14.50
-Extra cost: $11.60
+→ 5 × (@builder + hook + @tester)
+→ 5 × $2.20 = $11.00
+Extra cost: $8.80
 ```
 
-### 3. Skip Redundant Quality Gates When Safe
+### 3. Declare the UX Gate Deliberately
 
 ```
-⚠️ CAUTION: Only for documentation-only changes
+⚠️ CAUTION: `ux_gate` is decided once at sprint planning, not mid-run
 
 ✅ GOOD: Pure README update
 User: "Fix typo in README"
 → @scribe only: $0.60
-→ Skip @validator + @tester (no code changed)
+→ ux_gate: skip (no UI paths touched, no code changed)
 
-❌ BAD: Skip quality gates for code
+❌ BAD: Skip the UX gate for user-facing code
 User: "Quick fix in API"
-→ Skip @validator + @tester (save $1.90)
+→ Deterministic hook still runs (it's not optional)
+→ But if ux_gate is wrongly set to `skip` for a UI-facing change
 → Breaking change goes to production
 Cost: Priceless (in a bad way)
 ```
@@ -756,8 +742,8 @@ Use it when the user explicitly asks for cheaper or smaller-model routing.
 Do not use it to skip mandatory safety checks:
 
 - @api-guardian remains mandatory for contracts and public API surfaces.
-- @validator remains mandatory for implementation quality.
-- @tester remains mandatory when user-facing behavior changes.
+- The deterministic hook (typecheck/lint/tests/build) always runs after @builder — it is not part of the routing decision, it's a fact-check.
+- @tester runs whenever the sprint declares `ux_gate: auto`; do not use cost-efficiency mode to quietly downgrade a UI-facing sprint's `ux_gate` to `skip`.
 - @architect should still be used when design mistakes would create expensive rework.
 
 ---
@@ -772,8 +758,7 @@ Do not use it to skip mandatory safety checks:
 | @architect | opus | high | New modules, breaking changes, cross-domain | Best reasoning for long-lived decisions |
 | @api-guardian | sonnet | medium | API changes (auto-triggered) | Balanced analysis |
 | @builder | sonnet | medium | All implementations | Best cost/performance |
-| @validator | sonnet | low | Every implementation | Mostly execution + checklist |
-| @tester | sonnet | medium | Every implementation | MCP coordination + analysis |
+| @tester | sonnet | medium | `ux_gate: auto` only | MCP coordination + analysis |
 | @scribe | haiku | low | Before push | Templated doc work |
 | @github-manager | haiku | low | GitHub operations | Fast & cheap |
 | @security | opus | low | Security-sensitive changes (auth, secrets, input) | Deep reasoning to catch vulnerabilities |
@@ -781,10 +766,10 @@ Do not use it to skip mandatory safety checks:
 
 ### Cost Efficiency (Smart Routing Default)
 
-- **Standard feature (Smart Routing)**: ~$2.60 (fully scoped) to ~$6.10 (Full-Gates escalation)
-- **Standard feature (Full-Gates)**: ~$6.10
-- **Bug Fix**: ~$2.90 (efficient)
-- **API Change**: ~$6.50 (mandatory safety, always Full-Gates)
+- **Standard feature (Smart Routing)**: ~$1.30 (no UX gate) to ~$5.00 (Full-Gates + `ux_gate: auto`)
+- **Standard feature (Full-Gates)**: ~$5.40 (rough estimate, see caveat above)
+- **Bug Fix**: ~$1.00 (`ux_gate: human`/`skip`) to ~$2.20 (`ux_gate: auto`)
+- **API Change**: ~$4.60–$5.80 (mandatory safety, always Full-Gates)
 - **Documentation**: ~$0.20–0.30 (scribe=haiku)
 
 ### Key Takeaways
@@ -792,7 +777,7 @@ Do not use it to skip mandatory safety checks:
 1. **Opus for Architecture**: Expensive but worth it for long-term impact
 2. **Sonnet for Most Work**: Best balance of quality and cost
 3. **Haiku for Simple Ops**: Fast and cheap when appropriate
-4. **Don't Skip Quality Gates**: @validator + @tester prevent expensive bugs
+4. **Trust the hook, declare the UX gate**: the deterministic hook always runs after @builder for free; @tester only runs when the sprint said `ux_gate: auto` — don't skip declaring it
 5. **Batch Related Work**: Reduces total agent invocations
 
 ---

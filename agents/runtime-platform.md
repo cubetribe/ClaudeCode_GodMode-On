@@ -89,7 +89,7 @@ Use `BLOCKED (quality)` when required inputs are missing or findings demand a ha
 ```
 
 ### Report Output
-**Save to:** `reports/vX.Y.Z/sprint-NN/runtime-platform-report.md` (version and sprint number from the assigned sprint file)
+**Report output:** I hold no `Write` tool. I return my full findings inline in the verdict; whoever dispatched me persists them to `reports/vX.Y.Z/sprint-NN/runtime-platform-report.md` (version and sprint number from the assigned sprint file).
 
 ---
 

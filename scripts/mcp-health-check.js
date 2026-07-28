@@ -37,7 +37,7 @@ const AGENT_MCP_DEPENDENCIES = {
   'architect': ['memory'],
   'api-guardian': ['memory'],
   'builder': [],
-  'validator': []
+  'tester': []
 };
 
 // ANSI Colors

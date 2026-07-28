@@ -8,7 +8,7 @@ safety rules unless the mode explicitly declares a local-only exception.
 
 **v8.5.0 note:** Plan-First orchestration (ADR-004) sits above all modes: non-trivial work is decomposed into sprint files with write-scope ownership before any mode executes (`skills/sprint-planning/`); the version is decided at release, never at work start.
 
-**v8.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
+**v7.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
 
 ## Mode Summary
 
@@ -48,8 +48,12 @@ See `skills/cost-efficiency/SKILL.md` for full routing table.
 Full-Gates is the explicit escalation path for high-risk work:
 
 ```text
-(@researcher)* -> @architect -> @builder -> (@validator || @tester) -> @scribe
+(@researcher)* -> @architect -> @builder -> checks -> @scribe
 ```
+
+"checks" = the deterministic hook (always) plus whichever of @tester
+(`ux_gate: auto`), @security (security surface), and `/code-review` (risk or
+doubt) apply, run in parallel (Core Rule 5, `docs/orchestrator/QUALITY-GATES.md`).
 
 Use @api-guardian between @architect and @builder for API, schema, CLI, config,
 or public contract changes.
@@ -99,8 +103,9 @@ It prefers:
 - targeted validation by changed scope
 - inline architecture brief for small/medium tasks
 
-It does not skip @api-guardian for contracts, @validator for implementation
-quality, or @tester for user-facing behavior that changed.
+It does not skip @api-guardian for contracts, the deterministic hook for
+implementation quality, or @tester when the sprint declared `ux_gate: auto`
+for user-facing behavior that changed.
 
 ## Current Claude Code Platform Notes
 
