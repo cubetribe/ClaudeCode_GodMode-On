@@ -46,7 +46,7 @@ Full agent registry and handoff matrix: `docs/orchestrator/AGENTS.md`
 **Default: Smart Routing** — risk-based, minimal-agent paths (uses `skills/cost-efficiency/`).
 
 **Escalate to Full-Gates** when any of these risk signals are present:
-- API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — the canonical path list lives in `skills/api-change/` and nowhere else
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes
@@ -165,6 +165,8 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 Each skill's own `description` is already loaded — read it there, and load the skill when you need
 detail beyond this file. The Modes table above maps intent to skill.
+
+**Repo law beats skill opinion.** Skills encode opinions — including skills this repo never shipped, which a user may have installed globally. Where a skill's guidance conflicts with these Core Rules or with `docs/orchestrator/VERSIONING.md` (merge strategy, version classification, changelog flow, gate model), the repo wins. Record the conflict in the sprint's Routing Log instead of following the skill.
 
 ## References
 

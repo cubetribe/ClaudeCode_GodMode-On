@@ -129,6 +129,17 @@ function printBox(lines, color = colors.cyan) {
 }
 
 /**
+ * Format a cache age in ms as a compact human string ("42s", "12m", "3h").
+ * Returns null for non-numeric input so callers can omit the annotation.
+ */
+function formatCacheAge(ms) {
+  if (typeof ms !== 'number' || !isFinite(ms) || ms < 0) return null;
+  if (ms < 60000) return `${Math.round(ms / 1000)}s`;
+  if (ms < 3600000) return `${Math.round(ms / 60000)}m`;
+  return `${Math.round(ms / 3600000)}h`;
+}
+
+/**
  * Print error message and exit
  */
 function errorExit(message, details = []) {
@@ -270,9 +281,29 @@ async function checkMcpHealth() {
     const mcpHealthCheckPath = path.join(__dirname, 'mcp-health-check.js');
 
     if (fs.existsSync(mcpHealthCheckPath)) {
-      // v5.6.0: Use Tier 1 health check
-      const { tier1HealthCheck } = require('./mcp-health-check.js');
-      const tier1Results = await tier1HealthCheck();
+      // v8.7.0: Serve Tier 1 results from cache — `claude mcp list` boots the
+      // full CLI and dials every server (2.5-5s on EVERY start/resume), so the
+      // hook must never run it inline. A detached background process keeps the
+      // cache fresh; a cold cache renders as "check running in background".
+      const healthCheck = require('./mcp-health-check.js');
+      let tier1Results;
+
+      if (typeof healthCheck.tier1HealthCheckCached === 'function') {
+        const cached = healthCheck.tier1HealthCheckCached();
+
+        if (!cached.results) {
+          // Cold cache: background refresh just spawned — results land in
+          // the cache for the next session instead of blocking this one.
+          status.pending = true;
+          return status;
+        }
+
+        tier1Results = cached.results;
+        status.cacheAgeMs = cached.ageMs;
+      } else {
+        // Older mcp-health-check.js without cache support — inline check
+        tier1Results = await healthCheck.tier1HealthCheck();
+      }
 
       status.tier1Results = tier1Results;
       status.available = true;
@@ -683,14 +714,17 @@ function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPac
       lines.push(`  ${colors.yellow}⚠ Missing required: ${missingRequired.map(s => s.name).join(', ')}${colors.reset}`);
     }
 
-    // v5.6.0: Show Tier 1 health check duration if available
+    // v8.7.0: Show cached health summary with its age (the check itself
+    // runs in a detached background process, never inline in the hook)
     if (mcpStatus.tier1Results) {
-      const duration = mcpStatus.tier1Results.duration;
       const healthySummary = `${mcpStatus.tier1Results.summary.healthy}/${mcpStatus.tier1Results.summary.total} healthy`;
+      const age = formatCacheAge(mcpStatus.cacheAgeMs);
       lines.push('');
-      lines.push(`  ${colors.gray}Health check: ${healthySummary} (${duration}ms)${colors.reset}`);
+      lines.push(`  ${colors.gray}Health: ${healthySummary}${age ? ` (checked ${age} ago)` : ''}${colors.reset}`);
     }
 
+  } else if (mcpStatus.pending) {
+    lines.push(`  ${colors.gray}○ Health check running in background — status next session${colors.reset}`);
   } else {
     lines.push(`  ${colors.yellow}⚠ Could not check MCP status${colors.reset}`);
     lines.push(`  ${colors.gray}Run: claude mcp list${colors.reset}`);

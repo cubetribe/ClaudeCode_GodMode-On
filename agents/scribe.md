@@ -255,7 +255,7 @@ I receive **all reports** and create the **permanent documentation**.
 
 ## Tips
 
-### Version Management Rules
+### Version Verification Rules (never version management — see Sprint Contract)
 
 **NOTE: I do NOT have Bash access!**
 
@@ -263,12 +263,13 @@ When I need version or git information, I request from the Orchestrator:
 
 **REQUEST TO ORCHESTRATOR:**
 ```
-Please run these commands for version management:
+Please run these commands so I can verify version uniqueness for the release sprint's
+scripts/version-bump.js call (I never write VERSION myself):
 1. cat VERSION - Check current version
 2. git tag -l - Check existing tags to avoid duplicates
 3. tail -20 CHANGELOG.md - Verify CHANGELOG is updated
 
-I need this to ensure version uniqueness before updating.
+I need this to ensure version uniqueness before the Orchestrator runs the bump tooling.
 ```
 
 **What I CAN do myself:**
@@ -376,12 +377,12 @@ The Orchestrator has Bash access and will provide git/system command results.
 ## Model Configuration
 
 **Assigned Model:** haiku
-**Rationale:** Documentation and changelog work is structured and low-ambiguity. Haiku provides sufficient capability for writing, formatting, and version management at lower cost.
+**Rationale:** Documentation and changelog work is structured and low-ambiguity. Haiku provides sufficient capability for writing, formatting, and verifying version uniqueness ahead of the release sprint's tooling at lower cost.
 **Cost Impact:** Low
 
 **When to use @scribe:**
 - After the deterministic hook passes and any declared gates (@tester, @security) approve
-- VERSION and CHANGELOG updates (required before push)
+- `[Unreleased]` CHANGELOG updates (required before push); VERSION itself is written only by `scripts/version-bump.js` in the release sprint
 - API Consumer Registry maintenance
 - Documentation updates
 - Before ANY push to GitHub/production

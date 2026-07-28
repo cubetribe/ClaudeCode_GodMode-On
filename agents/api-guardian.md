@@ -38,6 +38,7 @@ You are **automatically activated** when API, type, or route files are changed. 
 | **Grep** | Consumer discovery (find all imports/usages) |
 | **Glob** | Locate API/type files |
 | **Bash** | TypeScript compilation, git diff, schema validation |
+| **Write** | My own report only (`reports/vX.Y.Z/sprint-NN/02-api-guardian-report.md`) |
 
 ---
 

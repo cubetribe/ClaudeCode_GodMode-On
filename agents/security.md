@@ -43,6 +43,8 @@ you hand back precise, actionable findings.
 |------|-------|
 | **Read** | Inspect changed source, config, and dependency manifests |
 | **Grep** | Hunt for secrets, dangerous sinks, and insecure patterns |
+| **Bash** | Read-only audits only (`npm audit`, secret scans) — never modifies files or git state |
+| **Write** | My own report only (`reports/vX.Y.Z/sprint-NN/06-security-report.md`) |
 | **Glob** | Locate config, env, and lockfiles across the repo |
 | **Bash** | Run dependency audits (`npm audit`, `pip-audit`) and secret scans |
 

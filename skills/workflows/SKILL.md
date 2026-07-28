@@ -87,14 +87,8 @@ User Request → "API Change: [X]"
 
 ## Critical API Paths
 
-These file patterns **always** trigger @api-guardian:
-
-- `src/api/**`
-- `backend/routes/**`
-- `shared/types/**`
-- `*.d.ts`
-- `openapi.yaml` / `schema.graphql`
-- `**/interfaces/**`
+API/schema/type paths **always** trigger @api-guardian. The canonical path list lives in
+`skills/api-change/` and nowhere else — this file does not repeat it.
 
 ## Research Workflow (Standalone)
 

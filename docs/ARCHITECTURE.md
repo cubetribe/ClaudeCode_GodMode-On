@@ -160,7 +160,7 @@ Developer changes: shared/types/User.ts
 ╚═══════════════════════════════════════════════════════════╝
 ```
 
-`check-api-impact.js` watches for writes to API-critical paths (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`), diffs the change, discovers downstream consumers, and blocks the workflow until @api-guardian has signed off. Nothing gets forgotten — the hook remembers so the orchestrator doesn't have to.
+`check-api-impact.js` watches for writes to the API-critical paths defined in `skills/api-change/`, diffs the change, discovers downstream consumers, and blocks the workflow until @api-guardian has signed off. Nothing gets forgotten — the hook remembers so the orchestrator doesn't have to.
 
 ---
 

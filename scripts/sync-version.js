@@ -66,6 +66,16 @@ const MANIFEST = [
   { file: 'docs/AGENT_MODEL_SELECTION.md', patterns: [
     { find: new RegExp(`CC_GodMode v${V} uses`), make: v => `CC_GodMode v${v} uses` },
   ]},
+  // v8.7.0 sprint-03 (coherence sweep): these two headers drifted silently for a
+  // full release (stuck at "v8.5" while VERSION read 8.6.0) because nothing
+  // enforced them. Adding them here is the fix-as-mechanism this sprint calls
+  // for — same rationale as the templates/CLAUDE-ORCHESTRATOR.md entry above.
+  { file: 'docs/orchestrator/VERSIONING.md', patterns: [
+    { find: new RegExp(`^# CC_GodMode Versioning & Release Law \\(v${V}, ADR-004\\)$`, 'm'), make: v => `# CC_GodMode Versioning & Release Law (v${v}, ADR-004)` },
+  ]},
+  { file: 'skills/release/SKILL.md', patterns: [
+    { find: new RegExp(`^# Release & Versioning \\(v${V}\\)$`, 'm'), make: v => `# Release & Versioning (v${v})` },
+  ]},
   { file: 'CC-GodMode-Prompts/CCGM_Prompt_01-SystemInstall-Auto.md', patterns: [
     { find: new RegExp(`^> \\*\\*Version:\\*\\* ${V}`, 'm'), make: v => `> **Version:** ${v}` },
     { find: new RegExp(`CC_GodMode Installation v${V}[^║\\n]*?(?=\\s*║)`), make: v => `CC_GodMode Installation v${v}`, banner: true },
@@ -192,5 +202,8 @@ function main() {
   run(args.includes('--sync') ? 'sync' : 'check');
 }
 
-main();
+// Only auto-run when invoked as a CLI script, not when required (e.g. by
+// scripts/test-hooks-contract.js, which imports MANIFEST for in-process
+// pattern probes and must not trigger a real --check side effect on load).
+if (require.main === module) main();
 module.exports = { MANIFEST, getVersion };

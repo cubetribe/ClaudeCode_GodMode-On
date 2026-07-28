@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - License hardening: LICENSE v2 (explicit GitHub-fork permission, mandatory attribution, explicit re-hosting/scraping prohibition), NOTICE file, license metadata on every scrapeable surface (SKILL.md frontmatter, agent/prompt/doc footers, script headers, package.json/plugin.json), MIT example-string defusal, contributor-license clause, installer now ships LICENSE+NOTICE.
 - Verification model restructured for Claude 5: @validator agent dissolved into a deterministic SubagentStop hook (`verify-changes.js`) that runs project-native checks (npm scripts or dart/Swift tooling) plus optional `/code-review` for judgment calls. @tester (UX gate) moved from mandatory to opt-in via new sprint-frontmatter field `ux_gate: auto | human | skip` (default `human`, only triggered when write scope touches UI paths). Core Rules 5–7 updated to reflect evidence-based verification: hook costs zero context on success; only gates opening new evidence (UX, security) run; gate skips are logged, not forbidden.
 - Gate coordination simplified: new Routing Log section in sprint files documents each agent skip with reason and `ux_gate` fallback status; pre-push check no longer requires impossible `@validator: APPROVED` state.
+- Versions-Header driftsicher gemacht: `scripts/sync-version.js` MANIFEST erweitert um `docs/orchestrator/VERSIONING.md` und `skills/release/SKILL.md` — `--check` erzwingt jetzt volle Konsistenz dieser drei Punkte statt stiller Drift zwischen Releases.
+- **Repo law beats skill opinion:** neue Vorrangregel codifiziert — Repo-Recht (Core Rules, Release-Recht in `docs/orchestrator/VERSIONING.md`) schlägt Anweisungen global installierter Skills, sofern Konflikt. Basis für die Restriktion von `skills/github-master/` auf Nicht-GodMode-Repos; gilt für alle künftigen kollidierenden Skills.
 
 ### Fixed
 
@@ -21,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minimum-length thresholds for reports removed from validation rules and templates (Goodhart-trap finding: length checks suppress signal and incentivize padding instead of substance).
 - Agent count in documentation corrected from 8 to 14 (7 core + 1 security gate + 6 department).
 - `@validator` removed as a running gate from all core documentation; archived (not deleted) under `archive/agents/validator.md` with dissolution note.
+- **API-Pfadliste kanonisch:** sieben divergente Fassungen vereinigt — fünf in Prosa, eine in `docs/ARCHITECTURE.md` und eine in der `CONFIG` von `scripts/check-api-impact.js`, dem einzigen Ort, der tatsächlich feuert, Quelle ist einzig `skills/api-change/SKILL.md` — alle anderen Dateien verweisen darauf. Bewusste Folge: `**/dto/**`, `**/contracts/**`, `**/interfaces/**` und `swagger.json` triggern jetzt überall das @api-guardian-Gate (sichere Richtung, ein durchgeluster Contract-Bruch kostet mehr als eine extra Gate-Lauf).
+- **Eskalationsmodell zusammengeführt:** `skills/meta-decisions/SKILL.md` auf autoritative Quelle `docs/orchestrator/META-DECISIONS.md` gezogen; MANDATORY-Set und Judgment-Class-Gate explizit enthalten; Satz „a unanimous agent PASS does not waive them" wörtlich vorhanden.
+- **Architecture-Gate:** `greenfield-bootstrap/SKILL.md` auf Core Rule 3 gezogen — greenfield ist kein separate Schwelle für @architect-Eskalation; kleine und mittlere Arbeit nutzen inline briefs, nicht Subagent.
+- **@scribe final von VERSION getrennt:** alle vier Nennungen korrigiert (CLAUDE.md, agents/scribe.md, skills/workflows/SKILL.md, docs/AGENTS.md) — explizit `[Unreleased]` only, Version-Verwaltung ist ausschliesslich `scripts/version-bump.js` Release-Sprit.
+- **Werkzeug-Deklarationen angeglichen:** 14-Agenten-Sweep abgeschlossen, jede Behauptung über Tools im Fließtext gegen `tools:`-Frontmatter geprüft; vier Department-Agenten korrigiert (waren ohne Write, behaupteten aber Report-Schreibenrecht).
+- **Latenter Bug in `sync-version.js`:** `main()` lief ungeschützt beim `require()` des Moduls; `require.main === module` Guard hinzugefügt, Test erweitert (47/47 Checks grün).
+- **Tote Skripte Audit:** 6 von 21 Skripten unverdrahtet (Korrektur auf ~107,5 KB statt behaupteter 9/~154 KB), fünf davon mit Deprecated-Bannern versehen; Nebenbefund: `verify-changes.js` in ~/.claude aber nicht in repo-kanonischer config/ registriert.
 
 ---
 

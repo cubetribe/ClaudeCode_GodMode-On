@@ -30,7 +30,10 @@ have firm ground to stand on.
      are cut — even if "none yet")
 3. **Make structure explicit** — where source, config, tests, and docs belong.
 4. **Hand off** — once the constitution exists, continue under the normal `workflows`
-   pipeline (`@architect` first for any real feature).
+   pipeline. The architecture gate for the first real feature is the same one Core Rule 3
+   sets for everything else: an inline 3–5 bullet brief for small/medium work, @architect
+   only for new modules, breaking changes, cross-domain designs, or genuine uncertainty. An
+   empty repo is not, by itself, a reason for a stricter gate than usual.
 
 ## Core rules
 
@@ -45,7 +48,7 @@ have firm ground to stand on.
 
 | After bootstrap | Use |
 |-----------------|-----|
-| First real feature | `workflows` → Feature workflow (`@architect` → `@builder` → gates) |
+| First real feature | `workflows` → Feature workflow (Core Rule 3 architecture gate → `@builder` → gates) |
 | Security-sensitive scaffolding | route gates through `@security` |
 | Throwaway spike instead | `prototype-mode` skill |
 

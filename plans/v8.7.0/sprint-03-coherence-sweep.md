@@ -2,7 +2,7 @@
 sprint: 03
 slug: coherence-sweep
 plan: plans/v8.7.0/PLAN.md
-status: planned
+status: done
 execution: parallel
 owner: orchestrator
 ux_gate: skip
@@ -124,7 +124,27 @@ Deprecated-Banner nach dem Vorbild von `analyze-prompt.js`; Löschen ist eine ei
 Richtwert kennzeichnen oder streichen. Eine Zahl, die wie ein hartes Limit aussieht und keines
 ist, ist dieselbe Gattung wie die entfernte 40-%-Benchmark.
 
-### 9. `skills/github-master/` auf Nicht-GodMode-Repos einschränken (H15)
+### 9. Skill-Vorrangregel ins Repo-Recht (H15, strukturell)
+
+**Korrektur an der ursprünglichen Planung, Maintainer-Einwand 2026-07-28:** Der geplante Fix lag
+ausschließlich in `~/.claude/skills/github-master/` — also außerhalb der Versionskontrolle. Der
+Skill ist nachweislich **kein GodMode-Skill** (das Repo führt 14 Skills, er ist keiner davon),
+sondern separat installiert. Ihn ins Repo zu vendoren wäre falsch: fremdes Material einverleiben,
+das GodMode weder geschrieben hat noch pflegen kann — genau das, wogegen Sprint 01 angetreten ist.
+
+Der repo-seitige Schutz ist deshalb kein Patch am fremden Skill, sondern **eine Vorrangregel im
+eigenen Recht**:
+
+> Kollidiert die Anleitung eines Skills mit dem Release-Recht oder den Core Rules dieses Repos,
+> gilt das Repo-Recht. Skills kodieren Meinungen; eine Repo-Verfassung schlägt sie.
+
+Ort: `CLAUDE.md`, im Umfeld der Core Rules, plus eine ausführlichere Fassung in
+`docs/orchestrator/VERSIONING.md` für den Release-Teil (Merge-Strategie, Versionsklassifikation).
+
+Wirkung: versioniert, wandert mit dem Repo, überlebt jede Neuinstallation und greift für **jeden**
+künftigen kollidierenden Skill — nicht nur für diesen einen Fall.
+
+### 9b. `skills/github-master/` zusätzlich lokal einschränken (Komfort, nicht Schutz)
 
 Umsetzung der Maintainer-Entscheidung (siehe Judgment-Class unten). Nur Geltungsbereich, kein
 Inhalt:
@@ -265,4 +285,66 @@ schwerer, das Gesamtergebnis bleibt **minor**.
 
 ## Result
 
-_(bei Integration ausfüllen)_
+Done 2026-07-28. Sechs parallele Builder auf disjunkten Scopes, das kanonische Recht wieder vom
+Orchestrator vorgegeben statt zur Formulierung freigegeben.
+
+**Akzeptanzkriterien**
+
+1. ✓ Die API-Pfadaufzählung steht in genau einer Datei (`skills/api-change/SKILL.md`). Siehe
+   Nachtrag unten — es waren nicht fünf Fassungen, sondern sieben.
+2. ✓ `sync-version --check` grün bei **14** Touchpoints (vorher 12); `docs/orchestrator/VERSIONING.md`
+   und `skills/release/SKILL.md` sind aufgenommen, beide auf `v8.6.0` gesetzt.
+3. ✓ `skills/meta-decisions/SKILL.md`: 3 Treffer für MANDATORY/judgment-class (vorher 0), der Satz
+   „a unanimous agent PASS does not waive them" wörtlich enthalten.
+4. ✓ Keine Datei erzwingt @architect für kleine oder mittlere Arbeit.
+5. ✓ Kein Dokument nennt @scribe als Schreiber von VERSION oder datierten Changelog-Überschriften.
+   Die verbleibende Nennung in `agents/scribe.md:258` ist eine ausdrückliche Abgrenzung.
+6. ✓ Werkzeug-Behauptungen aller 14 Agenten decken sich mit ihrer `tools:`-Frontmatter.
+7. ✓ Skript-Audit liegt vor, fünf Deprecated-Banner gesetzt, nichts gelöscht.
+8. ✓ `test-hooks-contract.js` 48/48 (vorher 43/43).
+9. ✓ `skills/github-master/` eingezäunt: `description` schließt Repos mit eigenem Release-Recht
+   aus, Vorrangregel im Body. Squash-Empfehlung und eigener Workflow inhaltlich unverändert; nur
+   `VALIDATOR` → `VERIFICATION`, weil der Agent seit Sprint 02 nicht mehr existiert.
+
+**Der wichtigste Fund kam erst bei der Abnahme**
+
+Die Pfadliste existierte nicht in fünf, sondern in **sieben** Fassungen. Die sechste stand in
+`docs/ARCHITECTURE.md`. Die siebte — und einzig folgenreiche — war die `CONFIG` von
+`scripts/check-api-impact.js`: der Hook, der als einziger tatsächlich feuert. Ihm fehlten
+`**/dto/**`, `**/contracts/**`, `**/interfaces/**` und `swagger.json`.
+
+Ohne diese Angleichung hätte der Sprint sein eigenes Ziel verfehlt: die Routing-Regel hätte das
+@api-guardian-Gate verlangt, während der Hook geschwiegen hätte. Eine Regel, deren
+Durchsetzungsmechanismus etwas anderes tut, ist keine Regel. Der Hook ist jetzt angeglichen,
+liefert weiterhin **0 Byte** außerhalb von API-Pfaden (gemessen) und schlägt bei `dto/` erstmals an.
+
+**Korrektur an einer eigenen früheren Behauptung**
+
+Die Erstanalyse nannte „9 von 21 Skripten unverdrahtet, ~154 KB". Der Audit mit belastbarer Methode
+korrigiert auf **6 von 21, ~107,5 KB**. Die ursprüngliche Zahl war in beide Richtungen falsch.
+
+**Vom Maintainer angestoßene Scope-Korrektur**
+
+Der geplante Fix für H15 lag ausschließlich in `~/.claude/skills/github-master/` — außerhalb der
+Versionskontrolle. Auf Einwand des Maintainers kam die strukturelle Ergänzung dazu: eine
+**Vorrangregel im Repo-Recht** („Repo law beats skill opinion", `CLAUDE.md` +
+`docs/orchestrator/VERSIONING.md`). Sie ist versioniert, überlebt jede Neuinstallation und greift
+für jeden künftigen kollidierenden Skill, nicht nur für diesen einen. Der lokale Zaun bleibt
+Komfort; der Schutz liegt im Repo.
+
+**Weitere bei der Abnahme eingesammelte Defekte**
+
+- `verify-changes.js` war nur in `~/.claude/settings.json` registriert, nicht in der
+  repo-kanonischen `config/claude-settings.json` — meine Lücke aus Sprint 02. Eine Neuinstallation
+  hätte den Hook verloren. Jetzt eingetragen, deterministische Checks vor der Report-Validierung.
+- `scripts/session-start.js` und `scripts/mcp-health-check.js`: der außerhalb dieses Sprints
+  entstandene Health-Cache-Fix lag nur in den Install-Kopien. Ins Repo zurückportiert, Lizenz-Header
+  und Sprint-02-Änderungen dabei erhalten. Dieselbe Reinstall-Drift-Gattung wie der Punkt darüber.
+- Latenter Bug in `scripts/sync-version.js`: `main()` lief ungeschützt beim `require()`. Wäre erst
+  durch den neuen Test scharf geworden.
+
+**Nicht angefasst, bewusst:** Core Rule 2, die drei nie benutzten Department-Agenten, ein echter
+Effort-Sweep. Alle drei sind menschliche Entscheidungen.
+
+**Invarianten bei Abschluss:** `sync-version --check` 14/14 grün, Release-Invariante hält,
+`test-hooks-contract` 48/48, VERSION unangetastet.

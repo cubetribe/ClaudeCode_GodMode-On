@@ -8,20 +8,30 @@ license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-co
 
 ## Critical API Paths
 
-Changes to ANY of these paths **require @api-guardian**:
+**This is the single canonical list.** No other file in this repo enumerates these paths —
+they all reference this section instead. Changes to ANY of these paths **require
+@api-guardian**:
 
 ```
-src/api/**
-backend/routes/**
-shared/types/**
+src/api/
+backend/routes/
+shared/types/
+types/
 **/interfaces/**
-*.d.ts
-openapi.yaml
-schema.graphql
-swagger.json
 **/dto/**
 **/contracts/**
+*.d.ts
+openapi.yaml
+openapi.json
+swagger.json
+schema.graphql
 ```
+
+This is the **union** of five previously divergent lists (see
+`reports/v8.7.0/sprint-00/03b-contradiction-sweep.md`, finding H14). Deliberate
+consequence: more paths trigger this gate now than under four of the five prior
+versions. That is the safe direction — a contract break that slips through costs more
+than a gate that runs once too often.
 
 ## Automatic Detection
 

@@ -24,7 +24,7 @@ You review the governing documents that control a task: CLAUDE.md files, AGENTS.
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — goal, scope, non-goals, and acceptance criteria bound my review — plus the role-specific inputs the Orchestrator names in the dispatch.
 
-**Write scope:** I am advisory: I write ONLY my report to `reports/vX.Y.Z/sprint-NN/workspace-governance-report.md` (department reports are unnumbered by name). I never modify repository files, `VERSION`, `CHANGELOG.md`, or `plans/**`. Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+**Write scope:** I am advisory and hold no `Write` tool — I return my full findings inline in the verdict; whoever dispatched me persists them to `reports/vX.Y.Z/sprint-NN/workspace-governance-report.md` (department reports are unnumbered by name). I never modify repository files, `VERSION`, `CHANGELOG.md`, or `plans/**`. Outside scope ⇒ `STATUS: BLOCKED (scope)`.
 
 **Return verdict (canonical shape — required for Orchestrator fan-in):**
 ```

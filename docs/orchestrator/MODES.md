@@ -1,7 +1,5 @@
 # CC_GodMode Workflow Modes
 
-Updated: 2026-06-11
-
 This document defines the mode layer above the CC_GodMode agent
 workflow. Modes change orchestration behavior; they do not remove mandatory
 safety rules unless the mode explicitly declares a local-only exception.
@@ -34,7 +32,7 @@ When a request decomposes into independent units (multi-file edits, multi-domain
 **Smart Routing is the default** as of v7.0.0. The Orchestrator applies it automatically unless the task carries high-risk signals.
 
 Risk signals that force Full-Gates:
-- API/schema/type paths (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — canonical, enumerated list in `skills/api-change/SKILL.md`
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes

@@ -25,6 +25,12 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
+//
+// v8.7.0 sprint-03 (coherence sweep): these three lists are the executable half of
+// the canonical API-critical path list defined in skills/api-change/SKILL.md. That
+// list is the union of five previously divergent prose versions; this hook was a
+// sixth, and the only one that actually fires. Keep the two in sync — a routing rule
+// that demands the @api-guardian gate is worthless if the hook stays silent.
 const CONFIG = {
   apiPaths: [
     'src/api/',
@@ -32,9 +38,12 @@ const CONFIG = {
     'shared/types/',
     'types/',
     'api/',
+    '/interfaces/',
+    '/dto/',
+    '/contracts/',
   ],
   typeFilePatterns: ['.d.ts', 'types.ts', 'types.tsx'],
-  schemaFiles: ['openapi.yaml', 'openapi.json', 'schema.graphql'],
+  schemaFiles: ['openapi.yaml', 'openapi.json', 'swagger.json', 'schema.graphql'],
   maxConsumersToShow: 25,
   breakingPatterns: [
     /(\w+)\s*\?\s*:/,  // Optional field marker

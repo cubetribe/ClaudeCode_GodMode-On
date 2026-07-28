@@ -6,6 +6,20 @@
  */
 
 /**
+ * ⚠ UNWIRED — found by the v8.7.0 Sprint 03 script audit, kept for reference only.
+ *
+ * No hook config (config/claude-settings.json, ~/.claude/settings.json,
+ * ~/.claude/settings.local.json), no package.json script, no GitHub workflow,
+ * and no installer (apply-global-claude-setup.sh/.ps1, install-mcps.sh)
+ * references or invokes this file, and it is not require()'d by any script
+ * that is itself wired. This is in addition to, not a replacement for, the
+ * SIMULATION ONLY note below (already present, already accurate — the two
+ * describe different things: that note says the gates aren't real, this one
+ * says the file isn't invoked at all). Deletion is a separate maintainer
+ * decision.
+ */
+
+/**
  * ⚠ SIMULATION ONLY — this script does NOT execute real quality gates.
  * launchHookCheck/launchTester are setTimeout stubs hardcoded to APPROVED.
  * Real gates run via the deterministic verify-changes.js SubagentStop hook

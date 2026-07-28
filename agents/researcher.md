@@ -39,6 +39,7 @@ Before architecture decisions are made, you research current best practices, eva
 | **Read** | Read local documentation, previous research |
 | **Glob** | Find existing documentation in codebase |
 | **memory** | Store key findings, no-go technologies, verified sources |
+| **Write** | My own report only (`reports/vX.Y.Z/sprint-NN/00-researcher-report.md`) |
 
 ---
 

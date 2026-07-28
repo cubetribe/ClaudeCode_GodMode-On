@@ -7,7 +7,7 @@
 **Default: Smart Routing** (`skills/cost-efficiency/`) — risk-based minimal-agent paths.
 
 **Escalate to Full-Gates** (`skills/workflows/`) when any risk signal is present:
-- API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — canonical, enumerated list in `skills/api-change/SKILL.md`
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes
@@ -128,14 +128,10 @@ deployed.
 
 ## Critical Paths (API Changes) — Full-Gates Risk Signals
 
-These file paths are Full-Gates risk signals — they force the Full-Gates path and **MUST** go through @api-guardian:
-- `src/api/**`
-- `backend/routes/**`
-- `shared/types/**`
-- `types/`
-- `*.d.ts`
-- `openapi.yaml` / `openapi.json`
-- `schema.graphql`
+API/schema/type paths are a Full-Gates risk signal category — touching them forces the Full-Gates
+path and **MUST** go through @api-guardian. The canonical, enumerated path list lives in
+**`skills/api-change/SKILL.md`** and nowhere else — look there for the current set instead of
+relying on a copy here.
 
 Additional Full-Gates risk signals: `.github/workflows/`, `VERSION`, `CHANGELOG.md`, user-facing UI, new modules, breaking changes.
 

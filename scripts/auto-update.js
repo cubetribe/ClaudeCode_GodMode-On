@@ -1,6 +1,19 @@
 #!/usr/bin/env node
 
 /**
+ * ⚠ UNWIRED — found by the v8.7.0 Sprint 03 script audit, kept for reference only.
+ *
+ * No hook config (config/claude-settings.json, ~/.claude/settings.json,
+ * ~/.claude/settings.local.json), no package.json script, no GitHub workflow,
+ * and no installer (apply-global-claude-setup.sh/.ps1, install-mcps.sh)
+ * references or invokes this file, and it is not require()'d by any script
+ * that is itself wired. The audit could not establish when or whether it was
+ * ever wired — only that it is not today. Kept for historical/reference
+ * purposes; do not re-wire without confirming the update flow it implements
+ * is still the intended one. Deletion is a separate maintainer decision.
+ */
+
+/**
  * CC_GodMode Auto-Update System (v5.8.0)
  *
  * Automated update system for CC_GodMode installations.

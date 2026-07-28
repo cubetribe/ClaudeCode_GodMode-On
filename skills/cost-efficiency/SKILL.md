@@ -68,7 +68,7 @@ for the exact inline-brief report variant (frontmatter, field labels).
 
 Any of these risk signals force the Full-Gates path (`skills/workflows/`):
 
-- API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — the canonical path list lives in `skills/api-change/` and nowhere else
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes

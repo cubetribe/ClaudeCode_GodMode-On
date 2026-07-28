@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Research task workflow — @researcher agent for technology evaluation, best practices lookup, documentation discovery, with timeout limits and memory guidelines"
+description: "Research task workflow — @researcher agent for technology evaluation, best practices lookup, documentation discovery, with a non-enforced time budget guideline and memory guidelines"
 license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
@@ -34,16 +34,22 @@ license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-co
 
 - **Model:** haiku (fast & cost-effective)
 - **Tools:** WebSearch, WebFetch, Read, Glob, memory MCP
-- **Timeout:** 30 seconds MAX per task
+- **Target budget:** ~30 seconds per task (guideline, not an enforced limit — no
+  Timeout field on `agents/researcher.md` and no hook enforces it; see
+  `skills/cost-efficiency/` § Research Budget for the actual mechanism, which is
+  scope discipline, not a clock)
 
-### Phase Timeouts
+### Phase Budget (Guideline, Not Enforced)
 
-| Phase | Timeout | Action on Timeout |
-|-------|---------|-------------------|
-| WebSearch | 10s | Use cached/partial results |
-| WebFetch | 8s | Skip this source |
-| Analysis | 12s | Report with available data |
-| **Total** | **30s** | **Produce partial report** |
+These per-phase figures are a pacing target for the agent to self-report against,
+not a hard cutoff — nothing currently kills a task at these marks:
+
+| Phase | Target | If running long |
+|-------|--------|-------------------|
+| WebSearch | ~10s | Use cached/partial results |
+| WebFetch | ~8s | Skip this source |
+| Analysis | ~12s | Report with available data |
+| **Total** | **~30s** | **Produce partial report** |
 
 ## Report Format
 

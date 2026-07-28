@@ -686,6 +686,69 @@ without adding any real signal beyond what is already declared above.
   }
 }
 
+// --- sync-version.js manifest drift detection (v8.7.0 sprint-03: coherence
+// sweep) -----------------------------------------------------------------
+// This sprint added docs/orchestrator/VERSIONING.md and skills/release/SKILL.md
+// to sync-version.js's MANIFEST after both drifted silently for a full
+// release (stuck at "v8.5" header text while VERSION read 8.6.0). Prove the
+// mechanism actually catches that class of drift: apply the manifest's own
+// pattern for docs/orchestrator/VERSIONING.md to a synthetic header that
+// matches VERSION (must report "ok") and to one that has drifted (must NOT
+// report "ok" — i.e. --check would exit non-zero on it). Requires the real
+// module in-process rather than spawning against a partial fixture repo,
+// since spawning --check needs every OTHER manifest touchpoint to exist too.
+{
+  const SYNC_VERSION_PATH = path.join(REPO_ROOT, 'scripts', 'sync-version.js');
+  const exists = fs.existsSync(SYNC_VERSION_PATH);
+  check('sync-version.js: exists in scripts/', exists, exists ? SYNC_VERSION_PATH : `expected at ${SYNC_VERSION_PATH}`);
+
+  if (exists) {
+    delete require.cache[require.resolve(SYNC_VERSION_PATH)];
+    const { MANIFEST } = require(SYNC_VERSION_PATH);
+    const versioningEntry = MANIFEST.find(e => e.file === 'docs/orchestrator/VERSIONING.md');
+
+    check(
+      'sync-version.js: MANIFEST includes docs/orchestrator/VERSIONING.md',
+      !!versioningEntry,
+      versioningEntry ? '' : 'entry not found in MANIFEST'
+    );
+
+    if (versioningEntry) {
+      const pattern = versioningEntry.patterns[0];
+      const version = '8.6.0';
+
+      // (a) consistent header -> pattern matches AND make(v) === matched text ("ok").
+      const consistentContent = '# CC_GodMode Versioning & Release Law (v8.6.0, ADR-004)\n\nBody.\n';
+      const mConsistent = consistentContent.match(pattern.find);
+      const consistentOk = !!mConsistent && pattern.make(version, mConsistent) === mConsistent[0];
+      check(
+        'sync-version.js MANIFEST: consistent VERSIONING.md header (v8.6.0) matches VERSION -> "ok" (would exit 0)',
+        consistentOk,
+        consistentOk ? '' : `match: ${mConsistent ? mConsistent[0] : 'none'}`
+      );
+      if (!consistentOk) overallOk = false;
+
+      // (b) artificially drifted header (v8.5, two-digit, VERSION=8.6.0) -> pattern
+      // must either fail to match (missing -> --check exit 1) or match with a
+      // replacement that differs from the current text (updated -> drift ->
+      // --check exit 1). Either way, NOT "ok".
+      const driftedContent = '# CC_GodMode Versioning & Release Law (v8.5, ADR-004)\n\nBody.\n';
+      const mDrifted = driftedContent.match(pattern.find);
+      const driftedIsOk = !!mDrifted && pattern.make(version, mDrifted) === mDrifted[0];
+      check(
+        'sync-version.js MANIFEST: drifted VERSIONING.md header (v8.5 vs VERSION=8.6.0) is NOT "ok" (would exit 1)',
+        !driftedIsOk,
+        driftedIsOk ? `unexpectedly matched as ok: ${mDrifted[0]}` : ''
+      );
+      if (driftedIsOk) overallOk = false;
+    } else {
+      overallOk = false;
+    }
+  } else {
+    overallOk = false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------

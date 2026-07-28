@@ -17,7 +17,7 @@ Always available. The Orchestrator selects from these on every workflow run.
 | `@api-guardian` | API Lifecycle Expert | Breaking changes, consumer impact, contract validation |
 | `@builder` | Senior Developer | Implementation, following @architect's specifications |
 | `@tester` | UX Quality Gate (opt-in) | E2E tests, visual regression, accessibility, performance — only when the sprint declares `ux_gate: auto` |
-| `@scribe` | Technical Writer | Documentation, changelog, version management |
+| `@scribe` | Technical Writer | Documentation, `[Unreleased]` changelog entries — never `VERSION` or dated headings (`scripts/version-bump.js` only, release sprint) |
 | `@github-manager` | GitHub Manager | Issues, PRs, releases, CI/CD orchestration |
 
 **Where did @validator go?** It was dissolved, not deleted. Its deterministic checks (typecheck, lint, tests, build) now run in a hook after every `@builder` pass, at ~0 context cost on success — a compiler result is a fact, not a second opinion. Its judgment part (code review) is pulled on demand via the native `/code-review` skill instead of a standing agent re-reading the same diff.
@@ -40,7 +40,7 @@ Optional. The Orchestrator activates them when a task touches their domain.
 
 | Agent | Domain | Mode |
 |:------|:-------|:-----|
-| `@ci-security-guardian` | GitHub Actions, CODEOWNERS, Dependabot, security | Read + Write (GitHub surface only) |
+| `@ci-security-guardian` | GitHub Actions, CODEOWNERS, Dependabot, security | Read-only advisor (never modifies repository files) |
 | `@docs-dx` | Public docs, prompts, setup instructions, user-facing clarity | Read-only reviewer |
 | `@quality-operations` | Validation scope, regression gates, eval-oriented checks | Read-only advisor |
 | `@runtime-platform` | Toolchain, sandbox, environment constraints, OS behavior | Read-only + diagnostic Bash |

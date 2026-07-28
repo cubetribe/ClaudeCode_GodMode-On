@@ -6,6 +6,19 @@
  */
 
 /**
+ * ⚠ UNWIRED — found by the v8.7.0 Sprint 03 script audit, kept for reference only.
+ *
+ * No hook config (config/claude-settings.json, ~/.claude/settings.json,
+ * ~/.claude/settings.local.json), no package.json script, no GitHub workflow,
+ * and no installer (apply-global-claude-setup.sh/.ps1, install-mcps.sh)
+ * references or invokes this file. It requires the already-deprecated
+ * scripts/analyze-prompt.js, so it tests a hook wiring
+ * (UserPromptSubmit -> analyze-prompt.js) that was itself removed in v8.5.0.
+ * Kept for historical/reference purposes; do not re-wire without an ADR
+ * revisiting that removal. Deletion is a separate maintainer decision.
+ */
+
+/**
  * Phase 2 Integration Tests
  *
  * Tests the integration of Phase 1 Domain Pack systems with CC_GodMode hooks:
