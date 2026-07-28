@@ -8,7 +8,7 @@
   },
   "homepage": "https://github.com/cubetribe/ClaudeCode_GodMode-On",
   "repository": "https://github.com/cubetribe/ClaudeCode_GodMode-On",
-  "license": "proprietary",
+  "license": "LicenseRef-CC-GodMode-Proprietary",
   "keywords": [
     "orchestration",
     "multi-agent",

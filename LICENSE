@@ -1,47 +1,76 @@
 CC_GodMode - Proprietary License
 
-Copyright (c) 2025 Dennis Westermann
+Copyright (c) 2025-2026 Dennis Westermann
 www.dennis-westermann.de
 
 All rights reserved.
+
+This software and its accompanying content - including all prompts, skills,
+agent definitions, documentation, templates, and configuration (together,
+the "Work") - are NOT open source.
 
 ================================================================================
 TERMS OF USE
 ================================================================================
 
-1. PRIVATE USE
-   This software may be used for private, non-commercial purposes free of charge.
-   Private use includes personal projects, learning, and individual development.
+1. PRIVATE, NON-COMMERCIAL USE
+   The Work may be used for private, non-commercial purposes free of charge.
+   Private use includes personal projects, learning, and individual
+   development.
 
 2. COMMERCIAL USE
-   Any commercial use of this software is strictly prohibited without prior
-   written permission from the copyright holder.
+   Any commercial use of the Work is prohibited without prior written
+   permission from the copyright holder.
 
    Commercial use includes, but is not limited to:
    - Use in products or services offered for sale
    - Use in a commercial business environment
    - Use to generate revenue directly or indirectly
-   - Redistribution as part of a commercial product
+   - Redistribution as part of a commercial product or platform
 
    For commercial licensing inquiries, please contact:
    Dennis Westermann - www.dennis-westermann.de
 
-3. MODIFICATIONS
-   You may modify the software for private use only.
-   Modified versions may not be redistributed without permission.
+3. COLLABORATION ON GITHUB (EXPRESSLY PERMITTED)
+   Viewing this repository on GitHub, forking it on GitHub, and submitting
+   contributions (pull requests) to the official repository at
+   https://github.com/cubetribe/ClaudeCode_GodMode-On are expressly
+   permitted and welcome. Forks on GitHub must retain this LICENSE and the
+   NOTICE file unchanged.
 
-4. REDISTRIBUTION
-   Redistribution of this software, in whole or in part, is not permitted
-   without explicit written permission from the copyright holder.
+4. REDISTRIBUTION AND RE-HOSTING (PROHIBITED)
+   Except as permitted in Section 3, redistribution of the Work, in whole
+   or in part, is prohibited without explicit written permission from the
+   copyright holder. This prohibition expressly includes:
+   - Copying, mirroring, re-hosting, or offering the Work or parts of it
+     (such as SKILL.md files, agent definitions, prompts, or documentation)
+     for download, installation, or import on any third-party website,
+     marketplace, directory, registry, or aggregator platform;
+   - Automated scraping, indexing, harvesting, or bulk collection of the
+     Work for republication;
+   - Converting the Work into other formats for republication;
+   - Republishing the Work under any other license. Any license label other
+     than this one (for example "MIT") applied to the Work by a third party
+     is invalid and unauthorized.
 
-5. ATTRIBUTION
-   If you use this software, attribution to Dennis Westermann is appreciated
-   but not required for private use.
+5. MODIFICATIONS
+   You may modify the Work for private, non-commercial use. Modified
+   versions may not be redistributed outside GitHub without permission
+   (see Section 4).
 
-6. NO WARRANTY
-   THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+6. ATTRIBUTION (REQUIRED)
+   Every permitted copy or use of the Work outside the official repository
+   must preserve the copyright notice above and visibly attribute the Work
+   to: Dennis Westermann - https://github.com/cubetribe/ClaudeCode_GodMode-On
+
+7. TERMINATION
+   Any violation of these terms automatically terminates all rights granted
+   under this license.
+
+8. NO WARRANTY
+   THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED. THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING
-   FROM THE USE OF THIS SOFTWARE.
+   FROM THE USE OF THE WORK.
 
 ================================================================================
 

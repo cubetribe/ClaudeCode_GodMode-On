@@ -385,4 +385,8 @@ The Orchestrator has Bash access and will provide git/system command results.
 - VERSION and CHANGELOG updates (required before push)
 - API Consumer Registry maintenance
 - Documentation updates
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
 - Before ANY push to GitHub/production

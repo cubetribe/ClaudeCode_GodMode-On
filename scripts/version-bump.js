@@ -8,8 +8,9 @@
  *
  * Usage: node scripts/version-bump.js [major|minor|patch] [--dry-run] [--help]
  *
- * Copyright (c) 2025 Dennis Westermann
+ * Copyright (c) 2025-2026 Dennis Westermann
  * www.dennis-westermann.de
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
  */
 
 const fs = require('fs');

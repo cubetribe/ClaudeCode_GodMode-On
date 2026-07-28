@@ -1,6 +1,7 @@
 ---
 name: issue-processing
 description: "Process GitHub issues — load issue, analyze type/complexity/areas, select workflow, execute agents, create PR with 'Fixes #X'"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Issue Processing

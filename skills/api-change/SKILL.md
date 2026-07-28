@@ -1,6 +1,7 @@
 ---
 name: api-change
 description: "API change detection rules, critical file paths that trigger @api-guardian, consumer impact analysis requirements, and breaking change protocols"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # API Change Detection & Guardian Rules
@@ -88,3 +89,7 @@ If a change is classified as BREAKING:
 ```
 
 @api-guardian sits between @architect and @builder to catch breaking changes BEFORE implementation begins.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

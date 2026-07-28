@@ -85,7 +85,7 @@ project-root/
   "version": "1.0.0",
   "description": "Domain pack for React Native mobile development",
   "author": "Team Name",
-  "license": "MIT",
+  "license": "proprietary",
 
   "compatibility": {
     "minVersion": "5.8.0",

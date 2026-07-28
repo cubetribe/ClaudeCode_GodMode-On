@@ -189,4 +189,9 @@ Each step is additive. The core contract — `CLAUDE.md` auto-loads, agents live
 - [`./AGENT_ARCHITECTURE.md`](./AGENT_ARCHITECTURE.md) — full agent install, update, and verification procedures
 - [`./AGENT_MODEL_SELECTION.md`](./AGENT_MODEL_SELECTION.md) — model and effort matrix per agent, cost models
 - [`./orchestrator/MODES.md`](./orchestrator/MODES.md) — Smart Routing, Full-Gates, Prototype, Departments, Agent Teams, Ultracode
+
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
 - [`../skills/dynamic-workflows/SKILL.md`](../skills/dynamic-workflows/SKILL.md) — when and how to escalate to dynamic workflows with adversarial verification

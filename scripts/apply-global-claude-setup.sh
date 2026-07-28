@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 #
+# CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+# Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+#
 # Install (or verify) the CC_GodMode runtime into the user-level Claude home (~/.claude).
 #
 # Idempotent installer that mirrors the repository's agents, scripts, skills, and
@@ -44,6 +47,8 @@ SRC_SKILLS="${REPO_ROOT}/skills"
 SRC_ORCHESTRATOR="${REPO_ROOT}/CLAUDE.md"
 SRC_PROJECT_ACTIVATION="${REPO_ROOT}/CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md"
 SRC_SETTINGS="${REPO_ROOT}/config/claude-settings.json"
+SRC_LICENSE="${REPO_ROOT}/LICENSE"
+SRC_NOTICE="${REPO_ROOT}/NOTICE"
 REPO_VERSION="$(tr -d ' \t\r\n' < "${REPO_ROOT}/VERSION")"
 
 DST_AGENTS="${CLAUDE_HOME}/agents"
@@ -53,6 +58,8 @@ DST_TEMPLATES="${CLAUDE_HOME}/templates"
 DST_ORCHESTRATOR="${DST_TEMPLATES}/CLAUDE-ORCHESTRATOR.md"
 DST_PROJECT_ACTIVATION="${DST_TEMPLATES}/CCGM_Prompt_02-ProjectActivation.md"
 DST_SETTINGS="${CLAUDE_HOME}/settings.json"
+DST_LICENSE="${CLAUDE_HOME}/LICENSE-CC_GodMode.txt"
+DST_NOTICE="${CLAUDE_HOME}/NOTICE-CC_GodMode.txt"
 VERSION_MARKER="${CLAUDE_HOME}/.cc-godmode-version"
 
 # --- --fix-hooks: repair ~/.claude/settings.json hook wiring ---------------
@@ -290,6 +297,8 @@ if [[ "${DO_CHECK}" -eq 1 ]]; then
   [[ -f "${DST_SCRIPTS}/check-api-impact.js" ]] && ok "script check-api-impact.js" || missing "script check-api-impact.js"
   [[ -f "${DST_ORCHESTRATOR}" ]] && ok "template CLAUDE-ORCHESTRATOR.md" || missing "template CLAUDE-ORCHESTRATOR.md"
   [[ -f "${DST_PROJECT_ACTIVATION}" ]] && ok "template CCGM_Prompt_02-ProjectActivation.md" || missing "template CCGM_Prompt_02-ProjectActivation.md"
+  [[ -f "${DST_LICENSE}" ]] && ok "LICENSE-CC_GodMode.txt" || missing "LICENSE-CC_GodMode.txt : ${DST_LICENSE}"
+  [[ -f "${DST_NOTICE}" ]] && ok "NOTICE-CC_GodMode.txt" || missing "NOTICE-CC_GodMode.txt : ${DST_NOTICE}"
 
   if [[ -f "${VERSION_MARKER}" ]]; then
     installed="$(tr -d ' \t\r\n' < "${VERSION_MARKER}")"
@@ -372,6 +381,18 @@ cp -p "${SRC_ORCHESTRATOR}" "${DST_ORCHESTRATOR}"
 backup_if_exists "${DST_PROJECT_ACTIVATION}" templates
 cp -p "${SRC_PROJECT_ACTIVATION}" "${DST_PROJECT_ACTIVATION}"
 echo "  installed CLAUDE-ORCHESTRATOR.md + CCGM_Prompt_02-ProjectActivation.md"
+
+echo "License:"
+if [[ -f "${SRC_LICENSE}" ]]; then
+  backup_if_exists "${DST_LICENSE}" license
+  cp -p "${SRC_LICENSE}" "${DST_LICENSE}"
+  echo "  installed LICENSE-CC_GodMode.txt"
+fi
+if [[ -f "${SRC_NOTICE}" ]]; then
+  backup_if_exists "${DST_NOTICE}" license
+  cp -p "${SRC_NOTICE}" "${DST_NOTICE}"
+  echo "  installed NOTICE-CC_GodMode.txt"
+fi
 
 printf '%s' "${REPO_VERSION}" > "${VERSION_MARKER}"
 

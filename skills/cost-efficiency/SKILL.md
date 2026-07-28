@@ -1,6 +1,7 @@
 ---
 name: cost-efficiency
 description: "Smart Routing — the DEFAULT CC_GodMode routing policy. Risk-based, minimal-agent paths that preserve required safety gates for the changed scope."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Smart Routing (Default Routing Policy)
@@ -141,3 +142,7 @@ Smart Routing decides **which agents** run (smallest useful set). CLAUDE.md's pa
 doctrine decides **how independent units are scheduled** (fan-out with disjoint write scopes).
 They compose: pick the minimal set first, then parallelize only genuinely independent units.
 Smart Routing never skips required gates, and parallel fan-out never overrides ownership rules.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

@@ -1,6 +1,7 @@
 ---
 name: greenfield-bootstrap
 description: "Bootstrap repo-local governance before CC_GodMode workflows run in an empty, newly initialized, or undocumented workspace. Use proactively when a project has no CLAUDE.md, no README, or no clear structure yet."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Greenfield Bootstrap
@@ -52,3 +53,7 @@ have firm ground to stand on.
 
 - the workspace already has clear local governance (`CLAUDE.md` + structure)
 - the task is only a one-off answer with no lasting repo changes
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

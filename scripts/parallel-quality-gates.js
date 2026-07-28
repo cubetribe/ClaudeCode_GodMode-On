@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * ⚠ SIMULATION ONLY — this script does NOT execute real quality gates.
  * launchValidator/launchTester are setTimeout stubs hardcoded to APPROVED.
  * Real parallel gates run via the Orchestrator's parallel Task tool calls

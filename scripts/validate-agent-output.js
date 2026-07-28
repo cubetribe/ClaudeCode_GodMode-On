@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * Agent Output Validator (v5.8.0)
  *
  * SubagentStop Hook Implementation

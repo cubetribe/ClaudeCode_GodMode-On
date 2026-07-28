@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * MCP Health Check System (v5.6.0)
  *
  * Three-tier health validation:

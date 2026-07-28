@@ -21,8 +21,9 @@
  *
  * IMPORTANT: This script NEVER modifies settings.json or mcp.json
  *
- * Copyright (c) 2025 Dennis Westermann
+ * Copyright (c) 2025-2026 Dennis Westermann
  * www.dennis-westermann.de
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
  */
 
 const https = require('https');
@@ -872,7 +873,7 @@ ${colors.cyan}Notes:${colors.reset}
   - Backups are stored in ~/.claude.bak/
   - Use --dry-run first to preview changes
 
-${colors.gray}Copyright (c) 2025 Dennis Westermann${colors.reset}
+${colors.gray}Copyright (c) 2025-2026 Dennis Westermann${colors.reset}
 `);
 }
 

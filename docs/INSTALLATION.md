@@ -157,3 +157,8 @@ Uninstall instructions are embedded in the SystemInstall prompt files. Open eith
 
 - [README](../README.md) — Overview, architecture diagram, and daily usage patterns
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — Agent registry, routing logic, and workflow internals
+
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

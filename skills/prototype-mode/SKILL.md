@@ -1,6 +1,7 @@
 ---
 name: prototype-mode
 description: "Local-only fast lane for rapid spikes and throwaway prototypes. Skips production gates, requires PROTOTYPE ONLY watermarks, and must not be pushed or deployed."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Prototype Mode
@@ -92,3 +93,7 @@ Before promoting prototype output:
 - [ ] Run @validator and @tester as full quality gates.
 - [ ] Route documentation and release notes through @scribe.
 - [ ] Get explicit human approval before push or deploy.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

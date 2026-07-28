@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * CC_GodMode Version Sync (v8.5 rewrite)
  *
  * Single machine-readable manifest of EVERY file that carries the current

@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * ⚠ DEPRECATED since v8.6.0 — kept for reference only.
  *
  * UserPromptSubmit wiring for this script was removed in v8.5.0; the

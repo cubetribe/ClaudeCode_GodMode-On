@@ -1,6 +1,7 @@
 ---
 name: meta-decisions
 description: "Meta-decision logic that adapts workflows based on task analysis — security overrides, breaking change escalation, performance paths, emergency hotfix, and documentation optimization"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Meta-Decision Logic

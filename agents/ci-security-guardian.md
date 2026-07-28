@@ -112,3 +112,7 @@ This is an **optional department agent**. The Orchestrator inserts it when a tas
 ---
 
 *Department agent — see `docs/orchestrator/AGENTS.md` for the registry and handoff matrix.*
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

@@ -1,6 +1,7 @@
 ---
 name: departments
 description: "Expanded department-based orchestration for large cross-domain CC_GodMode work. Freezes ownership, handoffs, and write scopes before implementation."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Departments Mode
@@ -71,3 +72,7 @@ Stop and ask the user before:
 - touching production credentials or live services
 - pushing, tagging, publishing, or deploying
 - merging unrelated histories or importing a whole external repository
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

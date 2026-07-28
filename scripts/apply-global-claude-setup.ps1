@@ -32,6 +32,9 @@ param(
   [string]$Repo
 )
 
+# CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+# Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -86,6 +89,8 @@ $srcSkills    = Join-Path $repoRoot 'skills'
 $srcOrchestrator = Join-Path $repoRoot 'CLAUDE.md'
 $srcProjectActivation = Join-Path $repoRoot 'CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md'
 $srcVersion   = Join-Path $repoRoot 'VERSION'
+$srcLicense   = Join-Path $repoRoot 'LICENSE'
+$srcNotice    = Join-Path $repoRoot 'NOTICE'
 
 # Target locations in ~/.claude
 $dstAgents    = Join-Path $claudeHome 'agents'
@@ -95,6 +100,8 @@ $dstTemplates = Join-Path $claudeHome 'templates'
 $dstOrchestrator = Join-Path $dstTemplates 'CLAUDE-ORCHESTRATOR.md'
 $dstProjectActivation = Join-Path $dstTemplates 'CCGM_Prompt_02-ProjectActivation.md'
 $versionMarker = Join-Path $claudeHome '.cc-godmode-version'
+$dstLicense   = Join-Path $claudeHome 'LICENSE-CC_GodMode.txt'
+$dstNotice    = Join-Path $claudeHome 'NOTICE-CC_GodMode.txt'
 
 $repoVersion = (Get-Content -LiteralPath $srcVersion -Raw).Trim()
 
@@ -138,6 +145,10 @@ if ($Check) {
   # Templates
   Test-Item $dstOrchestrator 'template CLAUDE-ORCHESTRATOR.md'
   Test-Item $dstProjectActivation 'template CCGM_Prompt_02-ProjectActivation.md'
+
+  # License artifacts
+  Test-Item $dstLicense 'LICENSE-CC_GodMode.txt'
+  Test-Item $dstNotice 'NOTICE-CC_GodMode.txt'
 
   # Version marker
   if (Test-Path -LiteralPath $versionMarker) {
@@ -220,6 +231,19 @@ Copy-Item -LiteralPath $srcOrchestrator -Destination $dstOrchestrator -Force
 Backup-IfExists $dstProjectActivation 'templates'
 Copy-Item -LiteralPath $srcProjectActivation -Destination $dstProjectActivation -Force
 Write-Host "  installed CLAUDE-ORCHESTRATOR.md + CCGM_Prompt_02-ProjectActivation.md"
+
+# License artifacts
+Write-Host "License:"
+if (Test-Path -LiteralPath $srcLicense) {
+  Backup-IfExists $dstLicense 'license'
+  Copy-Item -LiteralPath $srcLicense -Destination $dstLicense -Force
+  Write-Host "  installed LICENSE-CC_GodMode.txt"
+}
+if (Test-Path -LiteralPath $srcNotice) {
+  Backup-IfExists $dstNotice 'license'
+  Copy-Item -LiteralPath $srcNotice -Destination $dstNotice -Force
+  Write-Host "  installed NOTICE-CC_GodMode.txt"
+}
 
 # Version marker
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)

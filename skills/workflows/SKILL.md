@@ -1,6 +1,7 @@
 ---
 name: workflows
 description: "CC_GodMode Full-Gates workflow definitions — used for high-risk work and when Smart Routing escalates. Default routing is Smart Routing (skills/cost-efficiency/)."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Full-Gates Workflow Definitions
@@ -157,3 +158,7 @@ Task tool → subagent_type: "scribe"         → @scribe
 Task tool → subagent_type: "github-manager" → @github-manager
 Task tool → subagent_type: "researcher"     → @researcher
 ```
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

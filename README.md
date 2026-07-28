@@ -6,6 +6,7 @@
 
 **You're looking at the answer.**
 
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary_(non--commercial)-red.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-8.6.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-8%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
@@ -14,6 +15,8 @@
 [![Self-Improving](https://img.shields.io/badge/Self--Improving-Yes%2C%20Really-red)](./docs/STORY.md)
 
 </div>
+
+> **Not open source.** Free for private, non-commercial use. Forks & pull requests on GitHub are welcome — re-hosting on third-party platforms/marketplaces is prohibited and attribution is required. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 ---
 
@@ -219,9 +222,12 @@ See the [CHANGELOG](./CHANGELOG.md) for the full history.
 
 ## License
 
-**Proprietary License** — Private use permitted. Commercial use requires permission.
+**Proprietary License** — Copyright (c) 2025-2026 Dennis Westermann. Free for private,
+non-commercial use; commercial use requires written permission. Attribution is **required**
+for every permitted copy. Forks and pull requests on GitHub are expressly welcome;
+re-hosting, mirroring, or redistribution on third-party platforms is prohibited.
 
-Copyright (c) 2025 Dennis Westermann
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) for the full terms.
 
 ---
 

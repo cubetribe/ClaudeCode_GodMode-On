@@ -22,8 +22,9 @@
  * - Persist state to .ccgm-state.json
  * - Generate human-readable resume instructions
  *
- * Copyright (c) 2025 Dennis Westermann
+ * Copyright (c) 2025-2026 Dennis Westermann
  * www.dennis-westermann.de
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
  */
 
 const fs = require('fs');

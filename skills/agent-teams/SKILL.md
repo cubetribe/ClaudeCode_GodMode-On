@@ -2,6 +2,7 @@
 name: agent-teams
 description: "Experimental Agent Teams orchestration — run CC_GodMode agents as parallel teammates with SharedTaskList coordination (requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)"
 disable-model-invocation: true
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Agent Teams Orchestration (Experimental)
@@ -119,3 +120,7 @@ Agent Teams only when the implementation work itself can safely run in parallel.
 3. Keep team size to 3–5 teammates
 4. Use worktree isolation for all building/testing teammates
 5. Reserve standard orchestration for sequential workflows (API changes)
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

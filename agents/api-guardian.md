@@ -239,3 +239,7 @@ npx @redocly/cli lint openapi.yaml
 - API contract changes
 
 **This agent is MANDATORY for API changes - enforced by check-api-impact.js hook.**
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

@@ -62,3 +62,8 @@ crypto, file/path access, or external integrations. Runs in parallel with @valid
 
 Department agents are advisory (report-only) and return the same STATUS verdict as core agents
 (`docs/templates/REPORT_TEMPLATES.md`).
+
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

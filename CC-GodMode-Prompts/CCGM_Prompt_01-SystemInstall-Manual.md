@@ -395,4 +395,8 @@ See [CHANGELOG.md](./CHANGELOG.md) for details.
 
 ---
 
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
 *For automatic installation: [`CCGM_Prompt_01-SystemInstall-Auto.md`](./CCGM_Prompt_01-SystemInstall-Auto.md)*

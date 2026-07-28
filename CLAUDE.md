@@ -177,6 +177,10 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 ## Start
 
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
+
 1. **Analyze** the request type (Plan/Sprint/Feature/Bug/API/Refactor/Issue/Research)
 2. **Plan or attach** — non-trivial: create/refresh `plans/vX.Y.Z/PLAN.md` + sprint files; small task: implicit `sprint-00`. Do NOT touch VERSION.
 3. **Preflight** — `git status`, plan assumptions, no overlapping in-progress sprint

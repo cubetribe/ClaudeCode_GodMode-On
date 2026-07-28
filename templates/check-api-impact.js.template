@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * check-api-impact.js - PROJEKT-SPEZIFISCHE VERSION
  *
  * Kopiere diese Datei nach: scripts/check-api-impact.js

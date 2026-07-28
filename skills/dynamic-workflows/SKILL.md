@@ -1,6 +1,7 @@
 ---
 name: dynamic-workflows
 description: "Ultracode / Max-Parallel mode — dynamic workflows fan work out across tens–hundreds of adversarially-verified parallel subagents for large, decomposable jobs (codebase-wide audits, big migrations, cross-checked research). Opt-in; higher token spend."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Dynamic Workflows (Ultracode / Max-Parallel Mode)
@@ -284,3 +285,7 @@ environments where that auto-upgrade path does not apply.
 - `skills/agent-teams/` — Coordinated persistent teammates with SharedTaskList. Use when you want synchronized human-like parallelism, not adversarial verification.
 - `skills/cost-efficiency/` — Smart Routing default policy. Always consult before opting into ultracode.
 - **`## Parallelization` section of `CLAUDE.md`** — Canonical fan-out/fan-in rules, dependency mapping, concurrency tiers, and the cost guardrail as they apply to the Orchestrator's default behavior.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
