@@ -136,9 +136,20 @@ opt-in statt Pflicht. `Fixed` — Report-Pflicht für Agenten ohne Schreibrecht.
 
 ## Version Relevance
 
-**minor** — Verhaltensänderung am Workflow, keine gebrochene öffentliche Schnittstelle. Die
-Entfernung eines Agenten ist für Nutzer sichtbar; sollte die Release-Sprint-Aggregation das als
-Bruch werten, gilt der höhere Wert.
+**major** — korrigiert am 2026-07-28 (ursprünglich vom Orchestrator auf „minor" gesetzt, das war
+nach der Regel zu niedrig; Maintainer-Entscheidung im Release-Sprint bestätigt).
+
+`docs/orchestrator/VERSIONING.md:32-33` definiert MAJOR als *„breaking changes to CLAUDE.md rules,
+agent handoff/verdict contracts, workflow commands, or install surface"*. Dieser Sprint hat drei
+dieser vier Kategorien getroffen:
+
+- **CLAUDE.md rules** — Core Rules 5, 6, 7 und 8 neu formuliert
+- **Agent-Roster** — @validator ist nicht mehr dispatchbar; `subagent_type: validator` schlägt fehl.
+  15 → 14 Agenten
+- **Workflow commands** — die Flow-Tabelle nennt `checks` statt `@validator + @tester`
+
+Dazu die geänderte `qualityGates`-Zustandsform. Der Commit trug den Bruch von Anfang an
+(`refactor(gates)!` mit `BREAKING CHANGE`-Footer) — nur dieses Feld hinkte hinterher.
 
 ## Result
 
