@@ -4,164 +4,126 @@
 
 # CC_GodMode Update Check
 
-Use this prompt to check if your CC_GodMode installation is up to date.
+This prompt walks you through updating your CC_GodMode installation with the one
+command the repo actually runs, and through verifying the result with a real check
+instead of a claim.
 
 ---
 
-## Quick Update Check
+## Quick Update
 
 Copy and paste this into Claude:
 
 ```
-Please check if my CC_GodMode installation needs an update:
+Please update my CC_GodMode installation:
 
-1. Run: node ~/.claude/scripts/auto-update.js --check
-2. Tell me the result (up to date, update available, or dev version)
-3. If an update is available, show me what's new
-4. Ask if I want to proceed with the update
+1. Show me the currently installed version: cat ~/.claude/.cc-godmode-version
+2. Show me the repo's version: cd <path-to-your-clone> && cat VERSION
+3. If they differ, run: git pull && ./scripts/apply-global-claude-setup.sh
+4. Run: node scripts/verify-install.js
+5. Tell me the exit code and, if it is non-zero, the exact list of missing items
 ```
 
----
-
-## Full Update Workflow
-
-For a complete update with preview, use this prompt:
-
-````
-I want to update my CC_GodMode installation. Please help me:
-
-## Step 1: Check Current State
-Run: node ~/.claude/scripts/auto-update.js --check
-
-## Step 2: Preview Changes (if update available)
-Run: node ~/.claude/scripts/auto-update.js --dry-run
-
-Show me:
-- Which files will be added
-- Which files will be updated
-- Which files will be deleted
-- Which files are protected (skipped)
-
-## Step 3: Confirm Update
-Ask me: "Do you want to proceed with the update? (yes/no)"
-
-## Step 4: Apply Update (only if I say yes)
-Run: node ~/.claude/scripts/auto-update.js --update
-
-## Step 5: Verify & Update Project
-- Show the update results
-- Confirm the new version is installed
-- **IMPORTANT:** Remind me to update my current project files if needed:
-  ```bash
-  # Update local project prompts
-  cp ~/.claude/CC-GodMode-Prompts/*.md ./CC-GodMode-Prompts/
-  ```
-````
+There is one installer and it is the update mechanism too — a normal run of
+`apply-global-claude-setup.sh` is idempotent, so running it again is always safe,
+whether or not a new version is actually available.
 
 ---
 
-## Rollback (if something goes wrong)
+## Step 1: Check current state
 
-```
-I need to rollback my CC_GodMode installation:
-
-1. Run: node ~/.claude/scripts/auto-update.js --rollback
-2. Confirm which version was restored
-3. Verify the installation works
-```
----
-
-## CLI Reference
-
-| Command | Description |
-|---------|----------|
-| `node ~/.claude/scripts/auto-update.js --check` | Check if updates are available |
-| `node ~/.claude/scripts/auto-update.js --dry-run` | Preview changes without applying |
-| `node ~/.claude/scripts/auto-update.js --update` | Download and apply updates |
-| `node ~/.claude/scripts/auto-update.js --rollback` | Restore from latest backup |
-
----
-
-## What Gets Updated
-
-The auto-update system updates these paths:
-- `agents/` - Agent definition files
-- `scripts/` - Automation scripts
-- `CC-GodMode-Prompts/` - Prompt files (01-SystemInstall, 02-ProjectActivation, 98-Maintenance, 99-ContextRestore)
-- `config/` - Configuration files
-- `templates/` - Template files
-- `CLAUDE.md` - Main orchestrator instructions
-- `VERSION` - Version number
-- `CHANGELOG.md` - Change history
-- `README.md` - Documentation
-- `CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md` - Update check documentation
-
-**Note:** If you copied prompts to your project root for easier access, you may want to re-copy them after an update:
+Compare what is installed against what the repo has:
 
 ```bash
-# macOS/Linux
-cp ~/.claude/CC-GodMode-Prompts/*.md ./
+cat ~/.claude/.cc-godmode-version   # installed version
+cat VERSION                          # repo version (run from your clone)
+```
 
-# Windows PowerShell
-Copy-Item "$env:USERPROFILE\.claude\CC-GodMode-Prompts\*.md" .\ -Force
-````
-
-## What NEVER Gets Updated
-
-These files are protected and will never be modified:
-
-- `settings.json` - Your personal settings
-- `mcp.json` / `mcp_config.json` - MCP server configuration
-- `.env` / `.env.local` - Environment variables
-- `credentials.json` - Any stored credentials
+If both show the same version, the installation is already current — no further
+steps are required.
 
 ---
 
-## Safety Features
+## Step 2: Update
 
-1. **Automatic Backup**: Before any update, a full backup is created
-2. **Dry Run Mode**: Preview all changes before applying
-3. **Rollback Support**: Easily restore previous versions
-4. **Protected Files**: Personal config files are never touched
-5. **Lock Protection**: Prevents simultaneous updates
+From inside your clone of the repository:
 
-Backups are stored in: `~/.claude/backups/`
+```bash
+git pull && ./scripts/apply-global-claude-setup.sh
+```
+
+This single command is both the install and the update path. It is idempotent
+(re-running it never creates duplicate hook entries), it backs up
+`~/.claude/settings.json` before touching it, and it merges only the
+GodMode `hooks` block into your settings — every other key you have there
+(`model`, `effortLevel`, `permissions`, your own hooks) is left untouched.
+
+If you manage your own hook wiring and do not want the installer to touch
+`settings.json`, add `--no-hooks`:
+
+```bash
+git pull && ./scripts/apply-global-claude-setup.sh --no-hooks
+```
+
+---
+
+## Step 3: Verify
+
+```bash
+node scripts/verify-install.js
+```
+
+- **Exit code 0** — the installation is complete: all agents, all skills, the
+  hook wiring, the orchestrator template, LICENSE/NOTICE, and the installed
+  version all check out against this repo.
+- **Exit code non-zero** — the script prints the concrete list of what is
+  missing or mismatched (e.g. a missing agent file, a hook pointing at a file
+  that no longer exists, a stale installed version). Fix the listed items —
+  usually by re-running Step 2 — and check again.
+
+You can also run the same check via the repo's script alias:
+
+```bash
+npm run install:verify
+```
+
+---
+
+## Step 4: Major upgrades — check for breaking changes
+
+Before updating across a major version bump (e.g. `7.x` → `8.x`), read the
+`[Unreleased]` and newest dated section of `CHANGELOG.md` in the repo for
+anything listed as a breaking change. Minor and patch upgrades are expected to
+be additive and backward compatible; major upgrades are the one case where you
+should read the changelog before running Step 2, not after.
 
 ---
 
 ## Troubleshooting
 
-### "Another update is in progress"
+### `verify-install.js` reports missing hooks
+
+Re-run the installer without `--no-hooks`:
 
 ```bash
-rm ~/.claude/.update-lock
+./scripts/apply-global-claude-setup.sh
 ```
 
-### "Could not check for updates"
+### `verify-install.js` reports a version mismatch only
 
-- Check your internet connection
-- Verify GitHub is accessible
-- The repository might be private
+The runtime files are current but `~/.claude/.cc-godmode-version` was not
+updated — re-run Step 2; the installer writes this file on every successful
+run.
 
-### Update partially failed
+### I don't have a local clone
 
-```
-Run: node ~/.claude/scripts/auto-update.js --rollback
-```
-
----
-
-## Manual Update Alternative
-
-If the auto-update doesn't work, you can always update manually:
+Follow the clone step from the install path first:
 
 ```bash
-cd ~/.claude
-git pull origin main
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
+./scripts/apply-global-claude-setup.sh
 ```
-
-Note: Manual git pull may overwrite local changes. The auto-update system is
-safer as it creates backups and protects config files.
 
 ---
 

@@ -9,13 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Hook wiring on fresh install:** `scripts/apply-global-claude-setup.sh` and `.ps1` now wire the canonical `hooks` block from `config/claude-settings.json` into `~/.claude/settings.json` during a normal install run (not behind `--fix-hooks` only). A fresh install no longer leaves the enforcement layer (API-impact, deterministic checks, session-start, report validation) absent. If `settings.json` does not exist, it is created; if it exists, the merge is now at entry-level (per-hook basename dedup, foreign hooks on non-canonical events preserved), backed up first, and idempotent. `--fix-hooks` now repairs hook wiring even when `settings.json` is missing.
+- Documentation drift: `docs/INSTALLATION.md` and `docs/AGENT_ARCHITECTURE.md` corrected to reflect actual installer behavior (hook wiring, `--no-hooks`/`--fix-hooks` flags, `verify-install.js` check path) and removed all references to `auto-update.js` / `check-update.js`.
+
 ### Changed
 
-- License hardening: LICENSE v2 (explicit GitHub-fork permission, mandatory attribution, explicit re-hosting/scraping prohibition), NOTICE file, license metadata on every scrapeable surface (SKILL.md frontmatter, agent/prompt/doc footers, script headers, package.json/plugin.json), MIT example-string defusal, contributor-license clause, installer now ships LICENSE+NOTICE.
-- Verification model restructured for Claude 5: @validator agent dissolved into a deterministic SubagentStop hook (`verify-changes.js`) that runs project-native checks (npm scripts or dart/Swift tooling) plus optional `/code-review` for judgment calls. @tester (UX gate) moved from mandatory to opt-in via new sprint-frontmatter field `ux_gate: auto | human | skip` (default `human`, only triggered when write scope touches UI paths). Core Rules 5–7 updated to reflect evidence-based verification: hook costs zero context on success; only gates opening new evidence (UX, security) run; gate skips are logged, not forbidden.
-- Gate coordination simplified: new Routing Log section in sprint files documents each agent skip with reason and `ux_gate` fallback status; pre-push check no longer requires impossible `@validator: APPROVED` state.
-- Versions-Header driftsicher gemacht: `scripts/sync-version.js` MANIFEST erweitert um `docs/orchestrator/VERSIONING.md` und `skills/release/SKILL.md` — `--check` erzwingt jetzt volle Konsistenz dieser drei Punkte statt stiller Drift zwischen Releases.
-- **Repo law beats skill opinion:** neue Vorrangregel codifiziert — Repo-Recht (Core Rules, Release-Recht in `docs/orchestrator/VERSIONING.md`) schlägt Anweisungen global installierter Skills, sofern Konflikt. Basis für die Restriktion von `skills/github-master/` auf Nicht-GodMode-Repos; gilt für alle künftigen kollidierenden Skills.
+- **Installation and update are now one command:** `git pull && ./scripts/apply-global-claude-setup.sh`. The installer is idempotent; consecutive runs produce byte-identical `settings.json`. Version before/after is reported at the end (`fresh install: X` / `already up to date` / `updated: X -> Y`).
+- `scripts/auto-update.js` and `scripts/check-update.js` archived to `archive/scripts/` (via `git mv`, history preserved) — they were unwired, undocumented, and superseded by the unified install path. Update path is now `git pull && ./scripts/apply-global-claude-setup.sh`.
+- Hook entry merge changed from whole-event-replace to per-hook dedup: foreign hooks on canonical events (`SessionStart`, `PostToolUse`, `SubagentStop`, `TaskCompleted`, `TeammateIdle`) now survive alongside GodMode entries; only same-hook (basename match) are deduplicated.
+- `README.md`: reframed CLAUDE.md-per-project step as intentional activation, added "Update" section, added "Verify your install" section with MCP honesty (playwright absence degrades to `human` per Core Rule 6).
+
+### Added
+
+- **Installation verification** `scripts/verify-install.js` (new, `npm run install:verify`): exit 0 on clean install (all 14 agents, all 14 skills, all hooks wired + scripts exist, orchestrator template, LICENSE/NOTICE), exit 1 with concrete errors otherwise. Runs from either repo or installed copy; never crashes.
+- **`--no-hooks` flag** (both `.sh` and `.ps1`): users who manage hook configuration separately can skip it (`./scripts/apply-global-claude-setup.sh --no-hooks`).
+- Test coverage: `test-hooks-contract.js` extended with 16 new checks for the installer merge contract (foreign-key/foreign-hook preservation, idempotency, missing-file creation, entry-level dedup) — **64/64 checks passing.**
 
 ### Fixed
 

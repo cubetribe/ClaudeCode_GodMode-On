@@ -39,7 +39,6 @@ CC_GodMode is a Claude Code plugin that turns your workflow into a self-orchestr
 git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
 cd ClaudeCode_GodMode-On
 ./scripts/apply-global-claude-setup.sh
-./scripts/apply-global-claude-setup.sh --check   # Verify installation
 ```
 
 **Windows (PowerShell):**
@@ -47,17 +46,62 @@ cd ClaudeCode_GodMode-On
 git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
 cd ClaudeCode_GodMode-On
 .\scripts\apply-global-claude-setup.ps1
-.\scripts\apply-global-claude-setup.ps1 -Check   # Verify installation
 ```
 
-Then activate in any project:
+One run installs everything into `~/.claude/`: all 14 agents, all 14 skills, the scripts, the
+templates, LICENSE and NOTICE — and, since v8.7.0, the hooks themselves, merged into
+`~/.claude/settings.json` (your own settings, `model`, `permissions`, custom hooks, survive the
+merge untouched). Without this step, nothing enforces the rules below; a Claude Code session with
+no hooks wired is a session where `@api-guardian` never fires and the deterministic checks never run.
+
+**Activate GodMode per project — on purpose, not globally.** The installer does **not** write a
+global `~/.claude/CLAUDE.md`. It places the orchestrator template at
+`~/.claude/templates/CLAUDE-ORCHESTRATOR.md`, and you copy it into each project you want GodMode to
+run in:
+
 ```bash
 cd your-project
 cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
 claude
 ```
 
-Done. The orchestrator is active. → **Full setup, MCP servers, and prompt-based fallback: [Installation Guide](./docs/INSTALLATION.md).**
+That's deliberate: GodMode opts in per project instead of taking over every Claude Code session on
+the machine. Done. The orchestrator is active in this project. → **MCP servers and prompt-based
+fallback: [Installation Guide](./docs/INSTALLATION.md).**
+
+---
+
+## Update
+
+Already installed? Same command, every time:
+
+```bash
+git pull && ./scripts/apply-global-claude-setup.sh
+```
+
+There is no separate updater — the installer is idempotent, backs up `~/.claude/settings.json`
+before touching it, and prints the before/after version so you can see what changed. If nothing
+changed, it says so and stays quiet.
+
+---
+
+## Verify your install
+
+```bash
+node scripts/verify-install.js
+```
+
+Checks that all 14 agents and all 14 skills are present under `~/.claude/`, that every hook from
+`config/claude-settings.json` is wired into `~/.claude/settings.json` **and points at a file that
+still exists** (a hook pointing at nothing is the same as no hook), that
+`~/.claude/templates/CLAUDE-ORCHESTRATOR.md`, `LICENSE`, and `NOTICE` are in place, and that your
+installed version matches the repo's `VERSION`. Exit code 0 means the installation is complete;
+exit code 1 lists exactly what's missing.
+
+**MCP servers are a separate, deliberate step.** `./scripts/install-mcps.sh` is not part of the
+install/update command and stays that way. `playwright` is the one that matters for `@tester`'s
+browser-based UX gate (Core Rule 6); without it, the UX gate falls back to `human` review instead
+of failing the sprint. That's a graceful degradation, not a missing dependency.
 
 ---
 

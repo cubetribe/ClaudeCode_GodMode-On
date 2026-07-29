@@ -2,7 +2,7 @@
 sprint: 04
 slug: install-update-path
 plan: plans/v8.7.0/PLAN.md
-status: planned
+status: done
 execution: parallel
 owner: orchestrator
 ux_gate: skip
@@ -218,4 +218,71 @@ neues Verhalten, aber additiv und abwählbar.
 
 ## Result
 
-_(bei Integration ausfüllen)_
+Done 2026-07-28. Sechs parallele Builder auf disjunkten Scopes. Zwei meldeten `BLOCKED (quality)`
+und widersprachen einander — die Adjudikation ist unten dokumentiert und war der wichtigste Vorgang
+dieses Sprints.
+
+**Akzeptanzkriterien**
+
+1. ✓ Frischinstallation ohne `settings.json` erzeugt eine gültige Datei mit allen Hooks.
+2. ✓ Merge gegen eine bestehende Datei mit fremden Schlüsseln erhält diese vollständig — und, nach
+   der Adjudikation, auch **fremde Hook-Einträge innerhalb derselben Events**. Durch Test belegt.
+3. ✓ Zweiter Lauf erzeugt keine Dubletten (`settings.json` byte-identisch).
+4. ✓ `verify-install.js` Exit 0 auf vollständiger Installation, Exit 1 mit konkretem Dateinamen bei
+   entferntem Agenten.
+5. ✓ Kein Treffer mehr für `auto-update`/`check-update` in README, docs oder Prompts.
+6. ✓ README hat Update- und Verify-Abschnitt.
+7. ✓ `sync-version --check` 14/14, `release-check` hält, `test-hooks-contract` **64/64** (vorher 48).
+8. ✓ `docs/INSTALLATION.md` beschreibt keinen Schritt, den der Installer nicht ausführt.
+
+**Die Adjudikation: mein Fehler, nicht der der Builder**
+
+@builder-2s Test belegte, dass der Installer-Merge ganze Hook-*Events* ersetzt statt Einträge
+*innerhalb* eines Events zusammenzuführen. Ein Nutzer mit eigenem `SessionStart`-Hook hätte ihn bei
+jedem Install und jedem Update verloren.
+
+@builder-1 wies zutreffend darauf hin, dass meine Dispatch-Anweisung zwei einander ausschließende
+Dinge verlangte: „Nutzerkonfiguration darf nicht zerstört werden" **und** „die vorhandene
+Merge-Logik unverändert wiederverwenden". Die vorhandene Logik *ist* die Zerstörung. Punkt zwei war
+mein Fehler.
+
+**Entscheidung: Nutzerschutz gewinnt.** Die Begründung, die beim Schreiben der Anweisung fehlte:
+Das Ersetzen ganzer Events war vertretbar, solange es ausschließlich in `--fix-hooks` lief — einem
+Befehl, den der Nutzer bewusst aufruft, um genau seine Hook-Verdrahtung zu reparieren. In dem
+Moment, wo dieselbe Logik bei jedem Install und jedem Update läuft, wird aus einer akzeptablen
+Reparatur ein stiller Datenverlust. Das Verhalten war nie korrekt, es war an seinem alten Ort nur
+folgenlos.
+
+Der Merge arbeitet jetzt pro Eintrag mit Dedup über den Skript-Basename. `--fix-hooks` nutzt
+dieselbe Funktion und erbt die Verbesserung. Beide Builder haben korrekt gehandelt: Der eine hat
+den Defekt gemessen statt ihn zu glauben, der andere hat den Widerspruch gemeldet statt ihn
+eigenmächtig aufzulösen.
+
+**Erster echter Lauf von `verify-install.js` — und er fand sofort etwas**
+
+Gegen die Installation des Maintainers: Exit 1, `LICENSE-CC_GodMode.txt` und
+`NOTICE-CC_GodMode.txt` fehlen. Korrekt erkannt — die Installation stammt aus der Zeit vor Sprint
+01, der den Lizenz-Kopierschritt einführte, und der Installer lief seither nicht. Genau der Fall,
+für den der Check gebaut wurde.
+
+**Weitere Funde der Builder, über den Auftrag hinaus**
+
+- `docs/AGENT_ARCHITECTURE.md` wies an, einzelne Agent-Dateien **von Hand per `cp`** zu kopieren —
+  und listete dabei nur 6 der 14 Agenten. Wer der Anleitung folgte, bekam eine halbe Installation.
+- Der manuelle Install-Prompt führte gar nicht durch die Hook-Verdrahtung. Ohne Korrektur hätten
+  wir die Lücke im Skript geschlossen und im Prompt offengelassen.
+- Der Auto-Prompt behauptete „15 scripts"; es sind 18 (17 `.js` plus `install-mcps.sh`). Vom
+  Orchestrator korrigiert, ASCII-Boxbreite erhalten.
+
+**Bekannte Grenze**
+
+`apply-global-claude-setup.ps1` wurde zeilengleich nachgezogen, konnte hier aber **nicht ausgeführt
+werden** — auf dieser Maschine existiert keine PowerShell-Runtime (`command -v pwsh powershell`
+liefert nichts). Der Windows-Pfad ist geprüft, nicht getestet. Naheliegender Folgeschritt: ein
+Windows-Job in der CI, der die `.ps1` wenigstens parst; GitHub Actions hat Windows-Runner.
+
+**Sicherheit**
+
+Alle Tests liefen gegen ein temporäres `CLAUDE_HOME`. Die echte `~/.claude/settings.json` des
+Maintainers wurde vom Orchestrator nach Abschluss geprüft: alle zehn Top-Level-Schlüssel vorhanden,
+`model`, `effortLevel`, `permissions` und `theme` unverändert.

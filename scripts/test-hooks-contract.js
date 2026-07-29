@@ -749,6 +749,223 @@ without adding any real signal beyond what is already declared above.
   }
 }
 
+// --- installer hook-merge contract + verify-install.js (v8.7.0 sprint-04:
+// install/update path) --------------------------------------------------
+// Everything here runs against a disposable temp directory used as
+// CLAUDE_HOME — the maintainer's real ~/.claude/settings.json is never
+// touched. The installer's single most dangerous property is that a merge
+// must never destroy a user's own settings.json keys; that is asserted here,
+// not assumed.
+{
+  const INSTALLER_PATH = path.join(REPO_ROOT, 'scripts', 'apply-global-claude-setup.sh');
+  const VERIFY_INSTALL_PATH = path.join(REPO_ROOT, 'scripts', 'verify-install.js');
+  const installerExists = fs.existsSync(INSTALLER_PATH);
+  check('apply-global-claude-setup.sh: exists in scripts/', installerExists, installerExists ? INSTALLER_PATH : `expected at ${INSTALLER_PATH}`);
+  check('verify-install.js: exists in scripts/', fs.existsSync(VERIFY_INSTALL_PATH), fs.existsSync(VERIFY_INSTALL_PATH) ? VERIFY_INSTALL_PATH : `expected at ${VERIFY_INSTALL_PATH}`);
+
+  function runInstaller(claudeHome, extraArgs = []) {
+    return spawnSync('bash', [INSTALLER_PATH, ...extraArgs], {
+      cwd: REPO_ROOT,
+      env: { ...process.env, CLAUDE_HOME: claudeHome },
+      encoding: 'utf8',
+      timeout: 30000,
+    });
+  }
+
+  function runVerifyInstall(claudeHome, { fromInstalledCopy = false } = {}) {
+    const scriptPath = fromInstalledCopy ? path.join(claudeHome, 'scripts', 'verify-install.js') : VERIFY_INSTALL_PATH;
+    return spawnSync(process.execPath, [scriptPath], {
+      cwd: fromInstalledCopy ? claudeHome : REPO_ROOT,
+      env: { ...process.env, CLAUDE_HOME: claudeHome },
+      encoding: 'utf8',
+      timeout: 15000,
+    });
+  }
+
+  if (installerExists) {
+    // Case 1: merge into a settings.json with foreign keys (model,
+    // effortLevel, permissions, a foreign hook) -> all four survive
+    // unchanged, GodMode hooks are added.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const settingsPath = path.join(claudeHome, 'settings.json');
+        const foreignSettings = {
+          model: 'my-custom-model',
+          effortLevel: 'max',
+          permissions: { allowedTools: ['MyOwnTool'] },
+          hooks: {
+            SessionStart: [
+              { hooks: [{ type: 'command', command: 'echo foreign-hook', timeout: 5 }] },
+            ],
+          },
+        };
+        fs.writeFileSync(settingsPath, JSON.stringify(foreignSettings, null, 2));
+
+        const res = runInstaller(claudeHome);
+        check(
+          'installer: merge run against foreign settings.json exits 0',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        if (res.status !== 0) overallOk = false;
+
+        let merged = null;
+        try { merged = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) { merged = null; }
+
+        const foreignKeysSurvived = !!merged &&
+          merged.model === 'my-custom-model' &&
+          merged.effortLevel === 'max' &&
+          JSON.stringify(merged.permissions) === JSON.stringify({ allowedTools: ['MyOwnTool'] });
+        check(
+          'installer merge: foreign top-level keys (model, effortLevel, permissions) survive unchanged',
+          foreignKeysSurvived,
+          foreignKeysSurvived ? '' : `got: ${truncate(JSON.stringify(merged))}`
+        );
+        if (!foreignKeysSurvived) overallOk = false;
+
+        const sessionStartEntries = merged && merged.hooks && merged.hooks.SessionStart;
+        const foreignHookSurvived = Array.isArray(sessionStartEntries) &&
+          sessionStartEntries.some(e => Array.isArray(e.hooks) && e.hooks.some(h => h.command === 'echo foreign-hook'));
+        check(
+          'installer merge: foreign SessionStart hook entry ("echo foreign-hook") survives',
+          foreignHookSurvived,
+          foreignHookSurvived ? '' : `SessionStart entries: ${truncate(JSON.stringify(sessionStartEntries))}`
+        );
+        if (!foreignHookSurvived) overallOk = false;
+
+        const godmodeHooksAdded = Array.isArray(sessionStartEntries) &&
+          sessionStartEntries.some(e => Array.isArray(e.hooks) && e.hooks.some(h => /session-start\.js/.test(h.command || '')));
+        check(
+          'installer merge: GodMode SessionStart hook (session-start.js) is added alongside the foreign one',
+          godmodeHooksAdded,
+          godmodeHooksAdded ? '' : `SessionStart entries: ${truncate(JSON.stringify(sessionStartEntries))}`
+        );
+        if (!godmodeHooksAdded) overallOk = false;
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+
+    // Case 2: second run in a row -> no duplicate hook entries.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const res1 = runInstaller(claudeHome);
+        const res2 = runInstaller(claudeHome);
+        check(
+          'installer: two consecutive runs both exit 0',
+          res1.status === 0 && res2.status === 0,
+          (res1.status !== 0 || res2.status !== 0) ? `run1 exit ${res1.status}, run2 exit ${res2.status}` : ''
+        );
+        if (res1.status !== 0 || res2.status !== 0) overallOk = false;
+
+        const settingsPath = path.join(claudeHome, 'settings.json');
+        let merged = null;
+        try { merged = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) { merged = null; }
+        const sessionStartEntries = (merged && merged.hooks && merged.hooks.SessionStart) || [];
+        let sessionStartHookCount = 0;
+        for (const entry of sessionStartEntries) {
+          if (Array.isArray(entry.hooks)) {
+            sessionStartHookCount += entry.hooks.filter(h => /session-start\.js/.test(h.command || '')).length;
+          }
+        }
+        const noDuplicates = sessionStartHookCount === 1;
+        check(
+          'installer: second consecutive run does not duplicate the SessionStart hook entry',
+          noDuplicates,
+          noDuplicates ? '' : `found ${sessionStartHookCount} session-start.js entries after 2 runs (expected 1)`
+        );
+        if (!noDuplicates) overallOk = false;
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+
+    // Case 3: no settings.json present -> installer creates one with all
+    // hooks from config/claude-settings.json.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const settingsPath = path.join(claudeHome, 'settings.json');
+        const res = runInstaller(claudeHome);
+        check(
+          'installer: fresh install (no settings.json) exits 0',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        if (res.status !== 0) overallOk = false;
+
+        const created = fs.existsSync(settingsPath);
+        check('installer: settings.json is created from scratch', created, created ? '' : `expected at ${settingsPath}`);
+        if (!created) overallOk = false;
+
+        if (created) {
+          let merged = null;
+          try { merged = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) { merged = null; }
+          const canonicalEvents = Object.keys((settings && settings.hooks) || {});
+          const allEventsPresent = !!merged && canonicalEvents.every(ev => merged.hooks && Array.isArray(merged.hooks[ev]) && merged.hooks[ev].length > 0);
+          check(
+            'installer: freshly created settings.json contains all hook events from config/claude-settings.json',
+            allEventsPresent,
+            allEventsPresent ? '' : `expected events ${canonicalEvents.join(', ')}, got: ${truncate(JSON.stringify(merged && merged.hooks))}`
+          );
+          if (!allEventsPresent) overallOk = false;
+        }
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+
+    // Case 4: verify-install.js against a complete installation -> exit 0.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const installRes = runInstaller(claudeHome);
+        check(
+          'installer: setup run for verify-install fixture exits 0',
+          installRes.status === 0,
+          installRes.status !== 0 ? `exit ${installRes.status}, stderr: ${truncate(installRes.stderr)}` : ''
+        );
+        if (installRes.status !== 0) overallOk = false;
+
+        const verifyRes = runVerifyInstall(claudeHome);
+        check(
+          'verify-install.js: complete installation -> exit 0',
+          verifyRes.status === 0,
+          verifyRes.status !== 0 ? `exit ${verifyRes.status}, stdout: ${truncate(verifyRes.stdout)}, stderr: ${truncate(verifyRes.stderr)}` : ''
+        );
+        if (verifyRes.status !== 0) overallOk = false;
+        assertNoUsageError('verify-install.js (complete install)', verifyRes);
+
+        // Case 5: remove one agent -> exit 1, its name is in the output.
+        const removedAgentPath = path.join(claudeHome, 'agents', 'builder.md');
+        fs.rmSync(removedAgentPath, { force: true });
+        const verifyResMissing = runVerifyInstall(claudeHome);
+        check(
+          'verify-install.js: installation with a removed agent -> exit 1',
+          verifyResMissing.status === 1,
+          verifyResMissing.status !== 1 ? `exit ${verifyResMissing.status}, stdout: ${truncate(verifyResMissing.stdout)}` : ''
+        );
+        if (verifyResMissing.status !== 1) overallOk = false;
+
+        const namesMissingAgent = /builder\.md/.test(verifyResMissing.stdout);
+        check(
+          'verify-install.js: missing-agent output names "builder.md" concretely',
+          namesMissingAgent,
+          namesMissingAgent ? '' : `stdout: ${truncate(verifyResMissing.stdout)}`
+        );
+        if (!namesMissingAgent) overallOk = false;
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+  } else {
+    check('installer hook-merge contract: skipped (installer script not found)', false, `expected at ${INSTALLER_PATH}`);
+    overallOk = false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Summary
 // ---------------------------------------------------------------------------

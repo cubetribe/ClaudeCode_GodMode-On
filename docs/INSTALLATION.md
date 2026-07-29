@@ -14,14 +14,13 @@ CC_GodMode is a Claude Code plugin that transforms your development workflow int
 
 ## Quick Install (recommended)
 
-Clone the repo once, then run the platform-appropriate setup script. The script installs agents, skills, and templates into `~/.claude/` globally.
+Clone the repo once, then run the platform-appropriate setup script. The script installs agents, skills, templates, LICENSE/NOTICE into `~/.claude/` globally, **and wires the hook configuration from `config/claude-settings.json` into `~/.claude/settings.json`.**
 
 **macOS / Linux:**
 ```bash
 git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
 cd ClaudeCode_GodMode-On
 ./scripts/apply-global-claude-setup.sh
-./scripts/apply-global-claude-setup.sh --check   # Verify installation
 ```
 
 **Windows (PowerShell):**
@@ -29,10 +28,21 @@ cd ClaudeCode_GodMode-On
 git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
 cd ClaudeCode_GodMode-On
 .\scripts\apply-global-claude-setup.ps1
-.\scripts\apply-global-claude-setup.ps1 -Check   # Verify installation
 ```
 
-The `--check` / `-Check` flag re-runs the script in verification mode: it confirms that all agents, skills, and templates were placed correctly without making further changes.
+### Hook wiring
+
+The script merges the canonical `hooks` block from `config/claude-settings.json` into `~/.claude/settings.json`. This is a **merge, not an overwrite**: any keys you already have there (`model`, `effortLevel`, `permissions`, your own hooks) are left untouched. If you don't yet have a `settings.json`, one is created. A timestamped backup of the previous file is written before every change, and re-running the script is safe — it will not create duplicate hook entries.
+
+Without wired hooks, none of the enforcement layer fires: no `check-api-impact.js` (Core Rule 4), no `verify-changes.js` (Core Rule 5), no `session-start.js`. If you manage `settings.json` hooks yourself and want the installer to leave it alone, pass `--no-hooks` (`-NoHooks` on PowerShell). To repair hook wiring later without re-running the full install, use `--fix-hooks` (`-FixHooks`).
+
+### Verify your install
+
+```bash
+node scripts/verify-install.js
+```
+
+Checks that all 14 agents, all 14 skills, the hook wiring in `~/.claude/settings.json`, the orchestrator template, LICENSE/NOTICE, and the installed version are all present and consistent with the repo. Exits 0 on a complete install, 1 with a concrete list of what's missing otherwise. This works whether you run it from the repo or from `~/.claude/scripts/verify-install.js`.
 
 ---
 
@@ -133,23 +143,25 @@ Paste the ContextRestore prompt into the current session to re-establish the orc
 
 ### Updating
 
-Pull the latest changes and re-run the setup script:
+Update uses the exact same command as install — there is no separate updater script:
 
 ```bash
-cd ClaudeCode_GodMode-On
-git pull
-./scripts/apply-global-claude-setup.sh          # macOS / Linux
-# or
-.\scripts\apply-global-claude-setup.ps1         # Windows PowerShell
+git pull && ./scripts/apply-global-claude-setup.sh
 ```
 
-The script is idempotent — it is safe to re-run and will overwrite only the GodMode files in `~/.claude/`.
+(`git pull && .\scripts\apply-global-claude-setup.ps1` on Windows.) The script is idempotent — it is safe to re-run, merges hook wiring without duplicating entries, and prints the version before/after so you can see what changed. If the installed version already matches the repo, it says so and does nothing further.
 
-After pulling, run the [Maintenance prompt](../CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md) inside Claude Code to refresh agent context.
+Run `node scripts/verify-install.js` afterward to confirm the update landed. Then use the [Maintenance prompt](../CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md) inside Claude Code to refresh agent context for the current session.
 
 ### Uninstalling
 
 Uninstall instructions are embedded in the SystemInstall prompt files. Open either install prompt and follow the uninstall section at the bottom to remove agents, skills, and templates from `~/.claude/`.
+
+---
+
+## Don't edit `~/.claude/` directly
+
+`~/.claude/` is a deployment target, not a source of truth — the installer treats it as disposable and overwrites it on every run. Edits made directly there (a hotfix to an agent file, a manually added hook) are silently lost the next time `apply-global-claude-setup.sh` runs. This has happened twice in this project's history: a health-cache fix and a hook registration that were made only in the installed copy and vanished on reinstall. Change the repo, then run the installer — never the other way around.
 
 ---
 

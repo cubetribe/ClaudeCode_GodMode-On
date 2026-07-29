@@ -25,7 +25,7 @@
 - PARALLEL-FIRST fan-out: independent tasks spawn parallel subagents in a single message; orchestrator collects and synthesizes verdicts
 - Ultracode + dynamic-workflows escalation for large decomposable jobs (fan out to tens–hundreds of verified parallel subagents)
 
-**15 Agents (8 Core + 1 Security Gate + 6 Department)**
+**14 Agents (7 Core + 1 Security Gate + 6 Department)**
 - 6 department agents added under version control and auto-installed
 - Each agent carries an `effort` field for Claude Code ≥2.1.152 budget tuning
 - @scribe downgraded to haiku (templated doc work is sufficient)
@@ -107,20 +107,17 @@ Before you execute anything, give the user the following message:
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
-║   Hello! I will now set up your system for CC_GodMode.                   ║
+║   Hello! I will now install/update your system for CC_GodMode.            ║
 ║                                                                           ║
-║   What I will do for you:                                                ║
+║   What I will do for you:                                                 ║
 ║                                                                           ║
-║   1. Download the CC_GodMode repository from GitHub                      ║
-║   2. Install 14 AI agents (7 core + 1 security gate + 6 department)       ║
-║   3. Set up 15 automation scripts                                         ║
-║   4. Install 14 skills, config files, and templates                       ║
-║   5. Install the Memory MCP Server (for persistent knowledge)             ║
-║   6. Configure 4 automatic hooks                                          ║
-║   7. Set up auto-update system                                            ║
-║   8. Verify everything and clean up                                       ║
+║   1. Clone (or update) the CC_GodMode repository from GitHub              ║
+║   2. Run: ./scripts/apply-global-claude-setup.sh                          ║
+║   3. That installs 14 agents, 14 skills, and 18 scripts                   ║
+║   4. It wires the GodMode hooks into ~/.claude/settings.json              ║
+║   5. Verify the result: node scripts/verify-install.js                    ║
 ║                                                                           ║
-║   This will take approximately 3-7 minutes.                               ║
+║   This will take approximately 1-3 minutes.                               ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -142,27 +139,24 @@ Wait briefly (2 seconds) and then proceed with the installation steps.
 
 ## INSTALLATION STEPS
 
+There is exactly one installation mechanism: `scripts/apply-global-claude-setup.sh`
+(macOS/Linux) or `scripts/apply-global-claude-setup.ps1` (Windows). It is idempotent —
+the same command is also the update path later. Do not hand-copy individual files; the
+script is the single source of truth for what gets installed and where.
+
 ### Step 0: Detect Operating System
 
-First detect the operating system and set variables accordingly:
-
 ```bash
-# Detect OS
 node -e "console.log(process.platform)"
 ```
 
 **Evaluate result:**
-- `darwin` → macOS
-- `win32` → Windows
-- `linux` → Linux
-
-Remember the OS for the following steps!
+- `darwin` / `linux` → use the `.sh` script (bash)
+- `win32` → use the `.ps1` script (PowerShell)
 
 ---
 
 ### Step 1: Prerequisites Check
-
-Run these checks and report any failures:
 
 ```bash
 # Check Node.js version (need 18+)
@@ -179,397 +173,117 @@ git --version
 
 ---
 
-### Step 2: Create Directory Structure
+### Step 2: Clone the Repository
 
 **macOS / Linux:**
 ```bash
-mkdir -p ~/.claude/agents
-mkdir -p ~/.claude/skills
-mkdir -p ~/.claude/scripts
+cd ~
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 ```
 
 **Windows (PowerShell):**
 ```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\scripts"
-```
-
----
-
-### Step 3: Clone Repository
-
-**macOS / Linux:**
-```bash
-cd /tmp
-rm -rf CC_GodMode_install
-git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode_install
-```
-
-**Windows (PowerShell):**
-```powershell
-cd $env:TEMP
-if (Test-Path "CC_GodMode_install") { Remove-Item -Recurse -Force "CC_GodMode_install" }
-git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode_install
+cd $env:USERPROFILE
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 ```
 
 **If clone fails:** The repo might be private or renamed. Report the error.
 
+Keep this clone around — it is also where you run updates from later
+(`git pull && ./scripts/apply-global-claude-setup.sh`), and where the
+`CC-GodMode-Prompts/` files live that you copy into each project (Step 6).
+
 ---
 
-### Step 4: Install Agents (Global)
+### Step 3: Run the Installer
 
 **macOS / Linux:**
 ```bash
-cp /tmp/CC_GodMode_install/agents/*.md ~/.claude/agents/
-ls -la ~/.claude/agents/
+./scripts/apply-global-claude-setup.sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Copy-Item "$env:TEMP\CC_GodMode_install\agents\*.md" "$env:USERPROFILE\.claude\agents\" -Force
-Get-ChildItem "$env:USERPROFILE\.claude\agents\"
+.\scripts\apply-global-claude-setup.ps1
 ```
 
-**Expected agents (14 files):**
+This single run:
+- Copies all 14 agents into `~/.claude/agents/`
+- Copies all 14 skills into `~/.claude/skills/`
+- Copies all scripts into `~/.claude/scripts/`
+- Copies `CLAUDE.md` to `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` and
+  `CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md` to `~/.claude/templates/`
+- Copies `LICENSE`/`NOTICE` into `~/.claude/`
+- Backs up anything it is about to overwrite (timestamped, under
+  `~/.claude/backups/install-archives/`)
+- Merges the canonical hook wiring from `config/claude-settings.json` into
+  `~/.claude/settings.json` — only the `hooks` key is touched; any other keys you
+  already have there (`model`, `effortLevel`, `permissions`, your own hooks) are
+  preserved as-is
+- Writes `~/.claude/.cc-godmode-version` so future runs know whether an update
+  actually changed anything
 
-Core agents (7):
-- `researcher.md`
-- `architect.md`
-- `api-guardian.md`
-- `builder.md`
-- `tester.md`
-- `scribe.md`
-- `github-manager.md`
+If you manage hook wiring yourself and don't want the script to touch
+`settings.json`, add `--no-hooks`.
 
-Security gate (1):
-- `security.md`
-
-Department agents (6):
-- `ci-security-guardian.md`
-- `docs-dx.md`
-- `quality-operations.md`
-- `runtime-platform.md`
-- `workflow-design.md`
-- `workspace-governance.md`
-
-**Install skills (11 directories):**
-
-**macOS / Linux:**
-```bash
-cp -R /tmp/CC_GodMode_install/skills/* ~/.claude/skills/
-ls -la ~/.claude/skills/
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode_install\skills\*" "$env:USERPROFILE\.claude\skills\" -Recurse -Force
-Get-ChildItem "$env:USERPROFILE\.claude\skills\"
-```
-
-**Expected skills:**
-- `workflows`
-- `quality-gates`
-- `release`
-- `issue-processing`
-- `api-change`
-- `research`
-- `meta-decisions`
-- `agent-teams`
-- `prototype-mode`
-- `departments`
-- `cost-efficiency`
+**Note:** This script does **not** install MCP servers (memory, playwright, …) —
+that is the separate, opt-in `scripts/install-mcps.sh` (Step 4).
 
 ---
 
-### Step 5: Install Scripts (Global)
-
-**macOS / Linux:**
-```bash
-cp /tmp/CC_GodMode_install/scripts/*.js ~/.claude/scripts/
-chmod +x ~/.claude/scripts/*.js
-ls -la ~/.claude/scripts/
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode_install\scripts\*.js" "$env:USERPROFILE\.claude\scripts\" -Force
-Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
-```
-
-**Note:** On Windows, `chmod` is not needed.
-
-**Expected scripts:**
-- `check-api-impact.js`
-- `parallel-quality-gates.js`
-- `mcp-health-check.js`
-- `analyze-prompt.js`
-- `escalation-handler.js`
-- `domain-pack-loader.js`
-- `validate-agent-output.js`
-- `auto-update.js`
-- `check-update.js`
-- `pre-push-check.js`
-- `session-start.js`
-- `sync-version.js`
-- `test-phase2-integration.js`
-- `version-bump.js`
-- `workflow-state.js`
-
----
-
-### Step 6: Install Config Files
-
-**macOS / Linux:**
-```bash
-mkdir -p ~/.claude/config
-cp /tmp/CC_GodMode_install/config/domain-config.schema.json ~/.claude/config/
-ls -la ~/.claude/config/
-```
-
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\config"
-Copy-Item "$env:TEMP\CC_GodMode_install\config\domain-config.schema.json" "$env:USERPROFILE\.claude\config\" -Force
-Get-ChildItem "$env:USERPROFILE\.claude\config\"
-```
-
----
-
-### Step 7: Install Orchestrator Template and Prompts
-
-Copy the orchestrator template and prompt files for projects:
-
-**macOS / Linux:**
-```bash
-mkdir -p ~/.claude/templates
-mkdir -p ~/.claude/CC-GodMode-Prompts
-cp /tmp/CC_GodMode_install/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
-cp /tmp/CC_GodMode_install/templates/adr-template.md ~/.claude/templates/
-cp /tmp/CC_GodMode_install/CC-GodMode-Prompts/CCGM_Prompt_98-Maintenance.md ~/.claude/templates/
-cp /tmp/CC_GodMode_install/CC-GodMode-Prompts/*.md ~/.claude/CC-GodMode-Prompts/
-```
-
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\templates"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\CC-GodMode-Prompts"
-Copy-Item "$env:TEMP\CC_GodMode_install\CLAUDE.md" "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" -Force
-Copy-Item "$env:TEMP\CC_GodMode_install\templates\adr-template.md" "$env:USERPROFILE\.claude\templates\" -Force
-Copy-Item "$env:TEMP\CC_GodMode_install\CC-GodMode-Prompts\CCGM_Prompt_98-Maintenance.md" "$env:USERPROFILE\.claude\templates\" -Force
-Copy-Item "$env:TEMP\CC_GodMode_install\CC-GodMode-Prompts\*.md" "$env:USERPROFILE\.claude\CC-GodMode-Prompts\" -Force
-```
-
-**Important:** These templates will be copied to each project later!
-
-**Expected templates:**
-- `CLAUDE-ORCHESTRATOR.md` - Main orchestrator configuration
-- `adr-template.md` - Architecture Decision Records template
-- `CCGM_Prompt_98-Maintenance.md` - Auto-update notification template
-
-**Expected prompts (in CC-GodMode-Prompts/):**
-- `CCGM_Prompt_01-SystemInstall-Auto.md` - Automated installation prompt
-- `CCGM_Prompt_01-SystemInstall-Manual.md` - Manual installation guide
-- `CCGM_Prompt_02-ProjectActivation.md` - Project activation guide
-- `CCGM_Prompt_98-Maintenance.md` - Maintenance and update check
-- `CCGM_Prompt_99-ContextRestore.md` - Context restore after /compact
-- `QUICK_START.md` - Quick start guide
-
----
-
-### Step 8: Install Auto-Update System
-
-**macOS / Linux:**
-```bash
-cp /tmp/CC_GodMode_install/scripts/auto-update.js ~/.claude/scripts/
-chmod +x ~/.claude/scripts/auto-update.js
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode_install\scripts\auto-update.js" "$env:USERPROFILE\.claude\scripts\" -Force
-```
-
-**Note:** The auto-update system checks for new versions on GitHub and notifies you.
-
----
-
-### Step 9: Install Memory MCP Server
-
-This command is the same on all platforms:
+### Step 4: Install MCP Servers (optional, separate from the runtime install)
 
 ```bash
 claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
 ```
 
-**Verify installation:**
+**Verify:**
 ```bash
 claude mcp list
 ```
 
-**Expected output should include:** `memory`
+Other MCP servers (`playwright`, `github`, …) are the user's own choice — see
+`scripts/install-mcps.sh` for the available options. None of them are required
+for the core agent/skill/hook runtime installed in Step 3.
 
 ---
 
-### Step 10: Configure Hooks
+### Step 5: Verify the Installation
 
-**macOS / Linux** - Create/update `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ~/.claude/scripts/check-api-impact.js"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "node ~/.claude/scripts/session-start.js"
-      }
-    ],
-    "SubagentStop": [
-      {
-        "type": "command",
-        "command": "node ~/.claude/scripts/validate-agent-output.js"
-      }
-    ]
-  }
-}
-```
-
-**Windows** - Create/update `%USERPROFILE%\.claude\settings.json`:
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"%USERPROFILE%\\.claude\\scripts\\check-api-impact.js\""
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "node \"%USERPROFILE%\\.claude\\scripts\\session-start.js\""
-      }
-    ],
-    "SubagentStop": [
-      {
-        "type": "command",
-        "command": "node \"%USERPROFILE%\\.claude\\scripts\\validate-agent-output.js\""
-      }
-    ]
-  }
-}
-```
-
-**Note:** If the file already exists, merge the hooks section carefully.
-`check-api-impact.js` now reads the changed file from the PostToolUse stdin
-payload (`tool_input.file_path`) — no `$CLAUDE_FILE_PATH` env var is needed or
-exists. `analyze-prompt.js` is deprecated since v8.6.0 and intentionally not
-wired here (no `UserPromptSubmit` hook); the orchestrator performs
-meta-decision analysis natively (`skills/meta-decisions/`).
-
-**Hook Explanations:**
-- **PostToolUse (Write|Edit)**: Checks for API impact after file changes
-- **SessionStart**: MCP health checks and system diagnostics
-- **SubagentStop**: Validates agent output quality and completeness
-
-(`UserPromptSubmit` is intentionally not installed — `analyze-prompt.js` is
-deprecated since v8.6.0; the orchestrator performs meta-decision analysis
-natively.)
-
----
-
-### Step 11: Verify Installation
-
-**macOS / Linux:**
 ```bash
-echo "=== Version ==="
-cat /tmp/CC_GodMode_install/VERSION
-
-echo "=== Agents ==="
-ls ~/.claude/agents/
-
-echo "=== Skills ==="
-ls ~/.claude/skills/
-
-echo "=== Scripts ==="
-ls ~/.claude/scripts/
-
-echo "=== Config ==="
-ls ~/.claude/config/
-
-echo "=== Templates ==="
-ls ~/.claude/templates/
-
-echo "=== MCP Servers ==="
-claude mcp list
-
-echo "=== Hooks ==="
-cat ~/.claude/settings.json | grep -A 5 "hooks"
+node scripts/verify-install.js
 ```
 
-**Windows (PowerShell):**
-```powershell
-Write-Host "=== Version ==="
-Get-Content "$env:TEMP\CC_GodMode_install\VERSION"
+- **Exit code 0** — every agent, every skill, the hook wiring, the orchestrator
+  template, and LICENSE/NOTICE are present and match this repo's version.
+- **Exit code non-zero** — the script prints the concrete list of what's missing.
+  Re-run Step 3; if the problem persists, report the exact output.
 
-Write-Host "=== Agents ==="
-Get-ChildItem "$env:USERPROFILE\.claude\agents\"
+You can also run the built-in check baked into the installer itself:
 
-Write-Host "=== Skills ==="
-Get-ChildItem "$env:USERPROFILE\.claude\skills\"
-
-Write-Host "=== Scripts ==="
-Get-ChildItem "$env:USERPROFILE\.claude\scripts\"
-
-Write-Host "=== Config ==="
-Get-ChildItem "$env:USERPROFILE\.claude\config\"
-
-Write-Host "=== Templates ==="
-Get-ChildItem "$env:USERPROFILE\.claude\templates\"
-
-Write-Host "=== MCP Servers ==="
-claude mcp list
-
-Write-Host "=== Hooks ==="
-Get-Content "$env:USERPROFILE\.claude\settings.json" | Select-String -Pattern "hooks" -Context 0,5
-```
-
----
-
-### Step 12: Cleanup
-
-**macOS / Linux:**
 ```bash
-rm -rf /tmp/CC_GodMode_install
-```
-
-**Windows (PowerShell):**
-```powershell
-Remove-Item -Recurse -Force "$env:TEMP\CC_GodMode_install"
+./scripts/apply-global-claude-setup.sh --check
 ```
 
 ---
 
-### Step 13: Test Orchestrator Mode
+### Step 6: Test Orchestrator Mode
 
-After installation, test by typing:
+After installation, activate a project (there is no global `~/.claude/CLAUDE.md` —
+the orchestrator template lives at `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` and
+is copied per-project):
+
+```bash
+cd your-project
+cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
+mkdir -p ./CC-GodMode-Prompts
+cp <path-to-your-clone>/CC-GodMode-Prompts/*.md ./CC-GodMode-Prompts/
+claude
+```
+
+Then, inside Claude Code for that project, type:
 
 ```
 You are the Orchestrator. List your available agents.
@@ -593,14 +307,14 @@ After completing all steps, provide this summary to the user:
 ║   INSTALLATION REPORT                                                     ║
 ║                                                                           ║
 ║   Version:      8.6.0                                                     ║
-║   Agents:       [X]/14 installed (7 core + 1 security gate + 6 department)║
-║   Skills:       [X]/11 installed                                          ║
+║   Agents:       [X]/14 installed (7 core + 1 security + 6 department)     ║
+║   Skills:       [X]/14 installed                                          ║
 ║   Scripts:      [X]/15 installed                                          ║
-║   Config:       [X]/1 installed                                           ║
-║   Templates:    [X]/3 installed                                           ║
-║   Prompts:      [X]/6 installed                                           ║
-║   MCP Server:   memory [OK / ERROR]                                       ║
-║   Hooks:        [4 Configured / Skipped]                                  ║
+║   Templates:    [X]/2 installed (orchestrator + project-activation)       ║
+║   License:      [X]/2 installed (LICENSE, NOTICE)                         ║
+║   MCP Server:   memory [OK / ERROR / not installed]                       ║
+║   Hooks:        [Wired into settings.json / Skipped --no-hooks]           ║
+║   Verify:       node scripts/verify-install.js -> [Exit 0 / Exit 1]       ║
 ║                                                                           ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
@@ -608,22 +322,23 @@ After completing all steps, provide this summary to the user:
 ║                                                                           ║
 ║   For EVERY project where you want to use CC_GodMode:                    ║
 ║                                                                           ║
+║   There is no global ~/.claude/CLAUDE.md — the orchestrator template is   ║
+║   copied per project from ~/.claude/templates/CLAUDE-ORCHESTRATOR.md.     ║
+║                                                                           ║
 ║   macOS/Linux:                                                            ║
 ║   ┌─────────────────────────────────────────────────────────────────────┐ ║
 ║   │  cd your-project                                                    │ ║
 ║   │  cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md          │ ║
-║   │  mkdir -p ./CC-GodMode-Prompts                                      │ ║
-║   │  cp ~/.claude/CC-GodMode-Prompts/*.md ./CC-GodMode-Prompts/         │ ║
-║   │  mkdir -p ./reports                                                 │ ║
+║   │  mkdir -p ./CC-GodMode-Prompts ./reports                            │ ║
+║   │  cp <your-clone>/CC-GodMode-Prompts/*.md ./CC-GodMode-Prompts/      │ ║
 ║   └─────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                           ║
 ║   Windows (PowerShell):                                                   ║
 ║   ┌─────────────────────────────────────────────────────────────────────┐ ║
 ║   │  cd your-project                                                    │ ║
 ║   │  Copy-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" ".\CLAUDE.md" -Force ║
-║   │  New-Item -ItemType Directory -Force -Path ".\CC-GodMode-Prompts"  │ ║
-║   │  Copy-Item "$env:USERPROFILE\.claude\CC-GodMode-Prompts\*.md" ".\CC-GodMode-Prompts\" -Force ║
-║   │  New-Item -ItemType Directory -Force -Path ".\reports"             │ ║
+║   │  New-Item -ItemType Directory -Force -Path ".\CC-GodMode-Prompts",".\reports" ║
+║   │  Copy-Item "<your-clone>\CC-GodMode-Prompts\*.md" ".\CC-GodMode-Prompts\" -Force ║
 ║   └─────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                           ║
 ║   The CLAUDE.md will be automatically loaded by Claude Code!             ║
@@ -676,9 +391,21 @@ npm install -g @modelcontextprotocol/server-memory
 # Windows: %USERPROFILE%\.claude\mcp.json
 ```
 
+### Hooks not wired / `verify-install.js` reports missing hooks
+
+Re-run the installer without `--no-hooks`:
+
+```bash
+./scripts/apply-global-claude-setup.sh
+```
+
+If `~/.claude/settings.json` already existed and was invalid JSON, the installer
+refuses to touch it (to avoid corrupting it) — fix the JSON syntax first, then
+re-run.
+
 ### Permission Denied (macOS/Linux only)
 
-If scripts can't be executed:
+The installer preserves executable bits itself; if a script still can't run:
 
 ```bash
 chmod +x ~/.claude/scripts/*.js
@@ -689,13 +416,15 @@ chmod +x ~/.claude/scripts/*.js
 **macOS / Linux:**
 ```bash
 ls ~/.claude/agents/
-ls -la ~/.claude/agents/*.md
 ```
 
 **Windows (PowerShell):**
 ```powershell
 Get-ChildItem "$env:USERPROFILE\.claude\agents\"
 ```
+
+If files are missing, re-run the installer (Step 3) — it is idempotent and safe
+to run again.
 
 ### Repository Not Found
 
@@ -714,16 +443,24 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## What Gets Installed
 
+Everything below is installed by `scripts/apply-global-claude-setup.sh` /
+`.ps1` in one run — there is no separate manual step for any of it.
+
 | Component | macOS/Linux | Windows | Count |
 |-----------|-------------|---------|-------|
 | Agent Files | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` | 14 |
 | Skills | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` | 14 |
-| Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | 15 |
-| Config Files | `~/.claude/config/` | `%USERPROFILE%\.claude\config\` | 1 |
-| Templates | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` | 3 |
-| Prompt Files | `~/.claude/CC-GodMode-Prompts/` | `%USERPROFILE%\.claude\CC-GodMode-Prompts\` | 6 |
-| Memory MCP | Claude MCP registry | Claude MCP registry | 1 |
-| Settings | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` | 1 |
+| Automation Scripts | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` | all `*.js` in the repo's `scripts/` |
+| Orchestrator Template | `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` | `%USERPROFILE%\.claude\templates\CLAUDE-ORCHESTRATOR.md` | 1 |
+| Project-Activation Template | `~/.claude/templates/CCGM_Prompt_02-ProjectActivation.md` | `%USERPROFILE%\.claude\templates\...` | 1 |
+| License / Notice | `~/.claude/LICENSE-CC_GodMode.txt`, `NOTICE-CC_GodMode.txt` | same, under `%USERPROFILE%\.claude\` | 2 |
+| Hooks (merged) | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` | from `config/claude-settings.json` |
+| Memory MCP (separate step) | Claude MCP registry | Claude MCP registry | 1 |
+
+Not installed by this script: `config/domain-config.schema.json` and the full
+`CC-GodMode-Prompts/` directory stay in your repo clone — copy the ones you need
+per project from there (see Step 6). MCP servers beyond `memory` are a separate,
+opt-in step (`scripts/install-mcps.sh`).
 
 **Details:**
 
@@ -749,48 +486,39 @@ Department agents:
 - workflow-design.md
 - workspace-governance.md
 
-**Skills (11):**
-- workflows
+**Skills (14):**
+- agent-teams
+- api-change
+- cost-efficiency
+- departments
+- dynamic-workflows
+- greenfield-bootstrap
+- issue-processing
+- meta-decisions
+- prototype-mode
 - quality-gates
 - release
-- issue-processing
-- api-change
 - research
-- meta-decisions
-- agent-teams
-- prototype-mode
-- departments
-- cost-efficiency
+- sprint-planning
+- workflows
 
-**Scripts (15):**
-- check-api-impact.js
-- parallel-quality-gates.js
-- mcp-health-check.js
-- analyze-prompt.js
-- escalation-handler.js
-- domain-pack-loader.js
-- validate-agent-output.js
-- auto-update.js
-- check-update.js
-- pre-push-check.js
-- session-start.js
-- sync-version.js
-- test-phase2-integration.js
-- version-bump.js
-- workflow-state.js
+**Scripts:** every `*.js` file under the repo's `scripts/` directory (the exact
+list changes as the project evolves — `ls ~/.claude/scripts/` after install
+shows what actually shipped).
 
-**Config (1):**
-- domain-config.schema.json
-
-**Templates (3):**
+**Templates (2):**
 - CLAUDE-ORCHESTRATOR.md
-- adr-template.md
-- CCGM_Prompt_98-Maintenance.md
+- CCGM_Prompt_02-ProjectActivation.md
 
-**Hooks (3):**
-- PostToolUse (Write|Edit) - API Impact Check
-- SessionStart - MCP Health & Diagnostics
-- SubagentStop - Agent Output Validation
+**Hooks (from `config/claude-settings.json`):**
+- `SessionStart` - `session-start.js` (MCP health & diagnostics)
+- `PostToolUse` (Write|Edit) - `check-api-impact.js` (API impact check)
+- `SubagentStop` - `verify-changes.js` + `validate-agent-output.js` (deterministic checks + output validation)
+- `TaskCompleted`, `TeammateIdle` - `validate-agent-output.js`
+
+The exact set is whatever `config/claude-settings.json` defines in this repo —
+that file, not this prompt, is the canonical source; `verify-install.js` checks
+against it directly.
 
 (`UserPromptSubmit` is not installed by Step 10 above — `analyze-prompt.js`
 is deprecated since v8.6.0. `config/claude-settings.json` in the repo wires
@@ -803,85 +531,59 @@ the repo's reference settings file.)
 
 ## Uninstall
 
+There is no uninstall script; remove the installed directories/files by hand.
+Back up `~/.claude/settings.json` first if you want to keep your other settings —
+removing the `hooks` block manually is safer than deleting the whole file.
+
 **macOS / Linux:**
 ```bash
-# Remove agents (core + department)
+# Remove agents (all 14 — core + security gate + department)
 rm ~/.claude/agents/{researcher,architect,api-guardian,builder,tester,scribe,github-manager}.md
-rm ~/.claude/agents/{ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
+rm ~/.claude/agents/{security,ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
 
-# Remove scripts
-rm ~/.claude/scripts/check-api-impact.js
-rm ~/.claude/scripts/parallel-quality-gates.js
-rm ~/.claude/scripts/mcp-health-check.js
-rm ~/.claude/scripts/analyze-prompt.js
-rm ~/.claude/scripts/escalation-handler.js
-rm ~/.claude/scripts/domain-pack-loader.js
-rm ~/.claude/scripts/validate-agent-output.js
-rm ~/.claude/scripts/auto-update.js
-rm ~/.claude/scripts/session-start.js
-rm ~/.claude/scripts/test-phase2-integration.js
-
-# Remove config
-rm ~/.claude/config/domain-config.schema.json
+# Remove scripts and skills
+rm -rf ~/.claude/scripts
+rm -rf ~/.claude/skills
 
 # Remove templates
-rm ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
-rm ~/.claude/templates/adr-template.md
-rm ~/.claude/templates/CCGM_Prompt_98-Maintenance.md
+rm -rf ~/.claude/templates
 
-# Remove prompts
-rm -rf ~/.claude/CC-GodMode-Prompts
+# Remove license/notice
+rm -f ~/.claude/LICENSE-CC_GodMode.txt ~/.claude/NOTICE-CC_GodMode.txt
+
+# Remove version marker
+rm -f ~/.claude/.cc-godmode-version
 
 # Remove MCP server
 claude mcp remove memory
 
-# Note: Manually edit ~/.claude/settings.json to remove hooks
+# Note: edit ~/.claude/settings.json by hand to remove the GodMode hooks block
+# if you want to keep other settings you have there.
 ```
 
 **Windows (PowerShell):**
 ```powershell
-# Remove agents (core + department)
-Remove-Item "$env:USERPROFILE\.claude\agents\researcher.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\architect.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\api-guardian.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\builder.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\tester.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\scribe.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\github-manager.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\ci-security-guardian.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\docs-dx.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\quality-operations.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\runtime-platform.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\workflow-design.md"
-Remove-Item "$env:USERPROFILE\.claude\agents\workspace-governance.md"
+# Remove agents (all 14 — core + security gate + department)
+Remove-Item "$env:USERPROFILE\.claude\agents\*.md"
 
-# Remove scripts
-Remove-Item "$env:USERPROFILE\.claude\scripts\check-api-impact.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\parallel-quality-gates.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\mcp-health-check.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\analyze-prompt.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\escalation-handler.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\domain-pack-loader.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\validate-agent-output.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\auto-update.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\session-start.js"
-Remove-Item "$env:USERPROFILE\.claude\scripts\test-phase2-integration.js"
-
-# Remove config
-Remove-Item "$env:USERPROFILE\.claude\config\domain-config.schema.json"
+# Remove scripts and skills
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\scripts"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\skills"
 
 # Remove templates
-Remove-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md"
-Remove-Item "$env:USERPROFILE\.claude\templates\adr-template.md"
-Remove-Item "$env:USERPROFILE\.claude\templates\CCGM_Prompt_98-Maintenance.md"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\templates"
 
-# Remove prompts
-Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\CC-GodMode-Prompts"
+# Remove license/notice
+Remove-Item "$env:USERPROFILE\.claude\LICENSE-CC_GodMode.txt","$env:USERPROFILE\.claude\NOTICE-CC_GodMode.txt" -ErrorAction SilentlyContinue
+
+# Remove version marker
+Remove-Item "$env:USERPROFILE\.claude\.cc-godmode-version" -ErrorAction SilentlyContinue
 
 # Remove MCP server
 claude mcp remove memory
 
-# Note: Manually edit %USERPROFILE%\.claude\settings.json to remove hooks
+# Note: edit %USERPROFILE%\.claude\settings.json by hand to remove the GodMode
+# hooks block if you want to keep other settings you have there.
 ```
 
 ---

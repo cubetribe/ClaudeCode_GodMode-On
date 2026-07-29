@@ -11,6 +11,9 @@
  * ever wired — only that it is not today. Kept for historical/reference
  * purposes; do not re-wire without confirming the update flow it implements
  * is still the intended one. Deletion is a separate maintainer decision.
+ *
+ * Moved to archive/ in v9.0.0 (Sprint 04). The update path is now:
+ *   git pull && ./scripts/apply-global-claude-setup.sh
  */
 
 /**
