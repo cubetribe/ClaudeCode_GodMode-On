@@ -11,6 +11,6 @@
     "hooks:test": "node scripts/test-hooks-contract.js"
   },
   "dependencies": {
-    "js-yaml": "^5.1.0"
+    "js-yaml": "^5.4.1"
   }
 }
