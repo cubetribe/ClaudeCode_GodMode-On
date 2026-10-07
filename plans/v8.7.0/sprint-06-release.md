@@ -1,5 +1,5 @@
 ---
-sprint: 05
+sprint: 06
 slug: release
 plan: plans/v8.7.0/PLAN.md
 status: planned
@@ -8,10 +8,10 @@ owner: orchestrator
 ux_gate: skip
 ---
 
-# Sprint 05 — Release
+# Sprint 06 — Release
 
 Letzter Sprint. Führt den Versions-Bump über die Tooling-Kette aus und bringt den Release auf
-GitHub. Läuft erst, wenn Sprint 01–04 auf `done` stehen.
+GitHub. Läuft erst, wenn Sprint 01–05 auf `done` stehen.
 
 ## Goal
 
@@ -86,7 +86,7 @@ committeten Reports — genau die Sorte stiller Inkonsistenz, gegen die Sprint 0
 
 ## Scope
 
-1. **Preflight** — Sprint 01–04 auf `done`, Arbeitsbaum sauber, `[Unreleased]` nicht leer.
+1. **Preflight** — Sprint 01–05 auf `done`, Arbeitsbaum sauber, `[Unreleased]` nicht leer.
 2. **Bump** — `node scripts/version-bump.js <major|minor>` nach der Entscheidung oben. Das Skript
    erledigt in einem Zug: Eindeutigkeit gegen CHANGELOG **und** git-Tags prüfen, `[Unreleased]` →
    `## [X.Y.Z] - <Datum>` promoten (bricht ab, wenn leer), `sync-version.js --sync` über alle 14
@@ -103,7 +103,7 @@ committeten Reports — genau die Sorte stiller Inkonsistenz, gegen die Sprint 0
 
 ## Non-Goals
 
-- Keine inhaltlichen Änderungen. Was nicht in Sprint 01–04 gelandet ist, kommt in die nächste
+- Keine inhaltlichen Änderungen. Was nicht in Sprint 01–05 gelandet ist, kommt in die nächste
   Version.
 - Kein Force-Push, kein Rewrite geteilter Historie.
 - Kein Push ohne ausdrückliche Freigabe (Core Rule 9).
@@ -115,13 +115,13 @@ committeten Reports — genau die Sorte stiller Inkonsistenz, gegen die Sprint 0
 | `VERSION` + alle 14 Touchpoints | `scripts/version-bump.js` **only** | niemals von Hand |
 | `CHANGELOG.md` (Promotion `[Unreleased]` → datierte Überschrift) | `scripts/version-bump.js` **only** | |
 | `ROADMAP.md` | orchestrator | Status-Flip |
-| `plans/v8.7.0/sprint-05-release.md` | orchestrator | Result |
+| `plans/v8.7.0/sprint-06-release.md` | orchestrator | Result |
 | PR, Tag, Release | @github-manager | **nur mit Freigabe** |
-| `reports/v8.7.0/sprint-05/*` | jeder Agent mit `Write` | |
+| `reports/v8.7.0/sprint-06/*` | jeder Agent mit `Write` | |
 
 ## Risks
 
-- **`[Unreleased]` enthält Einträge aus vier Sprints.** Vor dem Bump einmal lesen: ergibt der
+- **`[Unreleased]` enthält Einträge aus fünf Sprints.** Vor dem Bump einmal lesen: ergibt der
   Abschnitt als Release-Notes gelesen Sinn, oder ist er eine Liste ohne Erzählung? Der
   Bump promotet ihn unverändert.
 - **Die Klassifikationsentscheidung ist nicht umkehrbar**, sobald der Tag steht. Vorher klären.
@@ -136,7 +136,7 @@ committeten Reports — genau die Sorte stiller Inkonsistenz, gegen die Sprint 0
 2. `node scripts/release-check.js` meldet `VERSION == oberster CHANGELOG-Eintrag == Tag`.
 3. `node scripts/test-hooks-contract.js` vollständig grün.
 4. `node scripts/verify-install.js` grün (aus Sprint 04).
-5. Der CHANGELOG-Abschnitt der neuen Version enthält die Einträge aller vier Sprints und liest
+5. Der CHANGELOG-Abschnitt der neuen Version enthält die Einträge aller fünf Sprints und liest
    sich als zusammenhängende Release-Notiz.
 6. PR ist mit **Merge-Commit** gemergt, nicht gesquasht.
 7. Tag und GitHub Release existieren und tragen dieselbe Version wie `VERSION`.
@@ -153,7 +153,7 @@ vorhandenen.
 
 ## Version Relevance
 
-**major** — aggregiert aus Sprint 01 (minor), 02 (**major**, korrigiert), 03 (patch), 04 (minor).
+**major** — aggregiert aus Sprint 01 (minor), 02 (**major**, korrigiert), 03 (patch), 04 (minor), 05 (**major**).
 Höchster Wert gewinnt. Ergebnis: **9.0.0**.
 
 ## Result

@@ -18,12 +18,13 @@ Copy and paste this when Claude loses the orchestrator context:
 
 **What this means:**
 
-- You NEVER write implementation code yourself
-- You NEVER edit files directly for implementation
-- You ONLY plan, coordinate, and delegate to agents
+- Delegate when it pays: large, genuinely independent, parallelizable tasks, or work needing a specialist's tools or a separate write scope
+- Work you can finish yourself in a handful of tool calls, you do yourself and note
+- Never delegate to verify or double-check your own work — the deterministic checks do that
+- You plan, coordinate, and delegate where delegation pays
 - You ARE the workflow conductor, not a developer
 
-**If you find yourself writing code: STOP. That's @builder's job.**
+**If you are about to write a large or multi-file implementation yourself: STOP. That's @builder's job.**
 
 ---
 
@@ -204,8 +205,8 @@ Use these to catch yourself before breaking rules:
 
 | If you are doing this...                    | STOP and do this instead...            |
 | ------------------------------------------- | -------------------------------------- |
-| Writing implementation code                 | Call @builder via Task tool            |
-| Editing files for features                  | Call @builder via Task tool            |
+| Writing large/multi-file implementation code | Call @builder via Task tool           |
+| Editing many files for a feature            | Call @builder via Task tool            |
 | Skipping @architect for features            | Call @architect first                  |
 | Skipping @api-guardian for API changes      | Call @api-guardian after @architect    |
 | Calling @scribe before all applicable checks approve | Wait for Decision Matrix      |
@@ -278,7 +279,7 @@ delegate."
 
 ---
 
-**YOU ARE THE ORCHESTRATOR.** You delegate, you NEVER implement.
+**YOU ARE THE ORCHESTRATOR.** You delegate when it pays; small work you do yourself and note.
 
 **14 GLOBAL Agents** (~/.claude/agents/, 7 core + 1 security + 6 department): @architect @api-guardian @builder
 @tester @scribe @github-manager
@@ -311,7 +312,7 @@ checks = deterministic hook (always) + tester (if ux_gate: auto) + security (if 
 5. api-guardian for API changes
 6. NO push without permission
 
-**If writing code: STOP. Call @builder.**
+**If writing a large or multi-file implementation: STOP. Call @builder.**
 
 **Reports:** reports/v[VERSION]/
 

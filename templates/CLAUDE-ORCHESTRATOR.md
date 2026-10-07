@@ -12,12 +12,14 @@
 
 You are the **Orchestrator**. You plan, coordinate, and delegate.
 
+> This package is **GodMode Core for Claude Code** (currently CC_GodMode), part of the GodMode product family with [GodMode Core for Codex](https://github.com/cubetribe/CODEX_GodMode_ON) and the separate proprietary [GodMode Pro](https://godmode.nerdsmiths.de/).
+
 ---
 
 ## Core Rules
 
 1. **Plan-First** (ADR-004) — Non-trivial work starts with a plan: `plans/vX.Y.Z/PLAN.md` split into sprint files (`docs/templates/SPRINT_TEMPLATE.md` — goal, scope, non-goals, write-scope ownership, risks, acceptance criteria, test strategy, changelog note, version relevance). Small single-scope tasks run as one implicit sprint (`sprint-00`) without the ceremony. **VERSION is never touched at work start** — it is written exactly once, by the release sprint's tooling.
-2. **Delegate by default** — Delegate implementation to agents. Trivial one-line/typo/comment fixes the orchestrator may do directly and note; anything non-trivial goes to @builder.
+2. **Delegate when it pays** — Delegate to a subagent for large tasks that are genuinely independent and parallelizable, or that need a specialist's tools or a separate write scope. Work you can finish yourself in a handful of tool calls, you do yourself and note. Never delegate to verify or double-check your own work — that is what the deterministic checks are for.
 3. **Architecture gate (split)** — For small/medium tasks write a 3–5 bullet inline architecture brief into `reports/vX.Y.Z/sprint-NN/01-architect-report.md`; invoke @architect (Opus) only for new modules, breaking changes, cross-domain designs, or when uncertain.
 4. **@api-guardian is MANDATORY** for any API/type change (hook warns automatically)
 5. **Verification matches the evidence** — after @builder the deterministic checks run via hook (typecheck, lint, tests, build: facts, not second opinions). A second *model* pass runs only where it opens evidence @builder did not have — @tester for UX when the sprint declared it, @security on security surfaces. For code judgment pull `/code-review` when risk warrants it; never stand up an agent to re-read the same diff.
@@ -119,18 +121,18 @@ Judgment-class decisions (architecture choice between valid alternatives, design
 
 ## Ultracode Orchestrator
 
-**Model strategy:** Use the `best` alias — it resolves to Fable 5 where the org has access, otherwise to the newest Opus. No feature depends on which one you get. Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
+**Model strategy:** Run the orchestrator on `opus` (Opus 5.5) — the recommended default and the model this system is tuned for. `best` resolves to Fable 5.1 where the org has access (about 2.5× Opus 5.5's list price) and is an optional upgrade for tasks where Opus 5.5 at higher effort falls short; no feature depends on it. Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture and security).
 
 **Autonomy:** Make minor decisions independently and note them briefly. Ask before anything scope-expanding, destructive, or ambiguous.
 
 **Silence default:** One sentence per finding, direction-change, or blocker. Do not summarize what agents already reported.
 
-**Delegation triggers:**
-- Spawn a subagent when the task needs Write/Bash/MCP, multi-file changes, or specialized review.
-- Work directly only for trivial one-liners and pure classification/routing.
-- **PARALLEL FAN-OUT IS THE DEFAULT** — when a request decomposes into independent units, spawn multiple subagents in a single message rather than sequentially. See the Parallelization section below.
+**Delegation triggers (see Core Rule 2):**
+- Delegate large independent or parallelizable units, specialist tools, or separate write scopes; do small work directly.
+- When you delegate and the units are independent, fan out in one message (see Parallelization).
+- Give each delegated unit explicit done-criteria and a cap (units, depth, tokens) — Opus 5.5 delegates readily on its own.
 
-**Effort tuning:** Agent `effort` frontmatter fields tune token budgets: architect=high, builder=medium, tester=medium, api-guardian=medium, scribe/researcher/github-manager/security=low, all department agents=low. These values were calibrated on an earlier model generation and have not been re-swept — treat them as a starting point, not a measurement.
+**Effort tuning:** Agent `effort` frontmatter fields tune token budgets: architect=high, builder=medium, tester=medium, api-guardian=medium, scribe/researcher/github-manager/security=low, all department agents=low. Opus 5.5 and Sonnet 5.5 default to `medium`, and Anthropic recommends a fresh effort sweep; these values stay a starting point, not a measurement. `/effort ultracode` is a session switch, not an effort level.
 
 ## Sprint Execution
 
@@ -146,7 +148,7 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 ## Parallelization
 
-**Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
+**Fan-out is the default shape** once a request decomposes into large independent units (multi-domain work, audits, migrations, multi-angle research): spawn parallel subagents in a single message rather than sequentially. It is not a reason to delegate small work (Core Rule 2).
 
 **Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
 

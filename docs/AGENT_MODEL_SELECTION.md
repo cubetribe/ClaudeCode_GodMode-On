@@ -50,11 +50,11 @@ a model/effort assignment.
 
 ## Ultracode Orchestrator Economics
 
-The orchestrator runs on **`best` / Opus 4.8** at **ultracode** effort (xhigh reasoning + automatic dynamic workflows for substantive tasks). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only).
+The orchestrator runs on **`opus` (Opus 5.5)** — the recommended default and the model this system is tuned for. `best` resolves to Fable 5.1 where the org has access (about 2.5× Opus 5.5's list price) and is an optional upgrade for tasks where Opus 5.5 at higher effort falls short; no feature depends on it. Set per session with `/model opus`. For large decomposable jobs, switch on **ultracode** with `/effort ultracode` (or `/effort ultracode on|off`): a separate, session-only switch that leaves the effort level unchanged and has Claude orchestrate dynamic workflows for substantive tasks. It requires dynamic workflows to be enabled in `/config`; a per-prompt alternative is the keyword `ultracode`. Valid effort levels are `low | medium | high | xhigh | max`; Opus 5.5 and Sonnet 5.5 default to `medium`. Changing effort mid-session invalidates the prompt cache.
 
 **Parallelism vs. cost tradeoff:** Running parallel or dynamic-workflow sessions cuts wall-clock time by ~60–80% on independent work but does **not** reduce token cost — running many subagents at once multiplies total token usage, and dynamic workflows can burn substantially more tokens than a normal session. Parallelism is a deliberate speed-for-cost trade, not a free optimization.
 
-CC_GodMode positions the `best`/Opus 4.8 orchestrator as the coordinator only — it classifies, routes, and delegates. Subagents do the implementation work on cheaper alias tiers (haiku → sonnet → opus).
+CC_GodMode positions the `opus` (Opus 5.5) orchestrator as the coordinator only — it classifies, routes, and delegates. Subagents do the implementation work on cheaper alias tiers (haiku → sonnet → opus).
 
 **Smart Routing default** targets 30–50% token reduction per standard feature compared to always running the full agent sequence:
 - Inline architecture briefs instead of @architect invocation for small/medium tasks saves ~$2.50 per invocation
@@ -71,22 +71,24 @@ CC_GodMode positions the `best`/Opus 4.8 orchestrator as the coordinator only �
 
 ### Fable-parity economics
 
-**Verified pricing (per 1M tokens, in/out):** Fable 5 (Mythos-class) $10/$50;
-Opus 4.8 $5/$25. Fable 5 costs roughly **2× Opus 4.8 per token** — no other
-pricing figures in this document are estimates of Fable pricing; only these
-two are verified.
+**Verified list pricing (per 1M tokens, in/out):** Fable 5.1 $10/$50;
+Opus 5.5 $4/$20. Fable 5.1 costs **2.5× Opus 5.5 per token** (input and
+output; cache read about 1.25×). The real cost gap also depends on tokens
+used and cache-hit share — no official token-efficiency ratio exists. Opus 4.8
+($5/$25), Sonnet 4.6 and Fable 5 are legacy models (still available, not
+deprecated).
 
-**The 2× break-even.** `skills/dynamic-workflows/SKILL.md` documents a lever
+**The 2.5× break-even.** `skills/dynamic-workflows/SKILL.md` documents a lever
 multiplier table for the compensation techniques this system uses to close
-Opus 4.8's reliability gap against Fable 5 (deterministic hooks ~1.05×,
+Opus 5.5's reliability gap against Fable 5.1 (deterministic hooks ~1.05×,
 structured handoffs ~1.1×, dual gates ~1.2×, decomposition + externalized
 state 1.3–2×, adversarial verification of facts 2–4×, judge panels 2–3× on
 the conflict path only, loop-until-dry enumeration 3–10×). These stack
 multiplicatively when combined. Once a task's *planned* compensation stack
-exceeds roughly a 2× total token multiplier, running it on Fable 5 instead
+exceeds roughly a 2.5× total token multiplier, running it on Fable 5.1 instead
 would likely be both cheaper AND higher-ceiling than compensating on Opus
-4.8 — because past that point the compensation is spending more than the
-2× price premium would have cost, for a result still capped at Opus'
+5.5 — because past that point the compensation is spending more than the
+2.5× price premium would have cost, for a result still capped at Opus'
 capability envelope. The orchestrator states the projected multiplier in one
 line (Routing Log entry or workflow announcement) before launching a heavy
 compensation stack — see the skill for the worked example.
@@ -101,8 +103,8 @@ alternatives never generated, taste in ambiguous design decisions, and
 correlated misses across same-tier verifier ensembles are not fixable by
 adding more of the same tier — refuting a design judgment requires generating
 a better design, which is precisely the capability gap being compensated for,
-not a fact to check. This is what "Fable 5 Light" means in practice: the
-compensation stack gets Opus 4.8 as close to Fable-5 reliability as structure
+not a fact to check. This is what "Fable 5 Light" (the v8.6.0 release name) means in practice: the
+compensation stack gets Opus 5.5 as close to Fable-5.1 reliability as structure
 can buy on routine, checkable work, while making the residual judgment gap
 visible (via the verification-scoping split and the mandatory human gate for
 judgment-class decisions — `docs/orchestrator/META-DECISIONS.md`,
@@ -110,12 +112,11 @@ judgment-class decisions — `docs/orchestrator/META-DECISIONS.md`,
 a confident but unearned consensus (this is the correlated-miss floor — see
 `docs/orchestrator/META-DECISIONS.md`).
 
-**`best`-alias note.** On orgs with Fable 5 access, the `best` alias already
-resolves to it automatically (see CLAUDE.md Ultracode Orchestrator Model
-Strategy) — no compensation stack is needed in that case, since the model
-gap closes at the source. This economics subsection, and the compensation
-levers it references, exist for Opus-only environments where that auto-upgrade
-path is unavailable; nothing in this system depends on Fable access.
+**`best`-alias note.** On orgs with Fable 5.1 access, the `best` alias resolves to it
+(see CLAUDE.md Ultracode Orchestrator Model Strategy) — an optional upgrade
+that closes the model gap at the source. This economics subsection, and the
+compensation levers it references, apply when you stay on Opus 5.5; nothing in
+this system depends on Fable access.
 
 ---
 
@@ -127,21 +128,21 @@ path is unavailable; nothing in this system depends on Fable access.
 
 | Model | Use Case | Cost | Performance |
 |-------|----------|------|-------------|
-| alias `opus` → Opus 4.8 | Complex reasoning, architecture | High | Best |
-| alias `sonnet` → Sonnet 4.6 | Balanced code work, analysis | Medium | Excellent |
+| alias `opus` → Opus 5.5 | Complex reasoning, architecture | High | Best |
+| alias `sonnet` → Sonnet 5.5 | Balanced code work, analysis | Medium | Excellent |
 | alias `haiku` → Haiku 4.5 | Simple operations, API calls | Low | Fast |
 
-> Aliases resolve on the Anthropic API: `opus` → `claude-opus-4-8`, `sonnet` → `claude-sonnet-4-6`, `haiku` → `claude-haiku-4-5-20251001`; `best` → Opus 4.8 (`claude-opus-4-8`) — the model CC_GodMode is optimized for; higher tiers are picked up automatically only where an org has access (optional, never required).
+> Aliases resolve on the Anthropic API: `opus` → Opus 5.5 (`claude-opus-5-5`), `sonnet` → Sonnet 5.5 (`claude-sonnet-5-5`), `haiku` → Haiku 4.5 (`claude-haiku-4-5-20251001`), `fable` → Fable 5.1 (`claude-fable-5-1`); `best` → Fable 5.1 where the org has access, otherwise Opus 5.5; `opusplan` → Opus 5.5 for planning, Sonnet 5.5 for execution. Opus 5.5 is the model CC_GodMode is tuned for; `best` is an optional upgrade, never required. Opus 4.8, Sonnet 4.6 and Fable 5 are legacy (still available, not deprecated).
 
 ### Cost vs Capability
 
 ```
                     COST EFFICIENCY CURVE
 
-High Cost   │                    ●  opus (Opus 4.8)
+High Cost   │                    ●  opus (Opus 5.5)
             │                   (@architect)
             │
-Medium Cost │          ●●●●     sonnet (Sonnet 4.6)
+Medium Cost │          ●●●●     sonnet (Sonnet 5.5)
             │       (@api-guardian, @builder, @tester)
             │
 Low Cost    │  ●●     haiku (Haiku 4.5)
@@ -180,9 +181,9 @@ Low Cost    │  ●●     haiku (Haiku 4.5)
 
 ---
 
-### @architect — opus / Opus 4.8 (HIGH COST)
+### @architect — opus / Opus 5.5 (HIGH COST)
 
-**Model:** `opus` (resolves to Opus 4.8 / `claude-opus-4-8`)
+**Model:** `opus` (resolves to Opus 5.5 / `claude-opus-5-5`)
 
 **Rationale:**
 - Makes architectural decisions with long-term codebase impact
@@ -217,9 +218,9 @@ ROI: 20x
 
 ---
 
-### @api-guardian — sonnet / Sonnet 4.6 (MEDIUM COST)
+### @api-guardian — sonnet / Sonnet 5.5 (MEDIUM COST)
 
-**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
+**Model:** `sonnet` (resolves to Sonnet 5.5 / `claude-sonnet-5-5`)
 
 **Rationale:**
 - Needs code analysis capability (finding consumers)
@@ -241,9 +242,9 @@ ROI: 20x
 
 ---
 
-### @builder — sonnet / Sonnet 4.6 (MEDIUM COST)
+### @builder — sonnet / Sonnet 5.5 (MEDIUM COST)
 
-**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
+**Model:** `sonnet` (resolves to Sonnet 5.5 / `claude-sonnet-5-5`)
 
 **Rationale:**
 - Most frequently used agent (all implementations)
@@ -270,9 +271,9 @@ Savings: 60-70% with minimal quality difference
 
 ---
 
-### @tester — sonnet / Sonnet 4.6 (MEDIUM COST, OPT-IN)
+### @tester — sonnet / Sonnet 5.5 (MEDIUM COST, OPT-IN)
 
-**Model:** `sonnet` (resolves to Sonnet 4.6 / `claude-sonnet-4-6`)
+**Model:** `sonnet` (resolves to Sonnet 5.5 / `claude-sonnet-5-5`)
 
 **Rationale:**
 - Coordinates multiple MCP servers (Playwright, Lighthouse, A11y)
@@ -301,7 +302,7 @@ Savings: 60-70% with minimal quality difference
 **Rationale:**
 - CHANGELOG and VERSION updates follow a strict template — haiku handles templated work well
 - Report synthesis from other agents is pattern-matching, not deep reasoning
-- `effort: low` + haiku is sufficient under the ultracode orchestrator
+- `effort: low` + haiku is sufficient under the Opus 5.5 orchestrator
 - Saves ~$0.40 per invocation vs sonnet
 
 **Cost Impact:** Low (~$0.15–0.20 per invocation)
@@ -623,9 +624,9 @@ When justified: Rarely
 | Model | Input | Output |
 |-------|-------|--------|
 | Haiku 4.5 | $1.00 | $5.00 |
-| Sonnet 4.6 | $3.00 | $15.00 |
-| Opus 4.8 | $5.00 | $25.00 |
-| `best` higher tier (when org has access) | $10.00 | $50.00 |
+| Sonnet 5.5 | $2.00 | $10.00 |
+| Opus 5.5 | $4.00 | $20.00 |
+| Fable 5.1 (`best`, when org has access) | $10.00 | $50.00 |
 
 ---
 
@@ -634,7 +635,7 @@ When justified: Rarely
 **Parallel subagents and dynamic workflows = faster wall-clock, higher token spend.**
 
 - Running N independent agents in parallel cuts elapsed time by ~60–80% — but total tokens (and cost) stay the same or increase because each agent has its own context.
-- Dynamic workflows (ultracode / `/workflows`) fan work out to tens–hundreds of verified parallel subagents with adversarial cross-checking; this multiplies token usage significantly.
+- Dynamic workflows (ultracode switch / `/workflows`) fan work out to tens–hundreds of verified parallel subagents with adversarial cross-checking; this multiplies token usage significantly.
 - **Worth it:** large, decomposable, time-critical jobs — codebase-wide audits, 500-file migrations, multi-angle research with adversarial verification.
 - **Not worth it:** routine feature work, bug fixes, doc updates — Smart Routing stays the default and avoids unnecessary token spend.
 

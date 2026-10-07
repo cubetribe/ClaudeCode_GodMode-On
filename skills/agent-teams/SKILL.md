@@ -30,7 +30,7 @@ GodMode maps onto four parallelization surfaces. Choose the right one for the jo
 **Decision guidance:**
 - Use **plain subagents** for one-off in-session side tasks (the default, always available).
 - Use **agent teams** when you need persistent, coordinated teammates kept in sync via a shared task list across a multi-part project.
-- Use **dynamic workflows** when a job outgrows a handful of subagents and needs fan-out at scale plus adversarial verification — trigger with the word "workflow" in a prompt or enable ultracode.
+- Use **dynamic workflows** when a job outgrows a handful of subagents and needs fan-out at scale plus adversarial verification — trigger with the word "workflow" in a prompt or switch on ultracode.
 - See also the `## Parallelization` section of `CLAUDE.md` for the cost guardrail and concurrency tiers that apply across all surfaces.
 
 ## Enabling Agent Teams

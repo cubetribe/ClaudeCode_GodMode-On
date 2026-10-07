@@ -37,7 +37,7 @@ or require ordering run **sequentially**. Only genuinely independent tasks run i
 **Concurrency tiers:**
 - Up to ~10 subagents concurrently inside one session (rest queue/batch).
 - When a job outgrows that, escalate to **dynamic workflows** (`skills/dynamic-workflows/`,
-  `/workflows`, or ultracode) with adversarial verification and worktree/`/batch` isolation.
+  `/workflows`, or the ultracode switch) with adversarial verification and worktree/`/batch` isolation.
 
 **File-conflict isolation:** use **worktrees** for parallel work on overlapping files; use
 **`/batch`** to split one large change into 5–30 PR-opening subagents.

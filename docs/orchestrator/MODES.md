@@ -24,7 +24,7 @@ safety rules unless the mode explicitly declares a local-only exception.
 When a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), the orchestrator fans out to parallel subagents **in a single message** rather than sequentially. After all subagents return, the orchestrator fans in, resolves conflicts, and synthesizes one result.
 
 - **Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel.
-- **Concurrency cap:** up to ~10 subagents concurrently in one session (the rest queue). When a job outgrows that, escalate to dynamic workflows (`/workflows` or ultracode effort) with adversarial verification.
+- **Concurrency cap:** up to ~10 subagents concurrently in one session (the rest queue). When a job outgrows that, escalate to dynamic workflows (`/workflows` or the ultracode switch) with adversarial verification.
 - **File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
 
 ## Smart Routing (Default)
@@ -136,13 +136,13 @@ Sources:
 
 ## Ultracode / Max-Parallel (Dynamic Workflows)
 
-Ultracode is the escalation path when a job outgrows a handful of plain subagents. It combines the `best`/Opus 4.8 orchestrator running at ultracode effort (`/model best` + `/effort ultracode`) with Claude Code's **dynamic workflow** engine.
+Ultracode is the escalation path when a job outgrows a handful of plain subagents. It combines the `opus` (Opus 5.5) orchestrator with the session-only ultracode switch (`/model opus` + `/effort ultracode`; effort level unchanged, requires dynamic workflows enabled in `/config`) and Claude Code's **dynamic workflow** engine.
 
 **What dynamic workflows do:**
 
 - The orchestrator writes and runs a script that fans work out across **tens to hundreds of parallel subagents**.
 - **Adversarial verification:** agents try to refute each other's findings; the workflow iterates until answers converge, then returns only the verified result.
-- Triggered by the word "workflow" in a prompt, or automatically when ultracode effort is active.
+- Triggered by the word "workflow" in a prompt, or automatically when the ultracode switch is on (or the keyword `ultracode` is in the prompt).
 - Requires Claude Code v2.1.154+. Inspect active runs with `/workflows`.
 
 **File-conflict isolation:**

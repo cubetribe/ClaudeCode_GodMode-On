@@ -11,7 +11,7 @@
     "url": "https://github.com/cubetribe/ClaudeCode_GodMode-On.git"
   },
   "homepage": "https://github.com/cubetribe/ClaudeCode_GodMode-On",
-  "description": "CC_GodMode — self-orchestrating multi-agent framework for Claude Code. The version lives in the VERSION file (single source of truth); package.json is intentionally version-free.",
+  "description": "GodMode Core for Claude Code (currently CC_GodMode) — self-orchestrating multi-agent framework for Claude Code. The version lives in the VERSION file (single source of truth); package.json is intentionally version-free.",
   "scripts": {
     "version:check": "node scripts/sync-version.js --check",
     "version:sync": "node scripts/sync-version.js --sync",

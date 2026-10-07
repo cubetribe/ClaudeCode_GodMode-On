@@ -6,12 +6,15 @@
 
 Each session, two steps unlock the full parallel-first system:
 
-**Step 1 — Turn on Ultracode** (session-scoped; set it once per session via the effort selector at
-the bottom of Claude Code, or by command):
+**Step 1 — Pick the model and (optionally) turn on Ultracode** (the model persists; Ultracode is a
+session-only switch that turns on automatic parallel dynamic workflows and leaves effort unchanged —
+it needs dynamic workflows enabled in `/config`):
 
 ```
-/model best        # Opus 4.8 today; auto-upgrades as higher tiers unlock
-/effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
+/model opus        # Opus 5.5 — recommended orchestrator model
+/effort ultracode  # optional, session-only: automatic dynamic workflows (effort unchanged)
+/effort xhigh      # optional, separate: raise reasoning effort for hard tasks
+# /model best      # optional: Fable 5.1 where available (~2.5x Opus 5.5 list price)
 ```
 
 **Step 2 — Type `GodMode:`** followed by your request:
@@ -23,8 +26,7 @@ GodMode: Research: best state management for React 18 in 2026
 ```
 
 No elaborate role prompts needed — the orchestrator reads `CLAUDE.md` automatically when Claude Code
-starts in your project. Ultracode is the one thing that does **not** persist across sessions, so make
-Step 1 a habit; without it GodMode still orchestrates, just at lower parallel width. The trigger
+starts in your project. Ultracode does **not** persist across sessions, so re-enable it each session if you want it; without it GodMode still orchestrates, just at lower parallel width. The trigger
 `GodMode:` is case-insensitive (`GODMODE:` works too).
 
 ---

@@ -6,12 +6,12 @@ A reference guide to how CC_GodMode is structured, how its orchestrator thinks, 
 
 ## Parallel-First & Ultracode Orchestration
 
-The orchestrator runs on `best` (Opus 4.8, auto-upgrades as higher tiers become available) at **ultracode** effort — maximum reasoning plus automatic dynamic workflows for substantive tasks. Everything else follows from that single decision.
+The orchestrator runs on `opus` (Opus 5.5), the recommended default; `best` (Fable 5.1 where the org has access) is an optional upgrade. For large decomposable jobs the session-only **ultracode** switch (`/effort ultracode`, effort unchanged) adds automatic dynamic workflows for substantive tasks. Everything else follows from that single decision.
 
 **How it works:**
 
 - **Parallel fan-out is the default.** When a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), the orchestrator spawns multiple subagents in a single message rather than sequentially, then collects and synthesizes their verdicts.
-- **Dynamic-workflows escalation.** When a job outgrows ~10 concurrent subagents — codebase-wide audits, large migrations, cross-checked research — the orchestrator escalates to dynamic workflows (`/workflows` or ultracode) with adversarial verification across tens-to-hundreds of subagents.
+- **Dynamic-workflows escalation.** When a job outgrows ~10 concurrent subagents — codebase-wide audits, large migrations, cross-checked research — the orchestrator escalates to dynamic workflows (`/workflows` or the ultracode switch) with adversarial verification across tens-to-hundreds of subagents.
 - **Subagents stay on tiered aliases.** haiku for simple ops, sonnet for implementation, opus for architecture. Only genuinely hard problems justify the expensive tier.
 - **Effort fields tune token budgets.** Each agent's `effort` frontmatter field (requires Claude Code ≥2.1.152) tells the runtime how hard to think: architect=high, builder/tester/api-guardian=medium, everything else=low.
 - **Smart Routing is the default.** Risk-based, minimal-agent paths replace the old always-Full-Gates default. Estimated 30–50% token reduction per standard feature (based on per-workflow cost models in `docs/AGENT_MODEL_SELECTION.md`).

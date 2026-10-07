@@ -21,7 +21,7 @@
 - Inline architecture briefs for small/medium tasks (no @architect invocation)
 - Full-Gates escalation for API changes, security surfaces, new modules, breaking changes
 - Targets 30–50% token reduction per standard feature
-- Orchestrator model: `best` (alias for Opus 4.8; auto-upgrades when a newer model is available) at ultracode effort — set with `/model best` and `/effort ultracode`
+- Orchestrator model: `opus` (Opus 5.5, recommended) — set with `/model opus`. `/effort ultracode` is an optional session-only switch that turns on automatic dynamic workflows and leaves the effort level unchanged (requires dynamic workflows enabled in `/config`); `/effort xhigh` is an optional separate effort level. `best` resolves to Fable 5.1 where available (about 2.5× Opus 5.5's list price) and is an optional upgrade
 - PARALLEL-FIRST fan-out: independent tasks spawn parallel subagents in a single message; orchestrator collects and synthesizes verdicts
 - Ultracode + dynamic-workflows escalation for large decomposable jobs (fan out to tens–hundreds of verified parallel subagents)
 

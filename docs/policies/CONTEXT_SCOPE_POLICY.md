@@ -210,7 +210,7 @@ when it passes.
 
 ### Budget Allocation
 
-**Token Budget:** 200K+ tokens (alias `sonnet` → Sonnet 4.6; `opus`/`best` → Opus 4.8, 1M context)
+**Token Budget:** 200K+ tokens (alias `sonnet` → Sonnet 5.5; `opus` → Opus 5.5, 1M context; `best` → Fable 5.1 where available, else Opus 5.5)
 
 **Recommended Allocation by Agent:**
 - @architect: 30-40% (needs broad context for design decisions)

@@ -24,7 +24,7 @@ Key properties:
 - **Iterative convergence:** Rounds repeat until findings stabilize — contested results are re-examined rather than silently dropped.
 - **Returns only the verified result:** The final output is the convergence-confirmed set of findings, not raw subagent output.
 
-Trigger: the word **"workflow"** in a prompt, or automatically when `ultracode` effort is active. Inspect running and past workflow runs with `/workflows`.
+Trigger: the word **"workflow"** in a prompt, or automatically when the `ultracode` switch is on. Inspect running and past workflow runs with `/workflows`.
 
 ---
 
@@ -66,17 +66,17 @@ workflow: audit every API route in src/api/ for missing auth checks
 **Via ultracode (recommended for large or time-critical jobs):**
 
 ```
-/model best
+/model opus
 /effort ultracode
 ```
 
-`ultracode` sends `xhigh` reasoning to the model **and** has Claude automatically orchestrate dynamic workflows for substantive tasks. It is session-only — it cannot live in the `effortLevel` settings field.
+`ultracode` is a **separate, session-only switch** (`/effort ultracode`, or `/effort ultracode on|off`) — it is not an effort level and leaves the effort setting unchanged (valid levels: `low | medium | high | xhigh | max`; Opus 5.5 and Sonnet 5.5 default to `medium`). While on, Claude automatically orchestrates dynamic workflows for substantive tasks. It requires dynamic workflows to be enabled in `/config`, is available depending on the model, and cannot live in the `effortLevel` settings field. For a single prompt, include the keyword `ultracode` instead. `/model best` (Fable 5.1 where available) is an optional upgrade, not a requirement.
 
 **Via settings (persist across sessions):**
 
 ```json
 {
-  "model": "best",
+  "model": "opus",
   "ultracode": true
 }
 ```
@@ -223,7 +223,7 @@ Running many workers at once multiplies token usage. Dynamic workflows add on to
 **Therefore:**
 
 - **Smart Routing stays the default** (`skills/cost-efficiency/`). The Orchestrator applies it automatically.
-- **Dynamic workflows are an explicit, deliberate opt-in** — triggered by the word `workflow` or by the user activating `ultracode`.
+- **Dynamic workflows are an explicit, deliberate opt-in** — triggered by the word `workflow` or by the user switching on `ultracode`.
 - Before triggering ultracode on a large job, consider whether Smart Routing with a few targeted subagents would reach the same result at lower cost.
 - Use dynamic workflows when **correctness at scale** matters more than token cost: security audits, migration correctness, large multi-angle research where a missed finding has downstream consequences.
 
@@ -236,7 +236,7 @@ Running many workers at once multiplies token usage. Dynamic workflows add on to
 | Agent teams (3–5 teammates) | ~5–15x | faster for large features |
 | Dynamic workflows (adversarial) | Substantially higher (varies by N subagents × rounds) | ~60–80% faster wall-clock |
 
-### Cost Thresholds — Lever Multiplier Table and the ~2× Rule
+### Cost Thresholds — Lever Multiplier Table and the ~2.5× Rule
 
 Each compensation lever has a documented token-cost multiplier relative to a
 plain single-pass session. These multiply when stacked (e.g. decomposition ×
@@ -253,11 +253,11 @@ reach a much larger total multiplier than any single row suggests.
 | Judge panels on verdict conflicts only | 2–3× (on the ~10–20% of runs that conflict) | Reduces tie-break variance where explicit adjudication criteria exist (`QUALITY-GATES.md` Step 2). |
 | Loop-until-dry enumeration | 3–10× | Multiple independently framed passes approach the recall a stronger model gets in one pass. |
 
-**The ~2× rule:** Fable 5 costs roughly 2× Opus 4.8 per token ($10/$50 vs
-$5/$25 in/out per MTok). Compensation levers stack multiplicatively — when a
+**The ~2.5× rule:** Fable 5.1 costs 2.5× Opus 5.5 per token at list price
+($10/$50 vs $4/$20 in/out per MTok; cache read about 1.25×). Compensation levers stack multiplicatively — when a
 task's *planned* compensation stack (sum of the levers you intend to invoke)
-exceeds roughly a **2× total token multiplier**, a Fable-5 run would likely be
-both cheaper AND higher-ceiling than compensating on Opus 4.8, because
+exceeds roughly a **2.5× total token multiplier**, a Fable-5.1 run would likely be
+both cheaper AND higher-ceiling than compensating on Opus 5.5, because
 compensation buys reliability parity within Opus' capability envelope but
 never raises that envelope (see `docs/AGENT_MODEL_SELECTION.md` — Fable-parity
 economics for the full break-even argument).
@@ -268,15 +268,14 @@ Log; per-turn announcement if no sprint file exists — or workflow
 announcement), e.g.:
 
 ```
-projected multiplier: decomposition (1.5x) x adversarial-facts (3x) ~= 4.5x -> exceeds 2x threshold, consider Fable-5 if available
+projected multiplier: decomposition (1.5x) x adversarial-facts (3x) ~= 4.5x -> exceeds 2.5x threshold, consider Fable 5.1 if available
 ```
 
-This is a planning heuristic, not a hard gate — proceed on Opus-only orgs
-where Fable is unavailable, but log the number so the cost tradeoff is
-visible before spend, not after. On orgs with Fable 5 access, the `best`
-alias already resolves to it automatically (see CLAUDE.md Ultracode
-Orchestrator Model Strategy) — these thresholds matter for Opus-only
-environments where that auto-upgrade path does not apply.
+This is a planning heuristic, not a hard gate — proceed on Opus 5.5 (and on orgs
+where Fable is unavailable), but log the number so the cost tradeoff is
+visible before spend, not after. On orgs with Fable 5.1 access, the `best`
+alias resolves to it (see CLAUDE.md Ultracode Orchestrator Model
+Strategy) — an optional upgrade; these thresholds matter when you stay on Opus 5.5.
 
 ---
 

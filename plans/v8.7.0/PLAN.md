@@ -52,7 +52,8 @@ out of scope for this plan.
 | 02 | gate-restructure | @validator in deterministischen Hook + bedarfsweises `/code-review` auflösen; @tester über neues `ux_gate`-Feld opt-in (Default `human`); Core Rules 5/6/8 nachziehen; Kohärenz-Sweep | minor | sequential (Write Scopes überlappen) |
 | 03 | coherence-sweep | verbleibende Regel-Widersprüche: eine kanonische API-Pfadliste statt fünf, Eskalationsmodell zusammengeführt, Architecture-Gate auf eine Schwelle, @scribe von VERSION getrennt, Versions-Header unter `sync-version.js`-Aufsicht, Skript-Audit | patch | parallel (6 disjunkte Scopes) |
 | 04 | install-update-path | Installer verdrahtet Hooks (eine Neuinstallation hatte bisher KEINE), ein Befehl für Install und Update, `verify-install.js`, README-Update-/Verify-Abschnitt, `auto-update.js`/`check-update.js` archiviert | minor | parallel (6 disjunkte Scopes) |
-| 05 | release | bump 8.6.0 → **9.0.0** via tooling, changelog promotion, invariant checks, PR mit Merge-Commit (mit Erlaubnis) | — (aggregiert: **major**) | last |
+| 05 | core-branding-opus55 | Öffentliche Bezeichnung „GodMode Core for Claude Code" (Produktfamilie aus Codex 3.1.1), Querverlinkung Codex Core / GodMode Pro, Modellempfehlung Opus 5.5 statt Opus 4.8/`best`, Ultracode als eigener Schalter, Core Rule 2 auf Anthropics Delegationslinie, Kosten-Regel ~2,5× | **major** (Core-Rule-Änderung) | parallel (4 disjunkte Scopes) |
+| 06 | release | bump 8.6.0 → **9.0.0** via tooling, changelog promotion, invariant checks, PR mit Merge-Commit (mit Erlaubnis) | — (aggregiert: **major**) | last |
 
 ## Global ownership matrix (hot files)
 

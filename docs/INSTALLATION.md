@@ -58,12 +58,12 @@ claude
 
 The orchestrator is now active. To run it at full power, each session is two steps:
 
-1. **Turn on Ultracode** — in the effort selector at the bottom of Claude Code, or by command:
+1. **Pick the model and turn on Ultracode** — by command:
    ```
-   /model best        # Opus 4.8 today; auto-upgrades as your org gains access
-   /effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
+   /model opus        # Opus 5.5, the recommended orchestrator (`best` = Fable 5.1 where available, optional)
+   /effort ultracode  # session-only switch: automatic parallel dynamic workflows; effort level unchanged
    ```
-   Ultracode is **session-scoped** — it does not persist, so enable it in every new session.
+   Ultracode is a separate switch, not an effort level (`/effort ultracode on|off`). It is **session-scoped** — it does not persist, so enable it in every new session — and requires dynamic workflows to be enabled in `/config`. For a single prompt you can include the keyword `ultracode` instead.
 2. **Type your request**, prefixed with `GodMode:` — e.g. `GodMode: New Feature: dark mode toggle`.
 
 Skip Step 1 and GodMode still orchestrates and gates correctly; it just won't fan out to its full parallel width. The trigger `GodMode:` is case-insensitive (`GODMODE:` works too).

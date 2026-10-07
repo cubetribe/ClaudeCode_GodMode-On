@@ -1,6 +1,8 @@
 <div align="center">
 
-# CC_GodMode
+# GodMode Core for Claude Code
+
+*currently published as **CC_GodMode***
 
 ### *"What happens when an AI system is used to improve itself?"*
 
@@ -17,6 +19,16 @@
 </div>
 
 > **Not open source.** Free for private, non-commercial use. Forks & pull requests on GitHub are welcome — re-hosting on third-party platforms/marketplaces is prohibited and attribution is required. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+## Choose your GodMode
+
+| Product | Best fit | What it provides |
+|---|---|---|
+| **GodMode Core for Claude Code** — this repository (currently CC_GodMode) | You operate your own Claude Code setup | Self-installed orchestrator rules, 14 agents, 14 skills, hooks and release tooling, under its own license terms |
+| [**GodMode Core for Codex**](https://github.com/cubetribe/CODEX_GodMode_ON) | You operate your own Codex setup | The separately maintained Codex workflow package |
+| [**GodMode Pro by Nerdsmiths**](https://godmode.nerdsmiths.de/) | You want an integrated application and assisted setup | A separate proprietary desktop application for project control, result review, maintained integrations, and scoped onboarding and support |
+
+Core has no package subscription; Claude access and usage are paid separately. Free availability for private, non-commercial use does not make it open source and does not change the license. Pro has its own availability, pricing, and service terms; see the [Nerdsmiths landing page](https://godmode.nerdsmiths.de/).
 
 ---
 
@@ -107,14 +119,19 @@ of failing the sprint. That's a graceful degradation, not a missing dependency.
 
 ## Daily Usage — Two Steps
 
-The orchestrator loads from `CLAUDE.md` automatically. But its headline power — **parallel-first dynamic workflows — only runs at Ultracode effort, and Ultracode is session-scoped**. So each new session is two steps:
+The orchestrator loads from `CLAUDE.md` automatically. But its headline power — **parallel-first dynamic workflows — only fans out when Ultracode is on, and Ultracode is session-scoped**. So each new session is two steps (verified on Claude Code 2.1.286; use 2.1.28x or newer):
 
-**Step 1 — Turn on Ultracode.** Set it once per session, in the effort selector at the bottom of Claude Code, or by command:
+**Step 1 — Pick the model, turn on Ultracode.** Once per session, by command:
 
 ```
-/model best        # resolves to Opus 4.8 — the model this system is optimized for
-/effort ultracode  # xhigh reasoning + automatic parallel dynamic workflows
+/model opus         # Opus 5.5 — the recommended default, the model this system is tuned for
+/effort xhigh       # optional: raise reasoning effort for hard tasks
+/effort ultracode   # separate session-only switch: automatic dynamic workflows, effort unchanged
 ```
+
+`ultracode` is not an effort level. It is a switch that turns on automatic dynamic workflows for the session and leaves your effort setting alone. It needs dynamic workflows enabled in `/config`, and availability depends on the model. For a one-off, put the keyword `ultracode` in a single prompt instead.
+
+Optional upgrade: `/model best` resolves to Fable 5.1 where your org has access (about 2.5× Opus 5.5's list price), otherwise to Opus 5.5. Nothing depends on it.
 
 **Step 2 — Say what you want, prefixed with `GodMode:`**
 
@@ -130,7 +147,7 @@ You say *what* you want — the system figures out *which* agents to call, in *w
 
 ## What Is This?
 
-**CC_GodMode** transforms Claude Code into a self-orchestrating multi-agent development team — driven by the `best` / Claude Opus 4.8 orchestrator at **ultracode** effort, fanning work out across parallel Claude Code subagents for implementation, validation, and documentation.
+**CC_GodMode** transforms Claude Code into a self-orchestrating multi-agent development team — driven by an Opus 5.5 orchestrator (`/model opus`) with **ultracode** switched on, fanning work out across parallel Claude Code subagents for implementation, validation, and documentation.
 
 **You say WHAT. The AI figures out HOW.**
 
@@ -138,7 +155,7 @@ You say *what* you want — the system figures out *which* agents to call, in *w
 You: "I need user authentication with JWT"
 
 Orchestrator:
-  → Analyzes the request and determines the version bump
+  → Plans the work and splits it into sprints with write-scope ownership
   → Creates the report folder
   → Delegates to @architect for design
   → Delegates to @api-guardian for API impact
@@ -166,7 +183,7 @@ You: *drinks coffee*
 
 v8.0.0's headline: **parallelization is the default**, not an afterthought.
 
-- **Orchestrator optimized for Opus 4.8 at ultracode** — xhigh reasoning plus automatic dynamic workflows for substantive tasks. The `best` alias resolves to Opus 4.8; if your org has access to a higher tier it is picked up automatically — strictly optional, no feature depends on it.
+- **Orchestrator tuned for Opus 5.5 (`/model opus`) with ultracode on** — ultracode switches on automatic dynamic workflows for substantive tasks. The `best` alias resolves to Fable 5.1 where your org has access (about 2.5× Opus 5.5's list price) — an optional upgrade, no feature depends on it.
 - **Fan-out by default** — independent units (multi-file edits, audits, migrations, multi-angle research) spawn parallel subagents in a single message; the orchestrator fans in and synthesizes their verdicts.
 - **Dynamic-workflows escalation** — when a job outgrows ~10 concurrent subagents, it escalates to tens-to-hundreds of subagents with **adversarial verification** (agents try to refute each other's findings). See [`skills/dynamic-workflows/`](./skills/dynamic-workflows/SKILL.md).
 - **Smart Routing stays the default** — risk-based, minimal-agent paths; ~30–50% token reduction vs. always-Full-Gates. Parallel is *faster, not cheaper*, so max-parallel is a deliberate opt-in.
@@ -192,7 +209,7 @@ After `@builder`, a deterministic hook (typecheck, lint, tests, build) always ru
 ## The Rules
 
 1. **Plan-First** — Non-trivial work starts with a plan (`plans/vX.Y.Z/`) split into sprints with explicit write-scope ownership; the version is decided at release, never at work start (ADR-004)
-2. **Smart Routing default** — Risk-based routing; Full-Gates for high-risk signals
+2. **Delegate when it pays** — Delegate large, genuinely independent, parallelizable work, or work needing a specialist's tools or a separate write scope; do what fits in a handful of tool calls yourself; never delegate to double-check your own work (that is what the deterministic checks are for). **Smart Routing** is the default — risk-based, Full-Gates for high-risk signals
 3. **Architecture gate (split)** — Inline brief for small/medium; @architect (Opus) for new modules / breaking changes
 4. **@api-guardian is MANDATORY** — For any API/schema/type change (enforced by hook)
 5. **Verification matches the evidence** — After @builder, a deterministic hook (typecheck/lint/tests/build) always runs; @tester or @security only run where they open evidence @builder didn't have; a `/code-review` pass is pulled on risk or doubt
@@ -250,11 +267,11 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 
 What's in the box:
 - **14 agents** (7 core + 1 security gate + 6 department) with effort-field budget tuning
-- **13 skills** for workflows, quality gates, release, research, API changes, modes, teams, bootstrap, and dynamic workflows
+- **14 skills** for workflows, quality gates, release, research, API changes, modes, teams, bootstrap, and dynamic workflows
 - **Parallel-first orchestration** — fan-out by default, dynamic-workflows escalation with adversarial verification
 - **Evidence-matched verification** — deterministic hook always, @tester opt-in via `ux_gate`, @security on security surfaces, `/code-review` on risk
 - **Smart Routing by default** (~30–50% token savings vs. old always-Full-Gates)
-- **Version-first workflow** with automated checks
+- **Version-at-release workflow** — `VERSION` is written once by the release tooling; the release invariant is machine-checked
 
 See the [CHANGELOG](./CHANGELOG.md) for the full history.
 
