@@ -1,4 +1,4 @@
-# CC_GodMode v8.6.0
+# CC_GodMode v9.0.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -179,7 +179,7 @@ detail beyond this file. The Modes table above maps intent to skill.
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v8.6.0
+**Current Version:** v9.0.0
 
 ---
 

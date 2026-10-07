@@ -9,7 +9,7 @@
 **You're looking at the answer.**
 
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary_(non--commercial)-red.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-8.6.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-9.0.0-blue)](./CHANGELOG.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20%2B%20Skills-green)](./skills/)
 [![Agents](https://img.shields.io/badge/Agents-7%20Core%20%2B%201%20Security%20%2B%206%20Dept-purple)](./docs/AGENTS.md)
 [![Plugin](https://img.shields.io/badge/Plugin-Ready-orange)](./CLAUDE.md)
@@ -263,7 +263,7 @@ A: No. "NEVER git push without permission" is enforced across all agents.
 
 ## Version
 
-**CC_GodMode v8.6.0**
+**CC_GodMode v9.0.0**
 
 What's in the box:
 - **14 agents** (7 core + 1 security gate + 6 department) with effort-field budget tuning

@@ -1,4 +1,4 @@
-> **Version:** 8.6.0 **Type:** MAINTENANCE **Prerequisite:** SystemInstall and
+> **Version:** 9.0.0 **Type:** MAINTENANCE **Prerequisite:** SystemInstall and
 > ProjectActivation completed **Frequency:** Periodically (when checking for
 > updates)
 

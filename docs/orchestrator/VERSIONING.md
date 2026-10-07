@@ -1,4 +1,4 @@
-# CC_GodMode Versioning & Release Law (v8.6.0, ADR-004)
+# CC_GodMode Versioning & Release Law (v9.0.0, ADR-004)
 
 Updated by v8.6.0 sprint 04 additions; the header version is bumped at the release sprint per this document's own law.
 

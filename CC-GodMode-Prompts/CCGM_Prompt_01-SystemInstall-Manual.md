@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 8.6.0
+> **Version:** 9.0.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -282,7 +282,7 @@ chmod +x ~/.claude/scripts/*.js
 
 ## Version
 
-CC_GodMode **v8.6.0**
+CC_GodMode **v9.0.0**
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 

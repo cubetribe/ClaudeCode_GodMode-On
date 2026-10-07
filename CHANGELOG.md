@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [9.0.0] - 2026-10-07
 ### Breaking Changes
 
 - **Core Rule 2: "Delegate when it pays"** (Sprint 05) — replaces "Delegate by default". Delegation now targets large, genuinely independent/parallelizable work or work requiring specialist tools or separate write scope; small work is done directly; never delegate to verify your own work.

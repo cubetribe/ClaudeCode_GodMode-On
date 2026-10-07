@@ -1,7 +1,7 @@
 {
   "name": "cc-godmode",
   "displayName": "GodMode Core for Claude Code",
-  "version": "8.6.0",
+  "version": "9.0.0",
   "description": "GodMode Core for Claude Code (currently CC_GodMode) — self-orchestrating, parallel-first multi-agent development system, orchestrated by Opus 5.5 (`opus`). 14 agents (7 core + 1 security gate + 6 department), Smart Routing default, dynamic-workflows escalation, risk-based quality gates. You say WHAT, the AI decides HOW.",
   "author": {
     "name": "Dennis Westermann",

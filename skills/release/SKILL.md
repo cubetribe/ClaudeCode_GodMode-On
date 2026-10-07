@@ -4,7 +4,7 @@ description: "Release sprint workflow: version-at-release via tooling, CHANGELOG
 license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
-# Release & Versioning (v8.6.0)
+# Release & Versioning (v9.0.0)
 
 > **Authoritative law:** `docs/orchestrator/VERSIONING.md` (ADR-004). This skill is the
 > operational cheat sheet. The pre-v8.5 "Version-First" rule (bump before work) is retired.

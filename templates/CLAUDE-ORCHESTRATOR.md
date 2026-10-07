@@ -1,12 +1,12 @@
 <!--
-  CC_GodMode project orchestrator template (v8.6.0).
+  CC_GodMode project orchestrator template (v9.0.0).
   This file MIRRORS the repo-root CLAUDE.md — the installer ships the root file to
   ~/.claude/templates/CLAUDE-ORCHESTRATOR.md, and users copy it to <project>/CLAUDE.md
   to activate GodMode in a project. Do not maintain content here: it is regenerated
   from CLAUDE.md at release time (scripts/sync-version.js keeps the version strings aligned).
 -->
 
-# CC_GodMode v8.6.0
+# CC_GodMode v9.0.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
@@ -187,7 +187,7 @@ detail beyond this file. The Modes table above maps intent to skill.
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v8.6.0
+**Current Version:** v9.0.0
 
 ---
 

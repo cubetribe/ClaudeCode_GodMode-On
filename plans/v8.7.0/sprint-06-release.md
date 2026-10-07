@@ -2,7 +2,7 @@
 sprint: 06
 slug: release
 plan: plans/v8.7.0/PLAN.md
-status: planned
+status: done
 execution: sequential
 owner: orchestrator
 ux_gate: skip
@@ -158,4 +158,24 @@ Höchster Wert gewinnt. Ergebnis: **9.0.0**.
 
 ## Result
 
-_(bei Integration ausfüllen)_
+Done 2026-10-07 (Maintainer-Freigabe für Release und Push im Chat, 2026-10-07).
+
+- `node scripts/version-bump.js major` ⇒ **8.6.0 → 9.0.0**, `[Unreleased]` → `## [9.0.0] - 2026-10-07`,
+  14 Touchpoints synchronisiert. Das vom Skript angelegte leere `reports/v9.0.0/` wurde entfernt —
+  Ablage bleibt unter dem Arbeitslabel `v8.7.0` (Entscheidung (b) oben).
+- Der Changelog-Abschnitt wurde vor dem Bump zu einer zusammenhängenden Release-Notiz umgebaut
+  (Breaking Changes, Upgrading from 8.6.0, Added, Changed, Fixed; deutsche Einträge übersetzt).
+- Release-Branch `release/v9.0.0` (enthält Sprints 01–06), ROADMAP-Zeile v9.0.0 als `released`.
+
+**Akzeptanzkriterien**
+
+1. ✓ `sync-version.js --check` — 14/14 Touchpoints auf 9.0.0.
+2. ✓ `release-check.js` — Invariante hält (Release in flight auf `release/v9.0.0`); nach Merge
+   und Tag erneut zu prüfen.
+3. ✓ `test-hooks-contract.js` grün.
+4. ⚠ `verify-install.js` — lokale Installation des Maintainers steht auf 8.6.0 und hat noch keine
+   LICENSE/NOTICE-Kopie; grün erst nach `./scripts/apply-global-claude-setup.sh` (verändert
+   `~/.claude/settings.json` mit Backup — separater Schritt mit Freigabe).
+5. ✓ CHANGELOG 9.0.0 enthält alle fünf Sprints als zusammenhängende Notiz.
+6. – PR mit Merge-Commit: siehe GitHub.
+7. – Tag + Release: über `release-tag.yml` nach Merge.
