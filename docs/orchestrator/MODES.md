@@ -1,14 +1,12 @@
 # CC_GodMode Workflow Modes
 
-Updated: 2026-06-11
-
 This document defines the mode layer above the CC_GodMode agent
 workflow. Modes change orchestration behavior; they do not remove mandatory
 safety rules unless the mode explicitly declares a local-only exception.
 
 **v8.5.0 note:** Plan-First orchestration (ADR-004) sits above all modes: non-trivial work is decomposed into sprint files with write-scope ownership before any mode executes (`skills/sprint-planning/`); the version is decided at release, never at work start.
 
-**v8.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
+**v7.0.0 note:** Smart Routing is now the default. Each agent carries an `effort` field in its frontmatter (requires Claude Code ≥2.1.152) to tune token budgets: architect=high, builder/tester/api-guardian=medium, all others=low.
 
 ## Mode Summary
 
@@ -26,7 +24,7 @@ safety rules unless the mode explicitly declares a local-only exception.
 When a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), the orchestrator fans out to parallel subagents **in a single message** rather than sequentially. After all subagents return, the orchestrator fans in, resolves conflicts, and synthesizes one result.
 
 - **Dependency mapping first:** tasks that write the same files, depend on each other's output, or require ordering run sequentially. Only genuinely independent tasks run in parallel.
-- **Concurrency cap:** up to ~10 subagents concurrently in one session (the rest queue). When a job outgrows that, escalate to dynamic workflows (`/workflows` or ultracode effort) with adversarial verification.
+- **Concurrency cap:** up to ~10 subagents concurrently in one session (the rest queue). When a job outgrows that, escalate to dynamic workflows (`/workflows` or the ultracode switch) with adversarial verification.
 - **File-conflict isolation:** use worktrees for parallel work on overlapping files; use `/batch` to split one large change into 5–30 PR-opening subagents.
 
 ## Smart Routing (Default)
@@ -34,7 +32,7 @@ When a request decomposes into independent units (multi-file edits, multi-domain
 **Smart Routing is the default** as of v7.0.0. The Orchestrator applies it automatically unless the task carries high-risk signals.
 
 Risk signals that force Full-Gates:
-- API/schema/type paths (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — canonical, enumerated list in `skills/api-change/SKILL.md`
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes
@@ -48,8 +46,12 @@ See `skills/cost-efficiency/SKILL.md` for full routing table.
 Full-Gates is the explicit escalation path for high-risk work:
 
 ```text
-(@researcher)* -> @architect -> @builder -> (@validator || @tester) -> @scribe
+(@researcher)* -> @architect -> @builder -> checks -> @scribe
 ```
+
+"checks" = the deterministic hook (always) plus whichever of @tester
+(`ux_gate: auto`), @security (security surface), and `/code-review` (risk or
+doubt) apply, run in parallel (Core Rule 5, `docs/orchestrator/QUALITY-GATES.md`).
 
 Use @api-guardian between @architect and @builder for API, schema, CLI, config,
 or public contract changes.
@@ -99,8 +101,9 @@ It prefers:
 - targeted validation by changed scope
 - inline architecture brief for small/medium tasks
 
-It does not skip @api-guardian for contracts, @validator for implementation
-quality, or @tester for user-facing behavior that changed.
+It does not skip @api-guardian for contracts, the deterministic hook for
+implementation quality, or @tester when the sprint declared `ux_gate: auto`
+for user-facing behavior that changed.
 
 ## Current Claude Code Platform Notes
 
@@ -133,13 +136,13 @@ Sources:
 
 ## Ultracode / Max-Parallel (Dynamic Workflows)
 
-Ultracode is the escalation path when a job outgrows a handful of plain subagents. It combines the `best`/Opus 4.8 orchestrator running at ultracode effort (`/model best` + `/effort ultracode`) with Claude Code's **dynamic workflow** engine.
+Ultracode is the escalation path when a job outgrows a handful of plain subagents. It combines the `opus` (Opus 5.5) orchestrator with the session-only ultracode switch (`/model opus` + `/effort ultracode`; effort level unchanged, requires dynamic workflows enabled in `/config`) and Claude Code's **dynamic workflow** engine.
 
 **What dynamic workflows do:**
 
 - The orchestrator writes and runs a script that fans work out across **tens to hundreds of parallel subagents**.
 - **Adversarial verification:** agents try to refute each other's findings; the workflow iterates until answers converge, then returns only the verified result.
-- Triggered by the word "workflow" in a prompt, or automatically when ultracode effort is active.
+- Triggered by the word "workflow" in a prompt, or automatically when the ultracode switch is on (or the keyword `ultracode` is in the prompt).
 - Requires Claude Code v2.1.154+. Inspect active runs with `/workflows`.
 
 **File-conflict isolation:**

@@ -2,6 +2,7 @@
 name: agent-teams
 description: "Experimental Agent Teams orchestration — run CC_GodMode agents as parallel teammates with SharedTaskList coordination (requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)"
 disable-model-invocation: true
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Agent Teams Orchestration (Experimental)
@@ -29,7 +30,7 @@ GodMode maps onto four parallelization surfaces. Choose the right one for the jo
 **Decision guidance:**
 - Use **plain subagents** for one-off in-session side tasks (the default, always available).
 - Use **agent teams** when you need persistent, coordinated teammates kept in sync via a shared task list across a multi-part project.
-- Use **dynamic workflows** when a job outgrows a handful of subagents and needs fan-out at scale plus adversarial verification — trigger with the word "workflow" in a prompt or enable ultracode.
+- Use **dynamic workflows** when a job outgrows a handful of subagents and needs fan-out at scale plus adversarial verification — trigger with the word "workflow" in a prompt or switch on ultracode.
 - See also the `## Parallelization` section of `CLAUDE.md` for the cost guardrail and concurrency tiers that apply across all surfaces.
 
 ## Enabling Agent Teams
@@ -50,8 +51,8 @@ Add to your environment or `settings.json`:
 |----------|------|-------|----------|
 | Architect | Design & planning | opus | — |
 | Builder | Implementation | sonnet | worktree |
-| Validator | Code quality | sonnet | worktree |
-| Tester | UX quality | sonnet | worktree |
+| Tester | UX quality (when `ux_gate: auto`) | sonnet | worktree |
+| Security | Security gate (on security surfaces) | sonnet | worktree |
 | Scribe | Documentation | haiku | — |
 
 **Recommended team size:** 3–5 teammates for optimal coordination.
@@ -77,7 +78,7 @@ pending → in_progress → completed
     {"id": "1", "name": "Design auth module", "assignee": "architect", "status": "completed"},
     {"id": "2", "name": "Implement auth API", "assignee": "builder", "blockedBy": ["1"], "status": "in_progress"},
     {"id": "3", "name": "Implement auth UI", "assignee": "builder", "blockedBy": ["1"], "status": "in_progress"},
-    {"id": "4", "name": "Validate auth code", "assignee": "validator", "blockedBy": ["2", "3"], "status": "pending"},
+    {"id": "4", "name": "Security-check auth code", "assignee": "security", "blockedBy": ["2", "3"], "status": "pending"},
     {"id": "5", "name": "Test auth UX", "assignee": "tester", "blockedBy": ["2", "3"], "status": "pending"}
   ]
 }
@@ -119,3 +120,7 @@ Agent Teams only when the implementation work itself can safely run in parallel.
 3. Keep team size to 3–5 teammates
 4. Use worktree isolation for all building/testing teammates
 5. Reserve standard orchestration for sequential workflows (API changes)
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

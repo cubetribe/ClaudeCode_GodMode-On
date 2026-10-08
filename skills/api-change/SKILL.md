@@ -1,26 +1,37 @@
 ---
 name: api-change
 description: "API change detection rules, critical file paths that trigger @api-guardian, consumer impact analysis requirements, and breaking change protocols"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # API Change Detection & Guardian Rules
 
 ## Critical API Paths
 
-Changes to ANY of these paths **require @api-guardian**:
+**This is the single canonical list.** No other file in this repo enumerates these paths —
+they all reference this section instead. Changes to ANY of these paths **require
+@api-guardian**:
 
 ```
-src/api/**
-backend/routes/**
-shared/types/**
+src/api/
+backend/routes/
+shared/types/
+types/
 **/interfaces/**
-*.d.ts
-openapi.yaml
-schema.graphql
-swagger.json
 **/dto/**
 **/contracts/**
+*.d.ts
+openapi.yaml
+openapi.json
+swagger.json
+schema.graphql
 ```
+
+This is the **union** of five previously divergent lists (see
+`reports/v8.7.0/sprint-00/03b-contradiction-sweep.md`, finding H14). Deliberate
+consequence: more paths trigger this gate now than under four of the five prior
+versions. That is the safe direction — a contract break that slips through costs more
+than a gate that runs once too often.
 
 ## Automatic Detection
 
@@ -88,3 +99,7 @@ If a change is classified as BREAKING:
 ```
 
 @api-guardian sits between @architect and @builder to catch breaking changes BEFORE implementation begins.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

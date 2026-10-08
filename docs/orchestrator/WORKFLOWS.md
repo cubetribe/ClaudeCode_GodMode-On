@@ -7,7 +7,7 @@
 **Default: Smart Routing** (`skills/cost-efficiency/`) — risk-based minimal-agent paths.
 
 **Escalate to Full-Gates** (`skills/workflows/`) when any risk signal is present:
-- API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — canonical, enumerated list in `skills/api-change/SKILL.md`
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes
@@ -20,7 +20,10 @@
 
 The Orchestrator selects the appropriate workflow based on the user's request.
 
-**Note:** @validator and @tester run IN PARALLEL after @builder. Both must APPROVE before continuing. @researcher is OPTIONAL — use when new technologies/libraries need evaluation.
+**Note:** after @builder, the deterministic hook always runs; whichever of @tester (if
+`ux_gate: auto`), @security (on security surfaces), and `/code-review` (on risk or doubt)
+apply run IN PARALLEL. All that ran must APPROVE before continuing (Core Rule 5, `docs/orchestrator/QUALITY-GATES.md`).
+@researcher is OPTIONAL — use when new technologies/libraries need evaluation.
 
 ## Parallel-First Defaults
 
@@ -34,7 +37,7 @@ or require ordering run **sequentially**. Only genuinely independent tasks run i
 **Concurrency tiers:**
 - Up to ~10 subagents concurrently inside one session (rest queue/batch).
 - When a job outgrows that, escalate to **dynamic workflows** (`skills/dynamic-workflows/`,
-  `/workflows`, or ultracode) with adversarial verification and worktree/`/batch` isolation.
+  `/workflows`, or the ultracode switch) with adversarial verification and worktree/`/batch` isolation.
 
 **File-conflict isolation:** use **worktrees** for parallel work on overlapping files; use
 **`/batch`** to split one large change into 5–30 PR-opening subagents.
@@ -44,30 +47,32 @@ multiplies token usage, and dynamic workflows can burn substantially more tokens
 normal session. Smart Routing stays the default; max-parallel / dynamic-workflows is an
 explicit, deliberate opt-in for big or time-critical jobs.
 
-The existing quality-gates parallel (∥) framing (@validator ∥ @tester) is unchanged.
+"Checks" after @builder means the deterministic hook (always) plus whichever of
+@tester / @security / `/code-review` the sprint's risk profile calls for, run in
+PARALLEL (Core Rule 5, `docs/orchestrator/QUALITY-GATES.md`).
 
 ## Standard Workflows
 
 ### 1. New Feature
 ```
-User --> (@researcher)* --> @architect --> @builder --> @validator + @tester (PARALLEL) --> @scribe
+User --> (@researcher)* --> @architect --> @builder --> checks --> @scribe
 ```
 *@researcher is optional — use when new tech/library research is needed
 
 ### 2. Bug Fix
 ```
-User --> @builder --> @validator + @tester (PARALLEL) --> (done)
+User --> @builder --> checks --> @scribe ([Unreleased] entry)
 ```
 
 ### 3. API Change (CRITICAL!)
 ```
-User --> (@researcher)* --> @architect --> @api-guardian --> @builder --> @validator + @tester (PARALLEL) --> @scribe
+User --> (@researcher)* --> @architect --> @api-guardian --> @builder --> checks --> @scribe
 ```
 **@api-guardian is MANDATORY for API changes!**
 
 ### 4. Refactoring
 ```
-User --> @architect --> @builder --> @validator + @tester (PARALLEL) --> (done)
+User --> @architect --> @builder --> checks --> @scribe ([Unreleased] entry)
 ```
 
 ### 5. Release
@@ -95,9 +100,9 @@ User: "Research [topic]"
 
 | Command | Workflow |
 |---------|----------|
-| "New Feature: [X]" | Full: (@researcher) -> @architect -> @builder -> @validator + @tester -> @scribe |
-| "Bug Fix: [X]" | Bug: @builder -> @validator + @tester |
-| "API Change: [X]" | API: (@researcher) -> @architect -> @api-guardian -> @builder -> @validator + @tester -> @scribe |
+| "New Feature: [X]" | Full: (@researcher) -> @architect -> @builder -> checks -> @scribe |
+| "Bug Fix: [X]" | Bug: @builder -> checks -> @scribe ([Unreleased] entry) |
+| "API Change: [X]" | API: (@researcher) -> @architect -> @api-guardian -> @builder -> checks -> @scribe |
 | "Research: [X]" | Research: @researcher -> report |
 | "Process Issue #X" | GitHub Issue Workflow |
 | "Prepare Release" | Release: @scribe -> @github-manager |
@@ -123,14 +128,10 @@ deployed.
 
 ## Critical Paths (API Changes) — Full-Gates Risk Signals
 
-These file paths are Full-Gates risk signals — they force the Full-Gates path and **MUST** go through @api-guardian:
-- `src/api/**`
-- `backend/routes/**`
-- `shared/types/**`
-- `types/`
-- `*.d.ts`
-- `openapi.yaml` / `openapi.json`
-- `schema.graphql`
+API/schema/type paths are a Full-Gates risk signal category — touching them forces the Full-Gates
+path and **MUST** go through @api-guardian. The canonical, enumerated path list lives in
+**`skills/api-change/SKILL.md`** and nowhere else — look there for the current set instead of
+relying on a copy here.
 
 Additional Full-Gates risk signals: `.github/workflows/`, `VERSION`, `CHANGELOG.md`, user-facing UI, new modules, breaking changes.
 

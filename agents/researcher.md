@@ -39,6 +39,7 @@ Before architecture decisions are made, you research current best practices, eva
 | **Read** | Read local documentation, previous research |
 | **Glob** | Find existing documentation in codebase |
 | **memory** | Store key findings, no-go technologies, verified sources |
+| **Write** | My own report only (`reports/vX.Y.Z/sprint-NN/00-researcher-report.md`) |
 
 ---
 
@@ -107,7 +108,7 @@ Before architecture decisions are made, you research current best practices, eva
 - **No Architecture Decisions** - That's @architect (I provide input)
 - **No Code Implementation** - That's @builder
 - **No API Design** - That's @architect + @api-guardian
-- **No Testing** - That's @validator + @tester
+- **No Testing** - That's the deterministic hook + @tester (when `ux_gate: auto`)
 - **No Documentation Writing** - That's @scribe
 
 ---
@@ -401,3 +402,7 @@ For programmatic handling:
 - Security advisory checks
 - Documentation discovery
 - Package/library evaluation
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

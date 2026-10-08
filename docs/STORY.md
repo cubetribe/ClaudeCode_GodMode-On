@@ -36,7 +36,7 @@ I gave it one prompt. The orchestrator delegated to the research team. Analyzed 
 
 These principles were hard-won. They reflect how modern large language models actually work — not how older prompt-engineering folklore said they needed to be coaxed:
 
-- **Identity is one line.** Persona prompts like "You are a Senior Engineer with 15 years of experience" add nothing on models like Opus 4.8. The task description does the work. Agent files dropped the theater and kept the function.
+- **Identity is one line.** Persona prompts like "You are a Senior Engineer with 15 years of experience" add nothing on models like Opus 5.5. The task description does the work. Agent files dropped the theater and kept the function.
 
 - **Capitals don't add weight.** Extensive CRITICAL/MUST/NEVER scaffolding in older agent definitions caused overtriggering — the model read emphasis everywhere and prioritized nothing. Per Anthropic's guidance, normal imperative phrasing is sufficient. Hard safety rules (never push without permission, @api-guardian is mandatory) keep their weight because they're genuinely non-negotiable, not because they're shouted.
 
@@ -69,3 +69,8 @@ Whether that's exciting or unsettling probably depends on where you're standing.
 ---
 
 *See also: [../README.md](../README.md)*
+
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

@@ -30,7 +30,7 @@
     "license": {
       "type": "string",
       "description": "License for the domain pack",
-      "examples": ["MIT", "Apache-2.0", "proprietary"]
+      "examples": ["proprietary", "Apache-2.0", "proprietary"]
     },
     "repository": {
       "type": "string",
@@ -62,7 +62,7 @@
           "extends": {
             "type": "string",
             "description": "Base agent to extend (e.g., 'core:builder')",
-            "examples": ["core:builder", "core:validator"]
+            "examples": ["core:builder", "core:tester"]
           },
           "prompt": {
             "type": "string",
@@ -227,7 +227,7 @@
       "version": "1.0.0",
       "description": "Domain pack for React Native mobile development",
       "author": "CC_GodMode Team",
-      "license": "MIT",
+      "license": "proprietary",
       "compatibility": {
         "minVersion": "5.8.0"
       },

@@ -1,66 +1,89 @@
 ---
 name: quality-gates
-description: "Parallel quality gate orchestration — @validator and @tester run simultaneously after @builder, with mandatory decision matrix for pass/fail routing"
+description: "Verification-matches-the-evidence gate model after @builder — deterministic hook always, @tester only when the sprint declared ux_gate: auto, @security on security surfaces, /code-review on risk or doubt"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
-# Quality Gates (Parallel Execution)
+# Quality Gates (Verification Matches the Evidence)
 
-After @builder completes, BOTH quality gates run **simultaneously**.
+After @builder completes, "checks" means, per Core Rule 5:
 
-## Parallel Execution Pattern
+1. **Deterministic checks — always.** Typecheck, lint, tests, build, run by hook. A
+   compiler result is a fact, not a second opinion, and it costs no context when it
+   passes.
+2. **UX gate — when the sprint declared `ux_gate: auto`.** @tester.
+3. **Security gate — on security surfaces.** @security (auth code, secrets handling,
+   `.github/workflows/`).
+4. **Review pass — on risk or doubt.** Pull the `/code-review` skill. No standing
+   agent re-reads the same diff.
+
+Whichever of 2–4 apply run in **PARALLEL**:
+- All APPROVED -> continue to @scribe
+- Any BLOCKED -> back to @builder with merged feedback
+
+## Execution Pattern
 
 ```
                     @builder completes
                            │
-           ┌───────────────┴───────────────┐
-           ▼                               ▼
-    ┌─────────────┐                 ┌─────────────┐
-    │ @validator  │                 │  @tester    │
-    │ Code Quality│                 │ UX Quality  │
-    ├─────────────┤                 ├─────────────┤
-    │ ✓ TypeScript│                 │ ✓ E2E Tests │
-    │ ✓ Unit Tests│                 │ ✓ Screenshots│
-    │ ✓ Security  │                 │ ✓ A11y      │
-    │ ✓ Consumers │                 │ ✓ Perf      │
-    └──────┬──────┘                 └──────┬──────┘
-           │                               │
-           └───────────────┬───────────────┘
-                      SYNC POINT
-                           │
-                   Apply Decision Matrix
+                 ┌─────────┴──────────┐
+                 ▼                    ▼
+        ┌─────────────────┐   (parallel, only if applicable)
+        │ Deterministic    │   ┌──────────┐ ┌───────────┐ ┌──────────────┐
+        │ hook (always)    │   │ @tester  │ │ @security │ │ /code-review │
+        │ typecheck/lint/  │   │ if       │ │ if        │ │ if risk or   │
+        │ tests/build      │   │ ux_gate: │ │ security  │ │ doubt        │
+        │ 0 bytes on pass  │   │ auto     │ │ surface   │ │              │
+        └────────┬─────────┘   └────┬─────┘ └─────┬─────┘ └──────┬───────┘
+                 │                  │              │               │
+                 └──────────────────┴──────────────┴───────────────┘
+                                     SYNC POINT
+                                         │
+                              Apply Decision Matrix
 ```
 
-## Decision Matrix (MANDATORY)
+## Decision Matrix
 
-Both agents MUST complete before applying this matrix:
+Every gate that ran for this sprint MUST report before the matrix applies:
 
-| @validator | @tester | NEXT ACTION |
-|------------|---------|-------------|
-| ✅ APPROVED | ✅ APPROVED | **PROCEED** to @scribe |
-| ✅ APPROVED | 🔴 BLOCKED | **RETURN** to @builder (with @tester feedback) |
-| 🔴 BLOCKED | ✅ APPROVED | **RETURN** to @builder (with @validator feedback) |
-| 🔴 BLOCKED | 🔴 BLOCKED | **RETURN** to @builder (with MERGED feedback from both) |
+| Deterministic hook | @tester (if run) | @security (if run) | /code-review (if run) | NEXT ACTION |
+|---|---|---|---|---|
+| PASS | APPROVED/skip | APPROVED/skip | APPROVED/skip | **PROCEED** to @scribe |
+| FAIL | — | — | — | **RETURN** to @builder with hook output |
+| PASS | BLOCKED | any | any | **RETURN** to @builder (with @tester feedback) |
+| PASS | any | BLOCKED | any | **RETURN** to @builder (with @security feedback) |
+| PASS | any | any | BLOCKED | **RETURN** to @builder (with review feedback) |
+| PASS | multiple BLOCKED | | | **RETURN** to @builder with MERGED feedback |
 
 **Rules:**
-- You MUST wait for BOTH agents before deciding
-- @scribe can ONLY be called when BOTH gates are APPROVED
-- If ANY gate is BLOCKED → back to @builder with specific feedback
-- Maximum 3 retry cycles before escalation to user
+- You MUST wait for every gate that applies to this sprint before deciding.
+- @scribe can ONLY be called when every gate that ran is APPROVED (or the hook passed
+  and no other gate applied).
+- If ANY gate is BLOCKED → back to @builder with specific feedback.
+- Escalation follows `docs/orchestrator/META-DECISIONS.md`'s Tier 1 self-resolution:
+  max 2 attempts, same agent, same scope, before Tier 2 (orchestrator resolution).
 
-## @validator Checks (Code Quality)
+## Deterministic Hook (Always)
 
 | Check | Tool | Blocking? |
 |-------|------|----------|
-| TypeScript compilation | `npx tsc --noEmit` | YES |
-| Unit tests pass | `npm test` | YES |
-| No security vulnerabilities | Static analysis | YES |
-| Consumer impact verified | Type-check consumers | YES if API change |
+| TypeScript / language compilation | `npx tsc --noEmit` (or project equivalent) | YES |
+| Unit tests pass | `npm test` (or project equivalent) | YES |
+| Build succeeds | project build command | YES |
 | Code style / linting | `npm run lint` | NO (warning only) |
 
-**Minimum output:** 400 characters
-**Required sections:** Summary, Checks Performed, Issues Found, Verdict
+Runs via hook, not a subagent — a compiler or test runner result is a fact, not a
+second opinion. Emits 0 bytes of context on success; output only on failure.
+Project-detection is required: the hook must recognize what kind of project it is
+running in (Node/TS, Swift, Flutter, other) and pass through cleanly on unknown
+project types instead of blocking.
 
-## @tester Checks (UX Quality)
+## @tester Gate (when `ux_gate: auto`)
+
+Runs only when the sprint frontmatter declares `ux_gate: auto` (see
+`docs/templates/SPRINT_TEMPLATE.md`). Default is `human`; `skip` when the write
+scope has no UI paths. If the `playwright` MCP is unreachable, the sprint falls
+back to `human` and logs it — it does not block.
 
 | Check | Tool | Blocking? |
 |-------|------|----------|
@@ -70,36 +93,35 @@ Both agents MUST complete before applying this matrix:
 | WCAG 2.1 AA compliance | a11y checks | YES |
 | Core Web Vitals | LCP, CLS, INP, FCP | NO (warning if poor) |
 
-**Screenshot viewports:**
-- Mobile: 375px
-- Tablet: 768px
-- Desktop: 1920px
+**Screenshot viewports:** 375×667 (mobile), 768×1024 (tablet), 1920×1080 (desktop).
 
 **Minimum output:** 800 characters
 **Required sections:** Summary, Screenshots Table, Console Errors, Performance Metrics, Verdict
 
-## Execution with Worktree Isolation
+## @security Gate (on security surfaces)
 
-For conflict-free parallel execution, use `isolation: worktree` (native Claude Code subagent frontmatter — already set in validator.md/tester.md; no repo tooling required):
+Runs on auth code, secrets handling, `.github/workflows/`, and other
+security-sensitive surfaces flagged by the sprint's risk signals. Opens evidence
+@builder did not have (threat-modeling read of the diff), so it stays a model pass,
+not a hook.
 
-```
-Task tool → subagent_type: "validator", isolation: "worktree"
-Task tool → subagent_type: "tester", isolation: "worktree"
-```
+## Review Pass (`/code-review`, on risk or doubt)
 
-Both agents get their own git worktree — no file conflicts possible.
+Pulled on demand when risk or doubt about code judgment warrants a second read of
+the diff — never as a standing agent. This is the replacement for the judgment
+portion of the former @validator: a compiler is a fact, but naming, structure, and
+maintainability calls need a model pass, invoked only when it is worth the cost.
 
-## Performance
-
-| Mode | Duration | Improvement |
-|------|----------|-------------|
-| Sequential | 8–12 min | baseline |
-| Parallel | 5–7 min | **40% faster** |
-| Parallel + Worktree | 5–7 min | **40% faster + zero conflicts** |
+Judgment-class decisions (architecture choice between valid alternatives, design
+taste, malformed-request suspicion) remain mandatory human escalations regardless
+of how many of the gates above pass — see
+`docs/orchestrator/QUALITY-GATES.md` for the full decision matrix. Unanimous
+agreement among same-tier agents on a judgment question is correlated evidence, not
+independent evidence, and does not waive the human escalation.
 
 ## Fail-Safe (Graceful Degradation)
 
-If an agent crashes (MCP failure, timeout):
+If a gate agent crashes (MCP failure, timeout):
 
 1. **Full Report** — Normal operation, all checks pass
 2. **Partial Report** — Some checks completed, others failed/timed out
@@ -109,7 +131,11 @@ Failure report includes: error type, suggested action (retry/escalate/skip), com
 
 ## Agent Return Contract
 
-Each agent writes a **full report** to `reports/vX.Y.Z/sprint-NN/<NN>-<agent>-report.md` (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`). The return message to the Orchestrator is the structured verdict only — separate from the on-disk report.
+Each agent that ran writes a **full report** to
+`reports/vX.Y.Z/sprint-NN/<NN>-<agent>-report.md` (canonical numbering:
+`docs/templates/REPORT_TEMPLATES.md`) if it holds `Write`; read-only agents return
+their verdict and whoever dispatched them persists it. The return message to the
+Orchestrator is the structured verdict only — separate from the on-disk report.
 
 ```
 STATUS: APPROVED | BLOCKED | DONE
@@ -119,4 +145,10 @@ STATUS: APPROVED | BLOCKED | DONE
 report: <absolute path to full report>
 ```
 
-**Important:** `scripts/validate-agent-output.js` enforces min-length on the **file**, not the return message. This contract does not change validation behavior. Min-lengths remain: architect 1000, api-guardian 800, builder 500, validator 400, tester 800, scribe 300, github-manager 200.
+**Important:** `scripts/validate-agent-output.js` enforces min-length on the
+**file**, not the return message, for agents that still hold `Write`. This
+contract does not change validation behavior.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

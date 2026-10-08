@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * Pre-Push Check Hook (v5.9.0)
  *
  * Git pre-push hook that ensures workflow is complete before allowing push
  *
  * Checks:
  * - Workflow state shows complete
- * - Both quality gates APPROVED
+ * - Deterministic checks gate APPROVED (always required); tester/security gates
+ *   APPROVED only if they actually ran — a gate left at null was never
+ *   required for this sprint and must not block the push (v8.7.0 sprint-02)
  * - VERSION file updated
  * - CHANGELOG.md updated
  * - No uncommitted changes
@@ -60,33 +67,38 @@ function checkWorkflowState() {
       };
     }
 
-    // Check quality gates
-    const validatorStatus = state.qualityGates?.validator?.status;
-    const testerStatus = state.qualityGates?.tester?.status;
+    // Quality gates (v8.7.0 sprint-02): `checks` (the deterministic hook) is
+    // mandatory. `tester` and `security` are optional per sprint — `null`
+    // means "not required", not "missing", and must NOT block the push. Only
+    // a gate that actually ran (non-null) and did not approve blocks.
+    const gates = state.qualityGates || {};
 
-    if (validatorStatus !== 'APPROVED') {
+    if (gates.checks !== 'APPROVED') {
       return {
         passed: false,
-        message: '@validator has not approved',
+        message: 'Deterministic checks (typecheck/lint/tests/build) have not approved',
         details: {
-          validatorStatus: validatorStatus || 'NOT_RUN'
+          checksStatus: gates.checks || 'NOT_RUN'
         }
       };
     }
 
-    if (testerStatus !== 'APPROVED') {
-      return {
-        passed: false,
-        message: '@tester has not approved',
-        details: {
-          testerStatus: testerStatus || 'NOT_RUN'
-        }
-      };
+    for (const gateName of ['tester', 'security']) {
+      const status = gates[gateName];
+      if (status !== null && status !== undefined && status !== 'APPROVED') {
+        return {
+          passed: false,
+          message: `@${gateName} gate ran and did not approve`,
+          details: {
+            [`${gateName}Status`]: status
+          }
+        };
+      }
     }
 
     return {
       passed: true,
-      message: 'Workflow complete, quality gates approved'
+      message: 'Workflow complete, required quality gates approved'
     };
   } catch (error) {
     return {

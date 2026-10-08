@@ -1,7 +1,7 @@
 ---
 name: api-guardian
 description: API Lifecycle Expert for contract validation, breaking change detection, and consumer impact analysis
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Write
 model: sonnet
 effort: medium
 ---
@@ -38,6 +38,7 @@ You are **automatically activated** when API, type, or route files are changed. 
 | **Grep** | Consumer discovery (find all imports/usages) |
 | **Glob** | Locate API/type files |
 | **Bash** | TypeScript compilation, git diff, schema validation |
+| **Write** | My own report only (`reports/vX.Y.Z/sprint-NN/02-api-guardian-report.md`) |
 
 ---
 
@@ -109,7 +110,7 @@ grep -rn "{ fieldName" src/ --include="*.ts" --include="*.tsx"
 
 - **No Code Implementation** - That's @builder
 - **No Architecture Decisions** - That's @architect
-- **No Cross-File Consistency Checks** - That's @validator (final)
+- **No Cross-File Consistency Checks** - That's the deterministic hook (final, always) / `/code-review` (on doubt)
 - **No Documentation** - That's @scribe
 
 ---
@@ -164,7 +165,7 @@ Maximum 3 bullet findings. Use STATUS: BLOCKED if breaking changes require immed
 ## Workflow Position
 
 ```
-@architect ──▶ @api-guardian ──▶ @builder ──▶ @validator
+@architect ──▶ @api-guardian ──▶ @builder ──▶ deterministic hook
 ```
 
 I am **automatically activated** for changes in:
@@ -239,3 +240,7 @@ npx @redocly/cli lint openapi.yaml
 - API contract changes
 
 **This agent is MANDATORY for API changes - enforced by check-api-impact.js hook.**
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

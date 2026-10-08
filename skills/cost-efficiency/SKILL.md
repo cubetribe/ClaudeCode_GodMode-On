@@ -1,6 +1,7 @@
 ---
 name: cost-efficiency
 description: "Smart Routing — the DEFAULT CC_GodMode routing policy. Risk-based, minimal-agent paths that preserve required safety gates for the changed scope."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Smart Routing (Default Routing Policy)
@@ -25,7 +26,7 @@ Everything else should be:
 ## Architecture Gate (Split)
 
 For **small/medium tasks** (no new modules, no breaking changes, no cross-domain design):
-- Orchestrator writes a 3–5 bullet **inline architecture brief** directly into `reports/vX.X.X/01-architect-report.md`.
+- Orchestrator writes a 3–5 bullet **inline architecture brief** directly into `reports/vX.Y.Z/sprint-NN/01-architect-report.md`.
 - No @architect subagent invocation needed.
 - The brief's 3–5 bullets MUST cover all five **required fields** (see below). A brief
   missing any field is invalid — invoke @architect instead of proceeding on an
@@ -55,9 +56,9 @@ for the exact inline-brief report variant (frontmatter, field labels).
 | Work type | Smart Routing route |
 | --- | --- |
 | Docs-only | @scribe only; no @builder unless files need structural edits |
-| Simple bug | @builder -> targeted @validator; @tester only for user-facing behavior |
+| Simple bug | @builder -> deterministic hook; @tester only if `ux_gate: auto` |
 | Unknown facts | @researcher with strict source/time budget |
-| Small/medium feature | inline arch brief + @builder + scoped @validator ∥ @tester |
+| Small/medium feature | inline arch brief + @builder + deterministic hook + @tester/@security/code-review as declared/applicable |
 | Architecture risk | @architect, but with a narrow decision brief |
 | API or schema risk | @api-guardian remains mandatory |
 | UI behavior | @tester only on affected flows and viewports |
@@ -67,7 +68,7 @@ for the exact inline-brief report variant (frontmatter, field labels).
 
 Any of these risk signals force the Full-Gates path (`skills/workflows/`):
 
-- API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — the canonical path list lives in `skills/api-change/` and nowhere else
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes
@@ -90,7 +91,8 @@ an unlogged skip means nobody can tell, after the fact, whether that call was
 justified or a silent gap. The log turns each minimal-path decision into a
 post-hoc auditable, re-examinable record instead of an invisible judgment call.
 A gate-skip without a matching log line is a contract violation — reviewers
-(@validator, the Orchestrator on re-check) return `BLOCKED (quality)`.
+(the deterministic hook, @tester/@security when they run, the Orchestrator on
+re-check) return `BLOCKED (quality)`.
 
 ## Research Budget
 
@@ -116,8 +118,8 @@ Use existing agent model assignments as the baseline:
 
 - @researcher and @github-manager are already low-cost lanes.
 - @architect should be reserved for decisions with long-lived impact.
-- @builder, @validator, @tester stay on balanced models because
-  bad implementation or weak validation often costs more than the saved tokens.
+- @builder and @tester stay on balanced models because bad implementation or
+  weak validation often costs more than the saved tokens.
 - @scribe is on haiku — templated doc work is sufficient.
 
 `effort` frontmatter fields (Claude Code ≥2.1.152) provide additional budget tuning per agent without model changes.
@@ -141,3 +143,7 @@ Smart Routing decides **which agents** run (smallest useful set). CLAUDE.md's pa
 doctrine decides **how independent units are scheduled** (fan-out with disjoint write scopes).
 They compose: pick the minimal set first, then parallelize only genuinely independent units.
 Smart Routing never skips required gates, and parallel fan-out never overrides ownership rules.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

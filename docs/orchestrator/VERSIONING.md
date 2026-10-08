@@ -1,4 +1,4 @@
-# CC_GodMode Versioning & Release Law (v8.5, ADR-004)
+# CC_GodMode Versioning & Release Law (v9.0.0, ADR-004)
 
 Updated by v8.6.0 sprint 04 additions; the header version is bumped at the release sprint per this document's own law.
 
@@ -62,6 +62,33 @@ Updated by v8.6.0 sprint 04 additions; the header version is bumped at the relea
 **Hard rules:** never reuse a version (tag check enforces it); never push/tag/publish without
 explicit user permission; a merged release PR without its tag+release is a defect
 (`release-check.js` and every subsequent PR's CI will flag it).
+
+## Repo law beats skill opinion (release surface)
+
+Skills — including skills this repo never shipped, installed globally on a maintainer's machine
+outside version control — encode opinions. On the release surface, this repo's law is
+non-negotiable and a skill's guidance never overrides it:
+
+- **Merge strategy:** merge commits, not squash — a globally installed skill that recommends
+  squash merges and linear history does not apply here (see "Release procedure" above and
+  `CONTRIBUTING.md`).
+- **Version classification:** only in the release sprint, only via
+  `node scripts/version-bump.js <major|minor|patch>` aggregating sprint `Version Relevance`
+  fields — never a skill's own per-task version classification (e.g. an ad hoc
+  `candidate_next_version` field), never at work start, never by an implementer agent.
+- **Changelog flow:** every sprint's entry lands in `[Unreleased]` at integration
+  (single writer: @scribe); dated version headings are written exactly once, by
+  `version-bump.js` in the release sprint — never by a skill's own workflow stage, and never
+  outside the release sprint.
+- **Gate model:** the gate sequence and verdict contract in this repo (`STATUS:` verdicts,
+  the deterministic-then-model-pass gate combination in `docs/orchestrator/QUALITY-GATES.md`)
+  stand as written; a skill's own output contract or workflow stages (e.g. a different
+  release-pipeline shape) do not replace them here.
+
+Where a skill's instructions conflict with any of the above, this document wins and the conflict
+is recorded in the sprint's Routing Log instead of being followed. This applies regardless of
+whether the skill ships with this repo or was installed separately by a user — a repo's release
+law binds every agent working inside it.
 
 ## Enforcement
 

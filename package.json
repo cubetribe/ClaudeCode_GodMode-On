@@ -1,14 +1,25 @@
 {
   "name": "cc-godmode",
   "private": true,
-  "description": "CC_GodMode — self-orchestrating multi-agent framework for Claude Code. The version lives in the VERSION file (single source of truth); package.json is intentionally version-free.",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Dennis Westermann",
+    "url": "https://www.dennis-westermann.de"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cubetribe/ClaudeCode_GodMode-On.git"
+  },
+  "homepage": "https://github.com/cubetribe/ClaudeCode_GodMode-On",
+  "description": "GodMode Core for Claude Code (currently CC_GodMode) — self-orchestrating multi-agent framework for Claude Code. The version lives in the VERSION file (single source of truth); package.json is intentionally version-free.",
   "scripts": {
     "version:check": "node scripts/sync-version.js --check",
     "version:sync": "node scripts/sync-version.js --sync",
     "version:bump": "node scripts/version-bump.js",
     "release:check": "node scripts/release-check.js",
     "pre-push": "node scripts/pre-push-check.js",
-    "hooks:test": "node scripts/test-hooks-contract.js"
+    "hooks:test": "node scripts/test-hooks-contract.js",
+    "install:verify": "node scripts/verify-install.js"
   },
   "dependencies": {
     "js-yaml": "^5.1.0"

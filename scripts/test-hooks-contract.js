@@ -1,7 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * test-hooks-contract.js (v8.6.0 — sprint-01 hook-repair)
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
+ * test-hooks-contract.js (v8.6.0 sprint-01 hook-repair; v8.7.0 sprint-02
+ * adds probes for scripts/verify-changes.js, the deterministic
+ * SubagentStop hook that replaces @validator's typecheck/lint/test/build
+ * checks, plus in-process probes for the checks/tester/security gate
+ * semantics in pre-push-check.js and workflow-state.js: a gate at `null`
+ * never blocks a push, only a gate that actually ran and did not approve)
  *
  * Contract test for Claude Code hook wiring in config/claude-settings.json.
  *
@@ -463,6 +473,497 @@ without adding any real signal beyond what is already declared above.
   }
 } else {
   check('validate-agent-output.js: wired and probed', false, 'not found among wired hooks — skipped');
+}
+
+// --- verify-changes.js (v8.7.0 - Sprint 02: Gate-Umbau) ---------------------
+// This hook is deliberately NOT wired via config/claude-settings.json (that
+// file is outside this sprint's write scope - only ~/.claude/settings.json
+// is, and that's a local install file, not something CI can read). Probe it
+// directly by its known repo path instead of via hookCommands discovery.
+{
+  const VERIFY_CHANGES_PATH = path.join(REPO_ROOT, 'scripts', 'verify-changes.js');
+  const exists = fs.existsSync(VERIFY_CHANGES_PATH);
+  check('verify-changes.js: exists in scripts/', exists, exists ? VERIFY_CHANGES_PATH : `expected at ${VERIFY_CHANGES_PATH}`);
+
+  if (exists) {
+    // Probe (a): a real git repo with a staged change but no recognized
+    // project type (no package.json / pubspec.yaml / xcodeproj) -> exit 0,
+    // zero bytes of output ("unknown means pass through, never block").
+    {
+      const fixture = makeFixtureCwd();
+      try {
+        const git = spawnSync('git', ['init', '-q'], { cwd: fixture, encoding: 'utf8' });
+        spawnSync('git', ['config', 'user.email', 'test@example.com'], { cwd: fixture, encoding: 'utf8' });
+        spawnSync('git', ['config', 'user.name', 'Test'], { cwd: fixture, encoding: 'utf8' });
+        fs.writeFileSync(path.join(fixture, 'README.md'), 'hello\n');
+        spawnSync('git', ['add', 'README.md'], { cwd: fixture, encoding: 'utf8' });
+
+        const gitAvailable = !git.error;
+        if (!gitAvailable) {
+          check('verify-changes.js: no recognized project -> exit 0, zero output (soft-skip, git unavailable)', true, 'git not available - probe skipped');
+        } else {
+          const payload = JSON.stringify({ cwd: fixture });
+          const res = runScript(VERIFY_CHANGES_PATH, { stdin: payload, cwd: fixture });
+          const zeroOutput = res.stdout === '' && res.stderr === '';
+          check(
+            'verify-changes.js: no recognized project type -> exit 0',
+            res.status === 0,
+            res.status !== 0 ? `exit ${res.status}, stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}` : ''
+          );
+          check(
+            'verify-changes.js: no recognized project type -> zero-byte output',
+            zeroOutput,
+            zeroOutput ? '' : `expected empty stdout/stderr, got stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}`
+          );
+          if (res.status !== 0 || !zeroOutput) overallOk = false;
+          assertNoUsageError('verify-changes.js (no recognized project)', res);
+        }
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    }
+
+    // Probe (b): no changes at all (clean git repo, or no repo) -> exit 0,
+    // zero-byte output.
+    {
+      const fixture = makeFixtureCwd();
+      try {
+        spawnSync('git', ['init', '-q'], { cwd: fixture, encoding: 'utf8' });
+        const payload = JSON.stringify({ cwd: fixture });
+        const res = runScript(VERIFY_CHANGES_PATH, { stdin: payload, cwd: fixture });
+        const zeroOutput = res.stdout === '' && res.stderr === '';
+        check(
+          'verify-changes.js: no changes -> exit 0',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        check(
+          'verify-changes.js: no changes -> zero-byte output',
+          zeroOutput,
+          zeroOutput ? '' : `expected empty stdout/stderr, got stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}`
+        );
+        if (res.status !== 0 || !zeroOutput) overallOk = false;
+        assertNoUsageError('verify-changes.js (no changes)', res);
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    }
+
+    // Probe (c): garbage stdin -> exit 0, never breaks unrelated work.
+    {
+      const fixture = makeFixtureCwd();
+      try {
+        const res = runScript(VERIFY_CHANGES_PATH, { stdin: 'not valid json {{{', cwd: fixture });
+        check(
+          'verify-changes.js: garbage stdin -> exit 0 (never breaks unrelated work)',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stdout: ${truncate(res.stdout)}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        if (res.status !== 0) overallOk = false;
+        assertNoUsageError('verify-changes.js (garbage stdin)', res);
+      } finally {
+        fs.rmSync(fixture, { recursive: true, force: true });
+      }
+    }
+  } else {
+    overallOk = false;
+  }
+}
+
+// --- gate semantics (v8.7.0 sprint-02: @validator dissolved, checks/tester/
+// security model) -------------------------------------------------------
+// Not a hook-wiring probe like the ones above — this asserts the *contract*
+// that made this sprint necessary: a gate at `null` (never required for this
+// sprint) must never block a push, while a gate that actually ran and did
+// not approve must block it. Exercised in-process against real fixture cwds,
+// not spawned, since these are plain requires with no argv/stdin surface.
+{
+  const PRE_PUSH_PATH = path.join(REPO_ROOT, 'scripts', 'pre-push-check.js');
+  const WORKFLOW_STATE_PATH = path.join(REPO_ROOT, 'scripts', 'workflow-state.js');
+
+  function withFixtureState(state, fn) {
+    const fixture = makeFixtureCwd();
+    const prevCwd = process.cwd();
+    try {
+      fs.writeFileSync(path.join(fixture, '.ccgm-state.json'), JSON.stringify(state));
+      process.chdir(fixture);
+      return fn();
+    } finally {
+      process.chdir(prevCwd);
+      fs.rmSync(fixture, { recursive: true, force: true });
+    }
+  }
+
+  if (fs.existsSync(PRE_PUSH_PATH)) {
+    delete require.cache[require.resolve(PRE_PUSH_PATH)];
+    const { checkWorkflowState } = require(PRE_PUSH_PATH);
+
+    // (a) checks APPROVED, tester/security never ran (null) -> push-eligible.
+    {
+      const result = withFixtureState(
+        { workflowComplete: true, qualityGates: { checks: 'APPROVED', tester: null, security: null } },
+        checkWorkflowState
+      );
+      check(
+        'pre-push-check.js: checks=APPROVED, tester/security=null -> passed (never-run gate does not block)',
+        result.passed === true,
+        result.passed ? '' : `expected passed:true, got: ${JSON.stringify(result)}`
+      );
+      if (result.passed !== true) overallOk = false;
+    }
+
+    // (b) tester actually ran and is BLOCKED -> not push-eligible.
+    {
+      const result = withFixtureState(
+        { workflowComplete: true, qualityGates: { checks: 'APPROVED', tester: 'BLOCKED', security: null } },
+        checkWorkflowState
+      );
+      check(
+        'pre-push-check.js: tester=BLOCKED -> not passed',
+        result.passed === false,
+        result.passed === false ? '' : `expected passed:false, got: ${JSON.stringify(result)}`
+      );
+      if (result.passed !== false) overallOk = false;
+    }
+
+    // (c) checks itself missing/null -> not push-eligible (mandatory gate).
+    {
+      const result = withFixtureState(
+        { workflowComplete: true, qualityGates: { checks: null, tester: null, security: null } },
+        checkWorkflowState
+      );
+      check(
+        'pre-push-check.js: checks=null -> not passed (mandatory gate missing)',
+        result.passed === false,
+        result.passed === false ? '' : `expected passed:false, got: ${JSON.stringify(result)}`
+      );
+      if (result.passed !== false) overallOk = false;
+    }
+  } else {
+    check('pre-push-check.js: exists for gate-semantics probe', false, `expected at ${PRE_PUSH_PATH}`);
+    overallOk = false;
+  }
+
+  if (fs.existsSync(WORKFLOW_STATE_PATH)) {
+    delete require.cache[require.resolve(WORKFLOW_STATE_PATH)];
+    const ws = require(WORKFLOW_STATE_PATH);
+
+    withFixtureState(null, () => {
+      // No state file yet at this fixture cwd -> initWorkflow starts fresh.
+      const state = ws.initWorkflow('bug', '0.0.0', 'gate-semantics fixture');
+      const gatesOk =
+        state.qualityGates.checks === null &&
+        state.qualityGates.tester === null &&
+        state.qualityGates.security === null;
+      check(
+        'workflow-state.js: initWorkflow() qualityGates shape is {checks,tester,security}, all null',
+        gatesOk,
+        gatesOk ? '' : `got: ${JSON.stringify(state.qualityGates)}`
+      );
+      if (!gatesOk) overallOk = false;
+
+      const rejectedOldGate = ws.setGateResult('validator', 'APPROVED') === null;
+      check(
+        'workflow-state.js: setGateResult("validator", ...) is rejected (agent no longer exists)',
+        rejectedOldGate,
+        rejectedOldGate ? '' : 'setGateResult accepted a "validator" gate name'
+      );
+      if (!rejectedOldGate) overallOk = false;
+
+      ws.setGateResult('security', 'APPROVED');
+      const afterSecurity = ws.getResumeInfo();
+      const securityTracked = afterSecurity.qualityGates.security === 'APPROVED';
+      check(
+        'workflow-state.js: setGateResult("security", "APPROVED") is tracked in getResumeInfo()',
+        securityTracked,
+        securityTracked ? '' : `got: ${JSON.stringify(afterSecurity.qualityGates)}`
+      );
+      if (!securityTracked) overallOk = false;
+    });
+  } else {
+    check('workflow-state.js: exists for gate-semantics probe', false, `expected at ${WORKFLOW_STATE_PATH}`);
+    overallOk = false;
+  }
+}
+
+// --- sync-version.js manifest drift detection (v8.7.0 sprint-03: coherence
+// sweep) -----------------------------------------------------------------
+// This sprint added docs/orchestrator/VERSIONING.md and skills/release/SKILL.md
+// to sync-version.js's MANIFEST after both drifted silently for a full
+// release (stuck at "v8.5" header text while VERSION read 8.6.0). Prove the
+// mechanism actually catches that class of drift: apply the manifest's own
+// pattern for docs/orchestrator/VERSIONING.md to a synthetic header that
+// matches VERSION (must report "ok") and to one that has drifted (must NOT
+// report "ok" — i.e. --check would exit non-zero on it). Requires the real
+// module in-process rather than spawning against a partial fixture repo,
+// since spawning --check needs every OTHER manifest touchpoint to exist too.
+{
+  const SYNC_VERSION_PATH = path.join(REPO_ROOT, 'scripts', 'sync-version.js');
+  const exists = fs.existsSync(SYNC_VERSION_PATH);
+  check('sync-version.js: exists in scripts/', exists, exists ? SYNC_VERSION_PATH : `expected at ${SYNC_VERSION_PATH}`);
+
+  if (exists) {
+    delete require.cache[require.resolve(SYNC_VERSION_PATH)];
+    const { MANIFEST } = require(SYNC_VERSION_PATH);
+    const versioningEntry = MANIFEST.find(e => e.file === 'docs/orchestrator/VERSIONING.md');
+
+    check(
+      'sync-version.js: MANIFEST includes docs/orchestrator/VERSIONING.md',
+      !!versioningEntry,
+      versioningEntry ? '' : 'entry not found in MANIFEST'
+    );
+
+    if (versioningEntry) {
+      const pattern = versioningEntry.patterns[0];
+      const version = '8.6.0';
+
+      // (a) consistent header -> pattern matches AND make(v) === matched text ("ok").
+      const consistentContent = '# CC_GodMode Versioning & Release Law (v8.6.0, ADR-004)\n\nBody.\n';
+      const mConsistent = consistentContent.match(pattern.find);
+      const consistentOk = !!mConsistent && pattern.make(version, mConsistent) === mConsistent[0];
+      check(
+        'sync-version.js MANIFEST: consistent VERSIONING.md header (v8.6.0) matches VERSION -> "ok" (would exit 0)',
+        consistentOk,
+        consistentOk ? '' : `match: ${mConsistent ? mConsistent[0] : 'none'}`
+      );
+      if (!consistentOk) overallOk = false;
+
+      // (b) artificially drifted header (v8.5, two-digit, VERSION=8.6.0) -> pattern
+      // must either fail to match (missing -> --check exit 1) or match with a
+      // replacement that differs from the current text (updated -> drift ->
+      // --check exit 1). Either way, NOT "ok".
+      const driftedContent = '# CC_GodMode Versioning & Release Law (v8.5, ADR-004)\n\nBody.\n';
+      const mDrifted = driftedContent.match(pattern.find);
+      const driftedIsOk = !!mDrifted && pattern.make(version, mDrifted) === mDrifted[0];
+      check(
+        'sync-version.js MANIFEST: drifted VERSIONING.md header (v8.5 vs VERSION=8.6.0) is NOT "ok" (would exit 1)',
+        !driftedIsOk,
+        driftedIsOk ? `unexpectedly matched as ok: ${mDrifted[0]}` : ''
+      );
+      if (driftedIsOk) overallOk = false;
+    } else {
+      overallOk = false;
+    }
+  } else {
+    overallOk = false;
+  }
+}
+
+// --- installer hook-merge contract + verify-install.js (v8.7.0 sprint-04:
+// install/update path) --------------------------------------------------
+// Everything here runs against a disposable temp directory used as
+// CLAUDE_HOME — the maintainer's real ~/.claude/settings.json is never
+// touched. The installer's single most dangerous property is that a merge
+// must never destroy a user's own settings.json keys; that is asserted here,
+// not assumed.
+{
+  const INSTALLER_PATH = path.join(REPO_ROOT, 'scripts', 'apply-global-claude-setup.sh');
+  const VERIFY_INSTALL_PATH = path.join(REPO_ROOT, 'scripts', 'verify-install.js');
+  const installerExists = fs.existsSync(INSTALLER_PATH);
+  check('apply-global-claude-setup.sh: exists in scripts/', installerExists, installerExists ? INSTALLER_PATH : `expected at ${INSTALLER_PATH}`);
+  check('verify-install.js: exists in scripts/', fs.existsSync(VERIFY_INSTALL_PATH), fs.existsSync(VERIFY_INSTALL_PATH) ? VERIFY_INSTALL_PATH : `expected at ${VERIFY_INSTALL_PATH}`);
+
+  function runInstaller(claudeHome, extraArgs = []) {
+    return spawnSync('bash', [INSTALLER_PATH, ...extraArgs], {
+      cwd: REPO_ROOT,
+      env: { ...process.env, CLAUDE_HOME: claudeHome },
+      encoding: 'utf8',
+      timeout: 30000,
+    });
+  }
+
+  function runVerifyInstall(claudeHome, { fromInstalledCopy = false } = {}) {
+    const scriptPath = fromInstalledCopy ? path.join(claudeHome, 'scripts', 'verify-install.js') : VERIFY_INSTALL_PATH;
+    return spawnSync(process.execPath, [scriptPath], {
+      cwd: fromInstalledCopy ? claudeHome : REPO_ROOT,
+      env: { ...process.env, CLAUDE_HOME: claudeHome },
+      encoding: 'utf8',
+      timeout: 15000,
+    });
+  }
+
+  if (installerExists) {
+    // Case 1: merge into a settings.json with foreign keys (model,
+    // effortLevel, permissions, a foreign hook) -> all four survive
+    // unchanged, GodMode hooks are added.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const settingsPath = path.join(claudeHome, 'settings.json');
+        const foreignSettings = {
+          model: 'my-custom-model',
+          effortLevel: 'max',
+          permissions: { allowedTools: ['MyOwnTool'] },
+          hooks: {
+            SessionStart: [
+              { hooks: [{ type: 'command', command: 'echo foreign-hook', timeout: 5 }] },
+            ],
+          },
+        };
+        fs.writeFileSync(settingsPath, JSON.stringify(foreignSettings, null, 2));
+
+        const res = runInstaller(claudeHome);
+        check(
+          'installer: merge run against foreign settings.json exits 0',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        if (res.status !== 0) overallOk = false;
+
+        let merged = null;
+        try { merged = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) { merged = null; }
+
+        const foreignKeysSurvived = !!merged &&
+          merged.model === 'my-custom-model' &&
+          merged.effortLevel === 'max' &&
+          JSON.stringify(merged.permissions) === JSON.stringify({ allowedTools: ['MyOwnTool'] });
+        check(
+          'installer merge: foreign top-level keys (model, effortLevel, permissions) survive unchanged',
+          foreignKeysSurvived,
+          foreignKeysSurvived ? '' : `got: ${truncate(JSON.stringify(merged))}`
+        );
+        if (!foreignKeysSurvived) overallOk = false;
+
+        const sessionStartEntries = merged && merged.hooks && merged.hooks.SessionStart;
+        const foreignHookSurvived = Array.isArray(sessionStartEntries) &&
+          sessionStartEntries.some(e => Array.isArray(e.hooks) && e.hooks.some(h => h.command === 'echo foreign-hook'));
+        check(
+          'installer merge: foreign SessionStart hook entry ("echo foreign-hook") survives',
+          foreignHookSurvived,
+          foreignHookSurvived ? '' : `SessionStart entries: ${truncate(JSON.stringify(sessionStartEntries))}`
+        );
+        if (!foreignHookSurvived) overallOk = false;
+
+        const godmodeHooksAdded = Array.isArray(sessionStartEntries) &&
+          sessionStartEntries.some(e => Array.isArray(e.hooks) && e.hooks.some(h => /session-start\.js/.test(h.command || '')));
+        check(
+          'installer merge: GodMode SessionStart hook (session-start.js) is added alongside the foreign one',
+          godmodeHooksAdded,
+          godmodeHooksAdded ? '' : `SessionStart entries: ${truncate(JSON.stringify(sessionStartEntries))}`
+        );
+        if (!godmodeHooksAdded) overallOk = false;
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+
+    // Case 2: second run in a row -> no duplicate hook entries.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const res1 = runInstaller(claudeHome);
+        const res2 = runInstaller(claudeHome);
+        check(
+          'installer: two consecutive runs both exit 0',
+          res1.status === 0 && res2.status === 0,
+          (res1.status !== 0 || res2.status !== 0) ? `run1 exit ${res1.status}, run2 exit ${res2.status}` : ''
+        );
+        if (res1.status !== 0 || res2.status !== 0) overallOk = false;
+
+        const settingsPath = path.join(claudeHome, 'settings.json');
+        let merged = null;
+        try { merged = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) { merged = null; }
+        const sessionStartEntries = (merged && merged.hooks && merged.hooks.SessionStart) || [];
+        let sessionStartHookCount = 0;
+        for (const entry of sessionStartEntries) {
+          if (Array.isArray(entry.hooks)) {
+            sessionStartHookCount += entry.hooks.filter(h => /session-start\.js/.test(h.command || '')).length;
+          }
+        }
+        const noDuplicates = sessionStartHookCount === 1;
+        check(
+          'installer: second consecutive run does not duplicate the SessionStart hook entry',
+          noDuplicates,
+          noDuplicates ? '' : `found ${sessionStartHookCount} session-start.js entries after 2 runs (expected 1)`
+        );
+        if (!noDuplicates) overallOk = false;
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+
+    // Case 3: no settings.json present -> installer creates one with all
+    // hooks from config/claude-settings.json.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const settingsPath = path.join(claudeHome, 'settings.json');
+        const res = runInstaller(claudeHome);
+        check(
+          'installer: fresh install (no settings.json) exits 0',
+          res.status === 0,
+          res.status !== 0 ? `exit ${res.status}, stderr: ${truncate(res.stderr)}` : ''
+        );
+        if (res.status !== 0) overallOk = false;
+
+        const created = fs.existsSync(settingsPath);
+        check('installer: settings.json is created from scratch', created, created ? '' : `expected at ${settingsPath}`);
+        if (!created) overallOk = false;
+
+        if (created) {
+          let merged = null;
+          try { merged = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) { merged = null; }
+          const canonicalEvents = Object.keys((settings && settings.hooks) || {});
+          const allEventsPresent = !!merged && canonicalEvents.every(ev => merged.hooks && Array.isArray(merged.hooks[ev]) && merged.hooks[ev].length > 0);
+          check(
+            'installer: freshly created settings.json contains all hook events from config/claude-settings.json',
+            allEventsPresent,
+            allEventsPresent ? '' : `expected events ${canonicalEvents.join(', ')}, got: ${truncate(JSON.stringify(merged && merged.hooks))}`
+          );
+          if (!allEventsPresent) overallOk = false;
+        }
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+
+    // Case 4: verify-install.js against a complete installation -> exit 0.
+    {
+      const claudeHome = makeFixtureCwd();
+      try {
+        const installRes = runInstaller(claudeHome);
+        check(
+          'installer: setup run for verify-install fixture exits 0',
+          installRes.status === 0,
+          installRes.status !== 0 ? `exit ${installRes.status}, stderr: ${truncate(installRes.stderr)}` : ''
+        );
+        if (installRes.status !== 0) overallOk = false;
+
+        const verifyRes = runVerifyInstall(claudeHome);
+        check(
+          'verify-install.js: complete installation -> exit 0',
+          verifyRes.status === 0,
+          verifyRes.status !== 0 ? `exit ${verifyRes.status}, stdout: ${truncate(verifyRes.stdout)}, stderr: ${truncate(verifyRes.stderr)}` : ''
+        );
+        if (verifyRes.status !== 0) overallOk = false;
+        assertNoUsageError('verify-install.js (complete install)', verifyRes);
+
+        // Case 5: remove one agent -> exit 1, its name is in the output.
+        const removedAgentPath = path.join(claudeHome, 'agents', 'builder.md');
+        fs.rmSync(removedAgentPath, { force: true });
+        const verifyResMissing = runVerifyInstall(claudeHome);
+        check(
+          'verify-install.js: installation with a removed agent -> exit 1',
+          verifyResMissing.status === 1,
+          verifyResMissing.status !== 1 ? `exit ${verifyResMissing.status}, stdout: ${truncate(verifyResMissing.stdout)}` : ''
+        );
+        if (verifyResMissing.status !== 1) overallOk = false;
+
+        const namesMissingAgent = /builder\.md/.test(verifyResMissing.stdout);
+        check(
+          'verify-install.js: missing-agent output names "builder.md" concretely',
+          namesMissingAgent,
+          namesMissingAgent ? '' : `stdout: ${truncate(verifyResMissing.stdout)}`
+        );
+        if (!namesMissingAgent) overallOk = false;
+      } finally {
+        fs.rmSync(claudeHome, { recursive: true, force: true });
+      }
+    }
+  } else {
+    check('installer hook-merge contract: skipped (installer script not found)', false, `expected at ${INSTALLER_PATH}`);
+    overallOk = false;
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -2,10 +2,15 @@
 
 > **Understanding the Two-Location Model in CC_GodMode**
 
-> ⚠️ **Maintenance note (2026-07-06):** the conceptual two-location model below is current, but
-> the agent tree and manual `cp` procedures reflect an older 7-agent generation. For the
-> authoritative roster (15 agents) see `docs/orchestrator/AGENTS.md`; for installation use
-> `scripts/apply-global-claude-setup.sh` (see `docs/INSTALLATION.md`).
+> ⚠️ **Maintenance note (2026-07-06, updated 2026-07-28):** the conceptual two-location model below
+> is current, but the agent tree in the diagrams reflects an older 6-agent generation and predates
+> @validator's removal — the current roster is 14 agents (7 core + 1 security gate + 6 department),
+> not 6 or 7; @validator no longer exists (its deterministic part moved into a hook, its judgment
+> part into `/code-review`). For the authoritative roster see `docs/orchestrator/AGENTS.md`. The
+> Installation Procedures section below has been corrected to the actual installer command,
+> including hook wiring and `verify-install.js`; the illustrative diagrams and manual `cp` examples
+> elsewhere in this file are conceptual only — never hand-copy individual agent files (see
+> `docs/INSTALLATION.md`).
 
 ---
 
@@ -31,7 +36,6 @@ This document explains why this architecture exists, how to work with it, and ho
 │  ├── architect.md          ← SOURCE OF TRUTH                        │
 │  ├── api-guardian.md       ← Version controlled                     │
 │  ├── builder.md            ← Shared across projects                 │
-│  ├── validator.md          ← Updated via git                        │
 │  ├── tester.md                                                       │
 │  ├── scribe.md                                                       │
 │  └── github-manager.md                                               │
@@ -65,7 +69,6 @@ This document explains why this architecture exists, how to work with it, and ho
 │  ├── architect.md          ← ACTIVE RUNTIME                         │
 │  ├── api-guardian.md       ← Claude Code reads from here            │
 │  ├── builder.md            ← Global across ALL projects             │
-│  ├── validator.md          ← Task tool uses these                   │
 │  ├── tester.md                                                       │
 │  ├── scribe.md                                                       │
 │  └── github-manager.md                                               │
@@ -113,70 +116,54 @@ This document explains why this architecture exists, how to work with it, and ho
 
 ## Installation Procedures
 
+**Do not hand-copy individual agent files.** The diagram above illustrates the two-location
+*concept*; the actual mechanism is the setup script, which installs and updates all 14 agents (7
+core + 1 security gate + 6 department), all 14 skills, scripts, templates, LICENSE/NOTICE — and,
+as of v8.7.0, the hook wiring in `~/.claude/settings.json` — in one pass. Manual `cp` of a single
+agent file leaves the rest of the runtime (skills, hooks, templates) out of sync with the repo.
+
 ### First-Time Setup
 
 ```bash
-# 1. Clone CC_GodMode repository
-git clone https://github.com/user/CC_GodMode.git
-cd CC_GodMode
-
-# 2. Create global agent directory
-mkdir -p ~/.claude/agents
-
-# 3. Copy agents to global location
-cp agents/*.md ~/.claude/agents/
-
-# 4. Verify installation
-ls -la ~/.claude/agents/
-
-# You should see:
-# architect.md
-# api-guardian.md
-# builder.md
-# validator.md
-# tester.md
-# scribe.md
-# github-manager.md
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
+./scripts/apply-global-claude-setup.sh          # macOS / Linux
+# or
+.\scripts\apply-global-claude-setup.ps1         # Windows PowerShell
 ```
+
+This installs all agents into `~/.claude/agents/`, all skills into `~/.claude/skills/`, and merges
+the canonical hook configuration from `config/claude-settings.json` into `~/.claude/settings.json`
+(a merge of the `hooks` key only — any other keys you already have, such as `model` or
+`permissions`, are preserved; a timestamped backup is written first). Without this step wired,
+the enforcement layer — `check-api-impact.js`, `verify-changes.js`, `session-start.js` — does not
+fire. Opt out of hook wiring with `--no-hooks` if you manage `settings.json` yourself; repair it
+later with `--fix-hooks`. Full details: `docs/INSTALLATION.md`.
 
 ### Updating Agents
 
+Same command as install — there is no separate updater:
+
 ```bash
-# When agents are updated in the repository:
-
-# 1. Pull latest changes
-cd /path/to/CC_GodMode
-git pull origin main
-
-# 2. Re-copy agents to global location
-cp agents/*.md ~/.claude/agents/
-
-# 3. Verify update (check file modification times)
-ls -lt ~/.claude/agents/
+cd ClaudeCode_GodMode-On
+git pull && ./scripts/apply-global-claude-setup.sh
 ```
+
+The script is idempotent: re-running it does not duplicate hook entries, and it reports the
+installed version against the repository `VERSION` so you can see whether anything changed.
 
 ### Verification
 
 ```bash
-# Check that agents are installed correctly:
-
-# 1. List global agents
-ls -la ~/.claude/agents/
-
-# 2. Check an agent file exists and is readable
-cat ~/.claude/agents/architect.md | head -20
-
-# 3. Verify frontmatter is valid
-head -6 ~/.claude/agents/architect.md
-
-# Should show:
-# ---
-# name: architect
-# description: ...
-# tools: ...
-# model: ...
-# ---
+node scripts/verify-install.js
 ```
+
+Confirms all 14 agents and all 14 skills are present under `~/.claude/`, that the hooks from
+`config/claude-settings.json` are wired into `~/.claude/settings.json` and point at files that
+actually exist, that `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` and LICENSE/NOTICE are present,
+and that the installed version matches the repo's `VERSION`. Exit 0 means the install is complete;
+exit 1 lists exactly what's missing. This is the load-bearing check — treat a passing
+`verify-install.js` as the definition of "installed correctly", not a manual `ls`.
 
 ---
 
@@ -294,7 +281,7 @@ rm -rf .claude/agents/
 
 ## Best Practices
 
-### 1. Always Update Both Locations
+### 1. Always Update Both Locations — the Repo Is the Source, `~/.claude/` Is Disposable
 
 ```bash
 # After editing agents:
@@ -306,6 +293,12 @@ git commit -am "feat: improve architect"
 # ❌ DON'T DO THIS:
 vim ~/.claude/agents/architect.md  # Changes not version controlled!
 ```
+
+`~/.claude/` is a deployment target that `apply-global-claude-setup.sh` treats as disposable and
+overwrites on every run — anything edited only there is silently lost on the next install/update.
+This is not hypothetical: in this project's history a health-cache fix and a hook registration were
+each made once directly in the installed copy and once wiped out by the next reinstall. Change the
+repo, then run the installer — never the other way around.
 
 ### 2. Test Before Committing
 
@@ -441,14 +434,14 @@ cp ~/.claude/agents/architect.md .claude/agents/
 
 **Key Commands:**
 ```bash
-# Install agents
-cp CC_GodMode/agents/*.md ~/.claude/agents/
+# Install / update (identical command, idempotent)
+git pull && ./scripts/apply-global-claude-setup.sh
 
-# Update agents
-cp CC_GodMode/agents/*.md ~/.claude/agents/
+# Verify the install
+node scripts/verify-install.js
 
-# Check sync status
-diff -r CC_GodMode/agents/ ~/.claude/agents/
+# Check sync status of a single agent (debugging only)
+diff CC_GodMode/agents/architect.md ~/.claude/agents/architect.md
 ```
 
 **Remember:**

@@ -42,7 +42,7 @@
       "description": "List of agents that have completed their work",
       "items": {
         "type": "string",
-        "enum": ["@architect", "@api-guardian", "@builder", "@validator", "@tester", "@scribe", "@github-manager"]
+        "enum": ["@architect", "@api-guardian", "@builder", "@tester", "@security", "@scribe", "@github-manager"]
       },
       "uniqueItems": true
     },
@@ -51,26 +51,31 @@
       "description": "List of agents that still need to run",
       "items": {
         "type": "string",
-        "enum": ["@architect", "@api-guardian", "@builder", "@validator", "@tester", "@scribe", "@github-manager"]
+        "enum": ["@architect", "@api-guardian", "@builder", "@tester", "@security", "@scribe", "@github-manager"]
       },
       "uniqueItems": true
     },
     "qualityGates": {
       "type": "object",
-      "description": "Status of dual quality gates",
+      "description": "Status of the gates this sprint actually required. null means the gate was not required — not that it is still outstanding.",
       "properties": {
-        "validator": {
+        "checks": {
           "type": ["string", "null"],
-          "description": "Code quality gate status",
+          "description": "Deterministic hook (typecheck/lint/tests/build) — always runs",
           "enum": ["PENDING", "APPROVED", "BLOCKED", null]
         },
         "tester": {
           "type": ["string", "null"],
-          "description": "UX quality gate status",
+          "description": "UX gate — only when the sprint declared ux_gate: auto",
+          "enum": ["PENDING", "APPROVED", "BLOCKED", null]
+        },
+        "security": {
+          "type": ["string", "null"],
+          "description": "Security gate — only on security surfaces",
           "enum": ["PENDING", "APPROVED", "BLOCKED", null]
         }
       },
-      "required": ["validator", "tester"]
+      "required": ["checks"]
     },
     "filesChanged": {
       "type": "array",

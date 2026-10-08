@@ -6,7 +6,7 @@ The orchestrator uses meta-decision rules to automatically adapt workflows based
 
 | Rule | Trigger Keywords | Action |
 |------|-----------------|--------|
-| securityOverride | auth, jwt, token, password | Force @validator security check |
+| securityOverride | auth, jwt, token, password | Activate the @security gate |
 | breakingChangeEscalation | breaking change, deprecate | Require @architect review |
 | performanceCriticalPath | performance, optimize, slow | Add performance metrics |
 | emergencyHotfix | hotfix, urgent, critical | Streamlined workflow |
@@ -40,7 +40,7 @@ Agent responsibilities follow the RARE model (AI-adapted RACI):
 | Role | Definition | Example |
 |------|------------|--------|
 | **R**esponsible | Makes the decision | @architect designs |
-| **A**ccountable | Quality gate | @validator approves |
+| **A**ccountable | Orchestrator | ensures the required gates ran and passed |
 | **Re**commends | Provides input | orchestrator meta-decision analysis suggests |
 | **E**xecutes | Implements | @builder codes |
 

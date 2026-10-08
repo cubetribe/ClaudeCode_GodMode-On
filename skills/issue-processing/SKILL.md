@@ -1,6 +1,7 @@
 ---
 name: issue-processing
 description: "Process GitHub issues — load issue, analyze type/complexity/areas, select workflow, execute agents, create PR with 'Fixes #X'"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Issue Processing
@@ -63,6 +64,10 @@ The PR created by @github-manager MUST include:
 | `enhancement` | Feature workflow |
 | `api` | API Change workflow (include @api-guardian) |
 | `docs` | Documentation only (@scribe) |
-| `security` | Force @validator security check |
+| `security` | Force @security check |
 | `performance` | Add performance metrics to @tester |
 | `urgent` / `hotfix` | Emergency workflow (streamlined) |
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

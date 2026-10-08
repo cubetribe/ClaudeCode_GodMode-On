@@ -1,6 +1,7 @@
 ---
 name: sprint-planning
 description: "Plan-first orchestration (ADR-004): comprehensive PLAN.md, sprint files with write-scope ownership, preflight checks, serialized integration, and the release sprint. Use for any non-trivial or multi-part request BEFORE dispatching agents."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Sprint Planning (Plan-First Orchestration)
@@ -76,3 +77,7 @@ git worktrees and serialize the merge order explicitly.
 7. Flip ROADMAP entry to `released`.
 
 **Push/tag/publish always requires explicit user permission.**
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

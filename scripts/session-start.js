@@ -11,8 +11,9 @@
  * - Checks MCP server health status
  * - Displays welcome message with system status
  *
- * Copyright (c) 2025 Dennis Westermann
+ * Copyright (c) 2025-2026 Dennis Westermann
  * www.dennis-westermann.de
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
  */
 
 const fs = require('fs');
@@ -78,16 +79,37 @@ const MCP_SERVERS = {
   optional: ['lighthouse', 'a11y']
 };
 
-// Available agents
-const AGENTS = [
-  '@architect',
-  '@api-guardian',
-  '@builder',
-  '@validator',
-  '@tester',
-  '@scribe',
-  '@github-manager'
+// Fallback agent roster (v8.7.0 - Sprint 02): 7 core + 1 security gate + 6
+// department agents. @validator was dissolved into the verify-changes.js
+// hook + on-demand /code-review (see scripts/validate-agent-output.js).
+// Used only if the filesystem read below (Widerspruch W6 fix) fails.
+const FALLBACK_AGENTS = [
+  '@researcher', '@architect', '@api-guardian', '@builder', '@tester', '@scribe', '@github-manager',
+  '@security',
+  '@ci-security-guardian', '@docs-dx', '@quality-operations', '@runtime-platform', '@workflow-design', '@workspace-governance'
 ];
+
+/**
+ * Read the agent roster from ~/.claude/agents/*.md instead of hardcoding it
+ * (v8.7.0 - Sprint 02, Widerspruch W6). Falls back to the static list above
+ * if the directory is missing/unreadable/empty - a SessionStart hook must
+ * never throw.
+ */
+function loadAgentList() {
+  try {
+    const agentsDir = path.join(CLAUDE_DIR, 'agents');
+    if (!fs.existsSync(agentsDir)) return FALLBACK_AGENTS;
+    const names = fs.readdirSync(agentsDir)
+      .filter(f => f.endsWith('.md'))
+      .map(f => '@' + f.replace(/\.md$/, ''))
+      .sort();
+    return names.length > 0 ? names : FALLBACK_AGENTS;
+  } catch (error) {
+    return FALLBACK_AGENTS;
+  }
+}
+
+const AGENTS = loadAgentList();
 
 /**
  * Print styled box output
@@ -104,6 +126,17 @@ function printBox(lines, color = colors.cyan) {
     console.log(`${color}║${colors.reset} ${line}${padding} ${color}║${colors.reset}`);
   });
   console.log(`${color}╚${border}╝${colors.reset}`);
+}
+
+/**
+ * Format a cache age in ms as a compact human string ("42s", "12m", "3h").
+ * Returns null for non-numeric input so callers can omit the annotation.
+ */
+function formatCacheAge(ms) {
+  if (typeof ms !== 'number' || !isFinite(ms) || ms < 0) return null;
+  if (ms < 60000) return `${Math.round(ms / 1000)}s`;
+  if (ms < 3600000) return `${Math.round(ms / 60000)}m`;
+  return `${Math.round(ms / 3600000)}h`;
 }
 
 /**
@@ -248,9 +281,29 @@ async function checkMcpHealth() {
     const mcpHealthCheckPath = path.join(__dirname, 'mcp-health-check.js');
 
     if (fs.existsSync(mcpHealthCheckPath)) {
-      // v5.6.0: Use Tier 1 health check
-      const { tier1HealthCheck } = require('./mcp-health-check.js');
-      const tier1Results = await tier1HealthCheck();
+      // v8.7.0: Serve Tier 1 results from cache — `claude mcp list` boots the
+      // full CLI and dials every server (2.5-5s on EVERY start/resume), so the
+      // hook must never run it inline. A detached background process keeps the
+      // cache fresh; a cold cache renders as "check running in background".
+      const healthCheck = require('./mcp-health-check.js');
+      let tier1Results;
+
+      if (typeof healthCheck.tier1HealthCheckCached === 'function') {
+        const cached = healthCheck.tier1HealthCheckCached();
+
+        if (!cached.results) {
+          // Cold cache: background refresh just spawned — results land in
+          // the cache for the next session instead of blocking this one.
+          status.pending = true;
+          return status;
+        }
+
+        tier1Results = cached.results;
+        status.cacheAgeMs = cached.ageMs;
+      } else {
+        // Older mcp-health-check.js without cache support — inline check
+        tier1Results = await healthCheck.tier1HealthCheck();
+      }
 
       status.tier1Results = tier1Results;
       status.available = true;
@@ -537,17 +590,17 @@ function displayWorkflowResume(resumeInfo) {
     ''
   ];
 
-  // Quality gates status
-  const validatorIcon = resumeInfo.qualityGates.validator === 'APPROVED' ? colors.green + '✓' :
-                        resumeInfo.qualityGates.validator === 'BLOCKED' ? colors.red + '✗' :
-                        resumeInfo.qualityGates.validator === 'PENDING' ? colors.yellow + '○' :
-                        colors.gray + '–';
-  const testerIcon = resumeInfo.qualityGates.tester === 'APPROVED' ? colors.green + '✓' :
-                     resumeInfo.qualityGates.tester === 'BLOCKED' ? colors.red + '✗' :
-                     resumeInfo.qualityGates.tester === 'PENDING' ? colors.yellow + '○' :
-                     colors.gray + '–';
+  // Quality gates status — only gates that actually ran are shown.
+  // null means the gate was not required, not that it is outstanding.
+  const gateIcon = (v) => v === 'APPROVED' ? colors.green + '✓' :
+                          v === 'BLOCKED' ? colors.red + '✗' :
+                          v === 'PENDING' ? colors.yellow + '○' :
+                          colors.gray + '–';
+  const gateParts = ['checks', 'tester', 'security']
+    .filter(g => resumeInfo.qualityGates[g] != null)
+    .map(g => `${g}=${gateIcon(resumeInfo.qualityGates[g])}${colors.reset} ${resumeInfo.qualityGates[g]}`);
 
-  lines.push(`${colors.cyan}Quality Gates:${colors.reset} validator=${validatorIcon}${colors.reset} ${resumeInfo.qualityGates.validator}, tester=${testerIcon}${colors.reset} ${resumeInfo.qualityGates.tester}`);
+  lines.push(`${colors.cyan}Quality Gates:${colors.reset} ${gateParts.join(', ') || colors.gray + 'none required' + colors.reset}`);
 
   if (resumeInfo.qualityGates.status) {
     lines.push(`${colors.bright}Gate Status:${colors.reset} ${resumeInfo.qualityGates.status}`);
@@ -661,14 +714,17 @@ function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPac
       lines.push(`  ${colors.yellow}⚠ Missing required: ${missingRequired.map(s => s.name).join(', ')}${colors.reset}`);
     }
 
-    // v5.6.0: Show Tier 1 health check duration if available
+    // v8.7.0: Show cached health summary with its age (the check itself
+    // runs in a detached background process, never inline in the hook)
     if (mcpStatus.tier1Results) {
-      const duration = mcpStatus.tier1Results.duration;
       const healthySummary = `${mcpStatus.tier1Results.summary.healthy}/${mcpStatus.tier1Results.summary.total} healthy`;
+      const age = formatCacheAge(mcpStatus.cacheAgeMs);
       lines.push('');
-      lines.push(`  ${colors.gray}Health check: ${healthySummary} (${duration}ms)${colors.reset}`);
+      lines.push(`  ${colors.gray}Health: ${healthySummary}${age ? ` (checked ${age} ago)` : ''}${colors.reset}`);
     }
 
+  } else if (mcpStatus.pending) {
+    lines.push(`  ${colors.gray}○ Health check running in background — status next session${colors.reset}`);
   } else {
     lines.push(`  ${colors.yellow}⚠ Could not check MCP status${colors.reset}`);
     lines.push(`  ${colors.gray}Run: claude mcp list${colors.reset}`);
@@ -685,15 +741,14 @@ function displayWelcome(version, mcpStatus, reportFolder, versionBump, domainPac
     lines.push('');
   }
 
-  // Agents Section
-  lines.push(`${colors.cyan}Agents Ready${colors.reset}`);
+  // Agents Section (v8.7.0 - Sprint 02: dynamic roster, wraps to fit any count)
+  lines.push(`${colors.cyan}Agents Ready (${AGENTS.length})${colors.reset}`);
 
-  // Format agents in two rows
-  const row1 = AGENTS.slice(0, 4).join(' ');
-  const row2 = AGENTS.slice(4).join(' ');
-
-  lines.push(`  ${colors.gray}${row1}${colors.reset}`);
-  lines.push(`  ${colors.gray}${row2}${colors.reset}`);
+  const AGENTS_PER_ROW = 5;
+  for (let i = 0; i < AGENTS.length; i += AGENTS_PER_ROW) {
+    const row = AGENTS.slice(i, i + AGENTS_PER_ROW).join(' ');
+    lines.push(`  ${colors.gray}${row}${colors.reset}`);
+  }
 
   // v8.6.0 - Sprint 02: Drift Guard section (only rendered when triggered)
   const hasDriftWarnings = Array.isArray(driftWarnings) && driftWarnings.length > 0;

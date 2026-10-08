@@ -85,7 +85,7 @@ Before even a single line of code is written, you analyze requirements, evaluate
 
 - **No API Contract Validation** - That's @api-guardian
 - **No Consumer Impact Analysis** - That's @api-guardian
-- **No Cross-File Consistency Checks** - That's @validator
+- **No Cross-File Consistency Checks** - That's the deterministic hook / `/code-review`
 - **No Code Implementation** - That's @builder
 - **No Documentation** - That's @scribe
 
@@ -206,3 +206,7 @@ Provide:
 - Technology stack choices
 - API design strategy
 - System-wide architectural changes
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

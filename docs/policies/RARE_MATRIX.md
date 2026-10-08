@@ -27,8 +27,13 @@
 
 ### Core Development Activities
 
-| Activity | Orchestrator | @architect | @api-guardian | @builder | @validator | @tester | @scribe | @github-manager |
-|----------|--------------|------------|---------------|----------|------------|---------|---------|-----------------|
+@validator was dissolved in v8.7.0 (Sprint 02): its deterministic checks moved into a
+post-`@builder` **hook** (not an agent, so it gets its own column below, not a RACI role — a
+compiler result is a fact, not a delegated responsibility); its judgment part is pulled on
+demand via `/code-review`. `@tester` now runs only when the sprint declares `ux_gate: auto`.
+
+| Activity | Orchestrator | @architect | @api-guardian | @builder | Hook (deterministic) | @tester | @scribe | @github-manager |
+|----------|--------------|------------|---------------|----------|----------------------|---------|---------|-----------------|
 | **System Design** | A | R | Re | - | - | - | - | - |
 | **API Design** | A | R | Re | - | - | - | - | - |
 | **API Impact Analysis** | A | Re | R | - | - | - | - | - |
@@ -37,17 +42,20 @@
 | **Type Definitions** | A | Re | Re | R | - | - | - | - |
 | **Unit Testing** | A | - | - | R | E | - | - | - |
 | **Code Quality Check** | A | - | - | - | R | - | - | - |
-| **Security Scan** | A | - | - | - | R | - | - | - |
-| **E2E Testing** | A | - | - | - | - | R | - | - |
-| **Visual Regression** | A | - | - | - | - | R | - | - |
-| **Accessibility Audit** | A | - | - | - | - | R | - | - |
-| **Performance Testing** | A | - | - | - | - | R | - | - |
+| **Security Scan** | A | - | - | - | Re | - | - | - |
+| **E2E Testing (opt-in)** | A | - | - | - | - | R | - | - |
+| **Visual Regression (opt-in)** | A | - | - | - | - | R | - | - |
+| **Accessibility Audit (opt-in)** | A | - | - | - | - | R | - | - |
+| **Performance Testing (opt-in)** | A | - | - | - | - | R | - | - |
 | **Documentation** | A | Re | - | - | - | - | R | - |
 | **CHANGELOG Update** | A | - | - | - | - | - | R | - |
 | **VERSION Update** | A | - | - | - | - | - | R | - |
 | **PR Creation** | A | - | - | - | - | - | - | R |
 | **Issue Processing** | A | - | - | - | - | - | - | R |
 | **Release Management** | A | - | - | - | - | - | Re | R |
+
+`@security` (optional gate) is not a table column here because it activates only on security
+surfaces; when it runs, Security Scan becomes **R: @security, Re: Hook**.
 
 ### Legend
 
@@ -75,20 +83,21 @@
 
 | Decision Type | Primary Owner | Consulted | Informed |
 |--------------|---------------|-----------|----------|
-| Code patterns | @builder | @architect | @validator |
-| Test strategy | @builder | @validator, @tester | - |
-| Refactoring approach | @builder | @architect | @validator |
-| Error handling | @builder | @architect | @validator |
+| Code patterns | @builder | @architect | Orchestrator |
+| Test strategy | @builder | @tester (if `ux_gate: auto`) | - |
+| Refactoring approach | @builder | @architect | Orchestrator |
+| Error handling | @builder | @architect | Orchestrator |
 
 ### Quality Decisions
 
 | Decision Type | Primary Owner | Consulted | Informed |
 |--------------|---------------|-----------|----------|
-| Code quality standards | @validator | @architect | @builder |
-| Test coverage requirements | @validator | @tester | @builder |
-| Security policies | @validator | Orchestrator | All agents |
+| Code quality standards | Hook (deterministic) | @architect | @builder |
+| Test coverage requirements | @builder | @tester (if `ux_gate: auto`) | Orchestrator |
+| Security policies | @security | Orchestrator | All agents |
 | Accessibility standards | @tester | @architect | @builder |
 | Performance thresholds | @tester | @architect | @builder |
+| Code judgment (on risk/doubt) | `/code-review` | Orchestrator | @builder |
 
 ### Documentation Decisions
 
@@ -130,11 +139,12 @@ The Orchestrator (CLAUDE.md) has unique responsibilities that span all workflows
 
 | Situation | Orchestrator Action |
 |-----------|---------------------|
-| Security concern detected | Escalate to @validator, halt workflow |
+| Security concern detected | Escalate to @security, halt workflow |
 | Breaking API change | Route through @api-guardian (mandatory) |
-| Both quality gates fail | Merge feedback, return to @builder |
+| Any applicable check fails (hook / @tester / @security / `/code-review`) | Merge feedback, return to @builder |
 | MCP health check fails | Apply graceful degradation or halt |
 | Ambiguous user request | Request clarification before proceeding |
+| Judgment-class decision (architecture choice, design taste, malformed-request suspicion) | Mandatory human escalation — Responsible: @builder, Accountable: Orchestrator, Reviewed by: checks, Escalated to: User |
 
 ### Accountability Matrix
 
@@ -148,24 +158,32 @@ The Orchestrator (CLAUDE.md) has unique responsibilities that span all workflows
 
 ---
 
-## Parallel Quality Gates Diagram
+## Evidence-Matched Verification Diagram
 
 ```
                           @builder completes
                                   |
                                   v
+                    +---------------------------+
+                    |  Hook (deterministic)     |
+                    |  always runs              |
+                    | - TypeScript / lint       |
+                    | - Unit Tests / build      |
+                    | 0 context on success      |
+                    +---------------------------+
+                                  |
               +-------------------+-------------------+
               |                                       |
-              v                                       v
+              v (if ux_gate: auto)                    v (if security surface)
     +------------------+                   +------------------+
-    |    @validator    |                   |     @tester      |
+    |     @tester      |                   |     @security    |
     |------------------|                   |------------------|
-    | R: Code Quality  |                   | R: UX Quality    |
-    | - TypeScript     |                   | - E2E Tests      |
-    | - Unit Tests     |                   | - Visual Match   |
-    | - Security       |                   | - A11y           |
-    | - Consumers      |                   | - Performance    |
-    +------------------+                   +------------------+
+    | R: UX Quality    |                   | R: Security Scan |
+    | - E2E Tests      |                   | - Secrets/Auth   |
+    | - Visual Match   |                   | - Injection      |
+    | - A11y           |                   | - Dependencies   |
+    | - Performance    |                   +------------------+
+    +------------------+
               |                                       |
               v                                       v
     +------------------+                   +------------------+
@@ -173,6 +191,10 @@ The Orchestrator (CLAUDE.md) has unique responsibilities that span all workflows
     +------------------+                   +------------------+
               |                                       |
               +-------------------+-------------------+
+                                  |
+                    (risk or doubt on code judgment?)
+                                  v
+                          pull /code-review
                                   |
                                   v
                     +---------------------------+
@@ -183,7 +205,7 @@ The Orchestrator (CLAUDE.md) has unique responsibilities that span all workflows
               +-------------------+-------------------+
               |                   |                   |
               v                   v                   v
-     Both APPROVED        One BLOCKED         Both BLOCKED
+     All APPROVED         One BLOCKED          Multiple BLOCKED
               |                   |                   |
               v                   v                   v
          @scribe           @builder              @builder
@@ -192,12 +214,12 @@ The Orchestrator (CLAUDE.md) has unique responsibilities that span all workflows
 
 ### Decision Matrix Detail
 
-| @validator Result | @tester Result | Orchestrator Action | Responsibility |
-|-------------------|----------------|---------------------|----------------|
-| APPROVED | APPROVED | Proceed to @scribe | @scribe: R, Orchestrator: A |
-| APPROVED | BLOCKED | Return to @builder with tester feedback | @builder: R, @tester: Re |
-| BLOCKED | APPROVED | Return to @builder with validator feedback | @builder: R, @validator: Re |
-| BLOCKED | BLOCKED | Merge feedback, return to @builder | @builder: R, Both: Re |
+| Hook Result | @tester Result (if run) | @security Result (if run) | Orchestrator Action | Responsibility |
+|-------------|--------------------------|-----------------------------|---------------------|----------------|
+| PASS | APPROVED / n.a. | APPROVED / n.a. | Proceed to @scribe | @scribe: R, Orchestrator: A |
+| PASS | BLOCKED | any | Return to @builder with tester feedback | @builder: R, @tester: Re |
+| PASS | any | BLOCKED | Return to @builder with security feedback | @builder: R, @security: Re |
+| FAIL | any | any | Return to @builder with hook output | @builder: R, Hook: Re |
 
 ---
 
@@ -214,9 +236,9 @@ User Request
      v
 @builder (R: Implementation, A: Orchestrator)
      |
-     +---> @validator (R: Code Quality) ----+
+     +---> Hook (R: Code Quality, always) --+
      |                                       |
-     +---> @tester (R: UX Quality) ---------+
+     +---> @tester (R: UX Quality, if ux_gate: auto) --+
                                              |
                                              v
                                     @scribe (R: Documentation)
@@ -236,9 +258,9 @@ User Request
      v
 @builder (R: Implementation, A: Orchestrator)
      |
-     +---> @validator (R: Code Quality + Consumers) --+
-     |                                                 |
-     +---> @tester (R: UX Quality) -------------------+
+     +---> Hook (R: Code Quality + Consumer regression, always) --+
+     |                                                             |
+     +---> @tester (R: UX Quality, if ux_gate: auto) -------------+
                                                        |
                                                        v
                                               @scribe (R: Documentation)
@@ -252,9 +274,9 @@ User Request
      v
 @builder (R: Fix Implementation, A: Orchestrator)
      |
-     +---> @validator (R: Regression Check) --+
-     |                                         |
-     +---> @tester (R: Fix Verification) -----+
+     +---> Hook (R: Regression Check, always) --+
+     |                                           |
+     +---> @tester (R: Fix Verification, if ux_gate: auto) --+
                                                |
                                                v
                                            (Complete)

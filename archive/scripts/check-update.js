@@ -1,6 +1,23 @@
 #!/usr/bin/env node
 
 /**
+ * ⚠ UNWIRED — found by the v8.7.0 Sprint 03 script audit, kept for reference only.
+ *
+ * No hook config (config/claude-settings.json, ~/.claude/settings.json,
+ * ~/.claude/settings.local.json), no package.json script, no GitHub workflow,
+ * and no installer (apply-global-claude-setup.sh/.ps1, install-mcps.sh)
+ * references or invokes this file, and it is not require()'d by any script
+ * that is itself wired. The audit could not establish when or whether it was
+ * ever wired — only that it is not today. Kept for historical/reference
+ * purposes; do not re-wire without confirming the update-check flow it
+ * implements is still the intended one. Deletion is a separate maintainer
+ * decision.
+ *
+ * Moved to archive/ in v9.0.0 (Sprint 04). The update path is now:
+ *   git pull && ./scripts/apply-global-claude-setup.sh
+ */
+
+/**
  * CC_GodMode Update Checker
  *
  * Checks if a newer version is available on GitHub.
@@ -8,8 +25,9 @@
  *
  * Usage: node scripts/check-update.js
  *
- * Copyright (c) 2025 Dennis Westermann
+ * Copyright (c) 2025-2026 Dennis Westermann
  * www.dennis-westermann.de
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
  */
 
 const https = require('https');

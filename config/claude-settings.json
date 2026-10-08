@@ -1,7 +1,14 @@
 {
   "model": "best",
   "permissions": {
-    "allowedTools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
+    "allowedTools": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep"
+    ],
     "deny": [
       "Write(.env*)",
       "Write(*.pem)",
@@ -35,6 +42,11 @@
     "SubagentStop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node ~/.claude/scripts/verify-changes.js",
+            "timeout": 65
+          },
           {
             "type": "command",
             "command": "node ~/.claude/scripts/validate-agent-output.js",

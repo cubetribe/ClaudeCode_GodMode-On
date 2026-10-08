@@ -11,6 +11,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [9.0.0] - 2026-10-07
+### Breaking Changes
+
+- **Core Rule 2: "Delegate when it pays"** (Sprint 05) — replaces "Delegate by default". Delegation now targets large, genuinely independent/parallelizable work or work requiring specialist tools or separate write scope; small work is done directly; never delegate to verify your own work.
+- **@validator is dissolved** (Sprint 02, roster 15 → 14 agents). `subagent_type: validator` no longer exists; replace with deterministic hook `verify-changes.js` (typecheck, lint, tests, build) or on-demand `/code-review` for judgment-class review. The orchestrator no longer gates on a second model re-reading the same diff.
+- **Core Rules 5, 6, 7, 8 rewritten** (Sprint 02) — verification now matches the evidence: deterministic checks always run via hook (facts, not opinions); UX gate runs only when declared `ux_gate: auto` (default `human`); skips are logged in the sprint's Routing Log; reports are tracked repo artifacts in `reports/vX.Y.Z/sprint-NN/`, committed at integration.
+- **New mandatory sprint field `ux_gate: auto | human | skip`** (Sprint 02) — declared once at planning, no longer asked per-sprint during execution. Default: `human`. `auto` requires reachable `playwright` MCP; absence falls back to `human` without blocking.
+- **Installer now merges hooks into `~/.claude/settings.json`** (Sprint 04) — the enforcement layer (API-impact, deterministic checks, session-start, report validation) is no longer absent on fresh install. The merge backs up first, operates at entry level (per-hook basename dedup, foreign hooks preserved), and is idempotent. Opt-out via `--no-hooks`. Existing `settings.json` with user configuration is safe — only the `hooks` block is touched.
+- **`.ccgm-state.json` `qualityGates` shape changed** (Sprint 02) — now `{checks, tester, security}` instead of `{validator, tester}`. `null` means "was not required", not "missing". Workflows that read this field must update their logic.
+
+### Upgrading from 8.6.0
+
+1. **Pull and reinstall:** `git pull && ./scripts/apply-global-claude-setup.sh`
+   - The installer now wires hooks into `~/.claude/settings.json` (backed up first, idempotent, safe with existing configuration).
+2. **Verify the installation:** `node scripts/verify-install.js`
+   - Confirms all 14 agents, 14 skills, hooks, and templates in place.
+3. **Refresh the orchestrator rules where you activated GodMode:**
+   - Re-copy `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` to `<project>/CLAUDE.md` in each activated project. If you keep GodMode rules in your own `~/.claude/CLAUDE.md`, update it the same way — the installer never writes that file. This picks up the rewritten Core Rules (2, 5, 6, 7, 8).
+4. **Replace `subagent_type: validator`** in your workflow — remove it or use `/code-review` instead.
+   - If you have `subagent_type: validator` in any dispatch, replace with `/code-review` or remove; `validator` no longer exists.
+5. **Add `ux_gate` to any open sprint files:** `ux_gate: auto | human | skip`
+   - If you have in-progress sprints (under `plans/`), add this mandatory field. Default: `human`.
+6. **Update your Claude Code settings (Claude Code 2.1.28x+):**
+   - Set `/model opus` (Opus 5.5, the recommended default).
+   - Set `/effort ultracode` (session-only switch for dynamic workflows; requires `/config` to enable).
+
+### Added
+
+- **Installation verification** `scripts/verify-install.js` (new, `npm run install:verify`): exit 0 on clean install (all 14 agents, all 14 skills, all hooks wired + scripts exist, orchestrator template, LICENSE/NOTICE), exit 1 with concrete errors otherwise. Runs from either repo or installed copy; never crashes.
+- **`--no-hooks` flag** (both `.sh` and `.ps1`): users who manage hook configuration separately can skip it (`./scripts/apply-global-claude-setup.sh --no-hooks`).
+- Test coverage: `test-hooks-contract.js` extended with 16 new checks for the installer merge contract (foreign-key/foreign-hook preservation, idempotency, missing-file creation, entry-level dedup) — **64/64 checks passing.**
+
+### Changed
+
+- **License hardening** (Sprint 01) — LICENSE v2 (explicit GitHub-fork permission, mandatory attribution, explicit re-hosting/scraping prohibition), NOTICE file, license metadata on every scrapeable surface (SKILL.md frontmatter, agent/prompt/doc footers, script headers, package.json/plugin.json), MIT example-string defusal, contributor-license clause, installer ships LICENSE+NOTICE to `~/.claude/`.
+- **Product name:** "GodMode Core for Claude Code" (currently CC_GodMode); README and plugin `displayName` updated with product family table linking to GodMode Core for Codex and GodMode Pro; core license and agent/skill names unchanged.
+- **Orchestrator model strategy:** Recommended default is now `opus` (Opus 5.5), the system tuning target. `best` resolves to Fable 5.1 where available (optional upgrade, ~2.5× list price); no feature depends on it.
+- **Ultracode:** Documented as session-only switch (`/effort ultracode` or per-prompt keyword), not an effort level; requires dynamic workflows enabled in `/config`. Effort tuning unchanged; Opus 5.5 and Sonnet 5.5 default to `medium` effort.
+- **Fable 5.1 cost ratio:** ~2.5× Opus 5.5 list price (previous estimate: ~2×).
+- **Installation and update are now one command:** `git pull && ./scripts/apply-global-claude-setup.sh`. The installer is idempotent; consecutive runs produce byte-identical `settings.json`. Version before/after is reported at the end (`fresh install: X` / `already up to date` / `updated: X -> Y`).
+- `scripts/auto-update.js` and `scripts/check-update.js` archived to `archive/scripts/` (via `git mv`, history preserved) — they were unwired, undocumented, and superseded by the unified install path.
+- Hook entry merge changed from whole-event-replace to per-hook dedup: foreign hooks on canonical events (`SessionStart`, `PostToolUse`, `SubagentStop`, `TaskCompleted`, `TeammateIdle`) now survive alongside GodMode entries; only same-hook (basename match) are deduplicated.
+- `README.md`: reframed CLAUDE.md-per-project step as intentional activation, added "Update" section, added "Verify your install" section with MCP honesty (playwright absence degrades to `human` per Core Rule 6).
+
+### Fixed
+
+- **Hook wiring on fresh install:** `scripts/apply-global-claude-setup.sh` and `.ps1` now wire the canonical `hooks` block from `config/claude-settings.json` into `~/.claude/settings.json` during a normal install run (not behind `--fix-hooks` only). If `settings.json` does not exist, it is created; if it exists, the merge is now at entry-level (per-hook basename dedup, foreign hooks on non-canonical events preserved), backed up first, and idempotent. `--fix-hooks` now repairs hook wiring even when `settings.json` is missing.
+- Documentation drift: `docs/INSTALLATION.md` and `docs/AGENT_ARCHITECTURE.md` corrected to reflect actual installer behavior (hook wiring, `--no-hooks`/`--fix-hooks` flags, `verify-install.js` check path) and removed all references to `auto-update.js` / `check-update.js`.
+- **Plugin manifest:** agent count corrected from 15 to 14 (7 core + 1 security gate + 6 department); component paths fixed to `./`-prefixed schema (`./agents/<n>.md`, `./skills/<n>` directories). `claude plugin validate` passes; no validator errors (1 informational warning on root CLAUDE.md context — pre-existing). Plugin load verified on Claude Code 2.1.286 (14 agents, 14 skills).
+- **Stale model references:** Opus 4.8 and Sonnet 4.6 replaced with Opus 5.5 and Sonnet 5.5 across documentation, skills, the orchestrator template, prompts and the plugin manifest. Opus 4.8, Sonnet 4.6 and Fable 5 are legacy (still available, not deprecated).
+- Report authorship rule (Core Rule 8, defect D1): 11 of 15 agents were ordered to write reports without holding a `Write` tool. Resolved by matching the declared toolset to what each agent actually does: the four evidence-producing gates (api-guardian, tester, security, github-manager) received `Write` — their "read-only" declaration was untrue, since all four already held `Bash` — while the six purely advisory agents (ci-security-guardian, docs-dx, quality-operations, runtime-platform, workflow-design, workspace-governance) now return their verdict for the dispatcher to persist.
+- Minimum-length thresholds for reports removed from validation rules and templates (Goodhart-trap finding: length checks suppress signal and incentivize padding instead of substance).
+- Agent count in documentation corrected from 8 to 14 (7 core + 1 security gate + 6 department).
+- **API path list consolidated:** seven divergent versions (five in prose, one in `docs/ARCHITECTURE.md`, one in `scripts/check-api-impact.js` config) unified — `skills/api-change/SKILL.md` is now the single source of truth; all other references point there. Consequence: `**/dto/**`, `**/contracts/**`, `**/interfaces/**` and `swagger.json` now uniformly trigger the @api-guardian gate (safe direction — one missed contract break costs more than an extra gate run).
+- **Escalation model unified:** `skills/meta-decisions/SKILL.md` consolidated to authoritative source `docs/orchestrator/META-DECISIONS.md`; MANDATORY set and Judgment-Class gate explicit; statement "a unanimous agent PASS does not waive them" present verbatim.
+- **Architecture gate clarified:** inline architecture brief requirement moved to Core Rule 3 — greenfield is not a separate escalation threshold for @architect; small and medium work use inline briefs, not subagent.
+- **@scribe separated from VERSION:** all four mentions corrected (CLAUDE.md, agents/scribe.md, skills/workflows/SKILL.md, docs/AGENTS.md) — @scribe edits `[Unreleased]` only; version management is exclusively `scripts/version-bump.js` in the release sprint.
+- **Tool declarations aligned:** 14-agent sweep completed; every tool claim in prose text verified against `tools:` frontmatter; four department agents corrected (had no Write yet claimed report authorship).
+- **Silent bug in `sync-version.js`:** `main()` ran unguarded on module `require()`; added `require.main === module` guard and extended tests (47/47 checks passing).
+- **Dead scripts audit:** 6 of 21 scripts unwired (corrected list size ~107.5 KB vs claimed 9/~154 KB); five marked with Deprecated banners; side finding: `verify-changes.js` exists in `~/.claude` but not registered in repo-canonical config.
+
+---
+
 ## [8.6.0] - 2026-07-06
 ### **"Fable 5 Light" — Deterministic Enforcement Repair, Routing Audit, Scoped Compensation**
 

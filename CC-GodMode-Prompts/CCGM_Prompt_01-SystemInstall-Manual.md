@@ -1,6 +1,6 @@
 # Manual Installation Guide
 
-> **Version:** 8.6.0
+> **Version:** 9.0.0
 > **Type:** SYSTEM INSTALL
 > **Prerequisite:** None (first-time installation)
 > **Frequency:** Once per machine
@@ -26,153 +26,83 @@
 
 ## Installation Steps
 
-### Step 1: Create directories
+There is one installer for the whole runtime — `scripts/apply-global-claude-setup.sh`
+(macOS/Linux) or `scripts/apply-global-claude-setup.ps1` (Windows). This guide shows
+you what it does step by step so you understand the mechanism, but the recommended
+path is still to run it rather than hand-copy files (Step 3 below is the one command
+that matters; Steps 1-2 just get you there).
+
+### Step 1: Clone the repository
 
 **macOS / Linux:**
 ```bash
-mkdir -p ~/.claude/agents
-mkdir -p ~/.claude/skills
-mkdir -p ~/.claude/scripts
-mkdir -p ~/.claude/templates
+cd ~
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
 ```
 
 **Windows (PowerShell):**
 ```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\scripts"
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\templates"
+cd $env:USERPROFILE
+git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git
+cd ClaudeCode_GodMode-On
+```
+
+Keep this clone — it is also your update source (`git pull && ./scripts/apply-global-claude-setup.sh`)
+and the place you copy `CC-GodMode-Prompts/*.md` from when activating a project (Step 6).
+
+---
+
+### Step 2: Prerequisites check
+
+```bash
+node --version    # need 18+
+claude --version
+git --version
 ```
 
 ---
 
-### Step 2: Clone repository
+### Step 3: Run the installer
 
 **macOS / Linux:**
 ```bash
-cd /tmp
-git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode
+./scripts/apply-global-claude-setup.sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
-cd $env:TEMP
-git clone https://github.com/cubetribe/ClaudeCode_GodMode-On.git CC_GodMode
+.\scripts\apply-global-claude-setup.ps1
 ```
+
+This one command:
+- Installs all 14 agents (7 core + 1 security gate + 6 department) into `~/.claude/agents/`
+- Installs all 14 skills into `~/.claude/skills/`
+- Installs every script under `scripts/` into `~/.claude/scripts/`
+- Installs `CLAUDE.md` as `~/.claude/templates/CLAUDE-ORCHESTRATOR.md` and
+  `CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md` into `~/.claude/templates/`
+- Installs `LICENSE`/`NOTICE` into `~/.claude/`
+- Backs up anything it overwrites (timestamped, under `~/.claude/backups/install-archives/`)
+- Merges the hooks from `config/claude-settings.json` into `~/.claude/settings.json`
+  (only the `hooks` key — every other key you already have there, e.g. `model`,
+  `effortLevel`, `permissions`, your own hooks, is preserved)
+- Writes `~/.claude/.cc-godmode-version`
+
+Add `--no-hooks` if you manage `settings.json` hook wiring yourself.
+
+**Not installed by this script:** `config/domain-config.schema.json` and the full
+`CC-GodMode-Prompts/` folder stay in your clone — copy the prompts you need per
+project directly from there (Step 6). MCP servers are a separate step (below).
 
 ---
 
-### Step 3: Install agents (15 files)
-
-**macOS / Linux:**
-```bash
-cp /tmp/CC_GodMode/agents/*.md ~/.claude/agents/
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode\agents\*.md" "$env:USERPROFILE\.claude\agents\" -Force
-```
-
-**Expected files (15 — 8 core + 1 security gate + 6 department):**
-
-Core agents:
-- `researcher.md`
-- `architect.md`
-- `api-guardian.md`
-- `builder.md`
-- `validator.md`
-- `tester.md`
-- `scribe.md`
-- `github-manager.md`
-
-Security gate:
-- `security.md`
-
-Department agents:
-- `ci-security-guardian.md`
-- `docs-dx.md`
-- `quality-operations.md`
-- `runtime-platform.md`
-- `workflow-design.md`
-- `workspace-governance.md`
-
----
-
-### Step 4: Install skills (11 directories)
-
-**macOS / Linux:**
-```bash
-cp -R /tmp/CC_GodMode/skills/* ~/.claude/skills/
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode\skills\*" "$env:USERPROFILE\.claude\skills\" -Recurse -Force
-```
-
-**Expected directories:**
-- `workflows`
-- `quality-gates`
-- `release`
-- `issue-processing`
-- `api-change`
-- `research`
-- `meta-decisions`
-- `agent-teams`
-- `prototype-mode`
-- `departments`
-- `cost-efficiency`
-
----
-
-### Step 5: Install scripts
-
-**macOS / Linux:**
-```bash
-cp /tmp/CC_GodMode/scripts/*.js ~/.claude/scripts/
-chmod +x ~/.claude/scripts/*.js
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode\scripts\*.js" "$env:USERPROFILE\.claude\scripts\" -Force
-```
-
----
-
-### Step 6: Install templates
-
-**macOS / Linux:**
-```bash
-cp /tmp/CC_GodMode/CLAUDE.md ~/.claude/templates/CLAUDE-ORCHESTRATOR.md
-cp /tmp/CC_GodMode/templates/adr-template.md ~/.claude/templates/
-cp /tmp/CC_GodMode/CC-GodMode-Prompts/CCGM_Prompt_02-ProjectActivation.md ~/.claude/templates/
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item "$env:TEMP\CC_GodMode\CLAUDE.md" "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" -Force
-Copy-Item "$env:TEMP\CC_GodMode\templates\adr-template.md" "$env:USERPROFILE\.claude\templates\" -Force
-Copy-Item "$env:TEMP\CC_GodMode\CC-GodMode-Prompts\CCGM_Prompt_02-ProjectActivation.md" "$env:USERPROFILE\.claude\templates\" -Force
-```
-
----
-
-### Step 7: Install Memory MCP Server
+### Step 4: Install MCP servers (optional, separate step)
 
 ```bash
 claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
 ```
 
-**Verify:**
-```bash
-claude mcp list
-```
-
----
-
-### Step 8: Additional MCP Servers (recommended)
+**Additional MCP servers (optional):**
 
 ```bash
 # Playwright (for @tester - browser automation)
@@ -194,97 +124,51 @@ claude mcp add github \
   ghcr.io/github/github-mcp-server
 ```
 
----
-
-### Step 9: Configure hooks
-
-Create/edit `~/.claude/settings.json` (macOS/Linux) or `%USERPROFILE%\.claude\settings.json` (Windows):
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ~/.claude/scripts/check-api-impact.js"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**Windows path in settings.json:**
-```json
-"command": "node \"%USERPROFILE%\\.claude\\scripts\\check-api-impact.js\""
-```
-
-**Note:** `check-api-impact.js` reads the changed file from the PostToolUse
-stdin JSON payload (`tool_input.file_path`) — Claude Code hooks do not set a
-`$CLAUDE_FILE_PATH` environment variable, so no argument is passed.
-
----
-
-### Step 10: Cleanup
-
-**macOS / Linux:**
+**Verify:**
 ```bash
-rm -rf /tmp/CC_GodMode
-```
-
-**Windows (PowerShell):**
-```powershell
-Remove-Item -Recurse -Force "$env:TEMP\CC_GodMode"
-```
-
----
-
-## Verification
-
-```bash
-echo "=== Agents ==="
-ls ~/.claude/agents/
-
-echo "=== Skills ==="
-ls ~/.claude/skills/
-
-echo "=== Scripts ==="
-ls ~/.claude/scripts/
-
-echo "=== Templates ==="
-ls ~/.claude/templates/
-
-echo "=== MCP Server ==="
 claude mcp list
 ```
 
-**Expected result:**
-- 15 agent files (8 core + 1 security gate + 6 department)
-- 11 skill directories
-- 15 scripts
-- 3 templates (`CLAUDE-ORCHESTRATOR.md`, `adr-template.md`, `CCGM_Prompt_02-ProjectActivation.md`)
-- MCP: `memory`, optional: `playwright`, `github`, `lighthouse`, `a11y`
+---
+
+### Step 5: Verify the installation
+
+```bash
+node scripts/verify-install.js
+```
+
+- **Exit 0** — all 14 agents, all 14 skills, the hook wiring, the orchestrator
+  template, and LICENSE/NOTICE are present and match this repo's `VERSION`.
+- **Exit non-zero** — the script lists exactly what's missing; re-run Step 3.
+
+Equivalent built into the installer itself:
+
+```bash
+./scripts/apply-global-claude-setup.sh --check
+```
 
 ---
 
-## Activate project
+## Activate a project
 
-For each project where you want to use CC_GodMode:
+For each project where you want to use CC_GodMode. There is no global
+`~/.claude/CLAUDE.md` — the orchestrator template is copied into each project
+individually:
 
 **macOS / Linux:**
 ```bash
 cd your-project
 cp ~/.claude/templates/CLAUDE-ORCHESTRATOR.md ./CLAUDE.md
+mkdir -p ./CC-GodMode-Prompts
+cp <your-clone>/CC-GodMode-Prompts/*.md ./CC-GodMode-Prompts/
 ```
 
 **Windows (PowerShell):**
 ```powershell
 cd your-project
 Copy-Item "$env:USERPROFILE\.claude\templates\CLAUDE-ORCHESTRATOR.md" ".\CLAUDE.md"
+New-Item -ItemType Directory -Force -Path ".\CC-GodMode-Prompts"
+Copy-Item "<your-clone>\CC-GodMode-Prompts\*.md" ".\CC-GodMode-Prompts\"
 ```
 
 Then start Claude:
@@ -300,31 +184,36 @@ The CLAUDE.md will be automatically loaded and the orchestrator is active!
 
 | Component | macOS/Linux | Windows |
 |------------|-------------|----------|
-| Agents (15) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
-| Skills (11) | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
-| Scripts (15) | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
-| Templates (3) | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` |
-| Hooks | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` |
-| MCP Server | `~/.claude/mcp.json` | `%USERPROFILE%\.claude\mcp.json` |
+| Agents (14) | `~/.claude/agents/` | `%USERPROFILE%\.claude\agents\` |
+| Skills (14) | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
+| Scripts (all `*.js` in the repo) | `~/.claude/scripts/` | `%USERPROFILE%\.claude\scripts\` |
+| Templates (2) | `~/.claude/templates/` | `%USERPROFILE%\.claude\templates\` |
+| License/Notice | `~/.claude/LICENSE-CC_GodMode.txt`, `NOTICE-CC_GodMode.txt` | same, under `%USERPROFILE%\.claude\` |
+| Hooks (merged) | `~/.claude/settings.json` | `%USERPROFILE%\.claude\settings.json` |
+| MCP Server | Claude MCP registry | Claude MCP registry |
 
 ---
 
 ## Uninstallation
 
+There is no uninstall script. Back up `~/.claude/settings.json` first if you
+want to keep unrelated settings — editing out just the GodMode `hooks` block is
+safer than deleting the whole file.
+
 **macOS / Linux:**
 ```bash
-# Remove agents (core + department)
-rm ~/.claude/agents/{researcher,architect,api-guardian,builder,validator,tester,scribe,github-manager}.md
-rm ~/.claude/agents/{ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
+# Remove agents (all 14 — core + security gate + department)
+rm ~/.claude/agents/{researcher,architect,api-guardian,builder,tester,scribe,github-manager}.md
+rm ~/.claude/agents/{security,ci-security-guardian,docs-dx,quality-operations,runtime-platform,workflow-design,workspace-governance}.md
 
-# Remove skills
-rm -rf ~/.claude/skills/{workflows,quality-gates,release,issue-processing,api-change,research,meta-decisions,agent-teams,prototype-mode,departments,cost-efficiency}
-
-# Remove scripts
-rm ~/.claude/scripts/{analyze-prompt,auto-update,check-api-impact,check-update,domain-pack-loader,escalation-handler,mcp-health-check,parallel-quality-gates,pre-push-check,session-start,sync-version,test-phase2-integration,validate-agent-output,version-bump,workflow-state}.js
+# Remove scripts and skills
+rm -rf ~/.claude/scripts ~/.claude/skills
 
 # Remove templates
-rm -rf ~/.claude/templates/
+rm -rf ~/.claude/templates
+
+# Remove license/notice and version marker
+rm -f ~/.claude/LICENSE-CC_GodMode.txt ~/.claude/NOTICE-CC_GodMode.txt ~/.claude/.cc-godmode-version
 
 # Remove MCP servers
 claude mcp remove memory
@@ -333,22 +222,23 @@ claude mcp remove github
 claude mcp remove lighthouse
 claude mcp remove a11y
 
-# Hooks: Remove manually from ~/.claude/settings.json
+# Hooks: edit the GodMode hooks block out of ~/.claude/settings.json by hand
 ```
 
 **Windows (PowerShell):**
 ```powershell
-# Remove agents (core + department — glob removes all 15)
+# Remove agents (all 14)
 Remove-Item "$env:USERPROFILE\.claude\agents\*.md"
 
-# Remove scripts
-Remove-Item "$env:USERPROFILE\.claude\scripts\analyze-prompt.js","$env:USERPROFILE\.claude\scripts\auto-update.js","$env:USERPROFILE\.claude\scripts\check-api-impact.js","$env:USERPROFILE\.claude\scripts\check-update.js","$env:USERPROFILE\.claude\scripts\domain-pack-loader.js","$env:USERPROFILE\.claude\scripts\escalation-handler.js","$env:USERPROFILE\.claude\scripts\mcp-health-check.js","$env:USERPROFILE\.claude\scripts\parallel-quality-gates.js","$env:USERPROFILE\.claude\scripts\pre-push-check.js","$env:USERPROFILE\.claude\scripts\session-start.js","$env:USERPROFILE\.claude\scripts\sync-version.js","$env:USERPROFILE\.claude\scripts\test-phase2-integration.js","$env:USERPROFILE\.claude\scripts\validate-agent-output.js","$env:USERPROFILE\.claude\scripts\version-bump.js","$env:USERPROFILE\.claude\scripts\workflow-state.js"
-
-# Remove skills
-Remove-Item -Recurse "$env:USERPROFILE\.claude\skills\workflows","$env:USERPROFILE\.claude\skills\quality-gates","$env:USERPROFILE\.claude\skills\release","$env:USERPROFILE\.claude\skills\issue-processing","$env:USERPROFILE\.claude\skills\api-change","$env:USERPROFILE\.claude\skills\research","$env:USERPROFILE\.claude\skills\meta-decisions","$env:USERPROFILE\.claude\skills\agent-teams","$env:USERPROFILE\.claude\skills\prototype-mode","$env:USERPROFILE\.claude\skills\departments","$env:USERPROFILE\.claude\skills\cost-efficiency"
+# Remove scripts and skills
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\scripts"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\skills"
 
 # Remove templates
-Remove-Item -Recurse "$env:USERPROFILE\.claude\templates\"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\templates"
+
+# Remove license/notice and version marker
+Remove-Item "$env:USERPROFILE\.claude\LICENSE-CC_GodMode.txt","$env:USERPROFILE\.claude\NOTICE-CC_GodMode.txt","$env:USERPROFILE\.claude\.cc-godmode-version" -ErrorAction SilentlyContinue
 
 # Remove MCP servers
 claude mcp remove memory
@@ -357,7 +247,7 @@ claude mcp remove github
 claude mcp remove lighthouse
 claude mcp remove a11y
 
-# Hooks: Remove manually from settings.json
+# Hooks: edit the GodMode hooks block out of settings.json by hand
 ```
 
 ---
@@ -368,11 +258,14 @@ claude mcp remove a11y
 ```bash
 ls ~/.claude/agents/  # Are the files there?
 ```
+If not, re-run Step 3 — the installer is idempotent.
 
-### Hook not running
+### Hooks not wired / `verify-install.js` reports missing hooks
 ```bash
-cat ~/.claude/settings.json | grep -A 10 "hooks"  # Is the configuration correct?
+./scripts/apply-global-claude-setup.sh   # re-run without --no-hooks
 ```
+If `~/.claude/settings.json` exists but is invalid JSON, the installer refuses
+to touch it — fix the JSON first, then re-run.
 
 ### MCP Server errors
 ```bash
@@ -389,10 +282,14 @@ chmod +x ~/.claude/scripts/*.js
 
 ## Version
 
-CC_GodMode **v8.6.0**
+CC_GodMode **v9.0.0**
 
 See [CHANGELOG.md](./CHANGELOG.md) for details.
 
 ---
 
 *For automatic installation: [`CCGM_Prompt_01-SystemInstall-Auto.md`](./CCGM_Prompt_01-SystemInstall-Auto.md)*
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

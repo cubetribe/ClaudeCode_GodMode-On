@@ -1,9 +1,10 @@
 ---
 name: release
 description: "Release sprint workflow: version-at-release via tooling, CHANGELOG [Unreleased] flow, release invariant checks, tags, GitHub Releases, RCs. Authoritative law: docs/orchestrator/VERSIONING.md"
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
-# Release & Versioning (v8.5)
+# Release & Versioning (v9.0.0)
 
 > **Authoritative law:** `docs/orchestrator/VERSIONING.md` (ADR-004). This skill is the
 > operational cheat sheet. The pre-v8.5 "Version-First" rule (bump before work) is retired.
@@ -50,3 +51,7 @@ release/vX.Y.Z → PR → merge commit       ← CI: release-consistency.yml
 - **NEVER** push, tag, or publish without explicit user permission.
 - Only the release sprint writes VERSION; only @scribe writes CHANGELOG.
 - A merged release PR without tag+release is a defect — `release-check.js` flags it.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

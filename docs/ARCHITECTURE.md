@@ -6,12 +6,12 @@ A reference guide to how CC_GodMode is structured, how its orchestrator thinks, 
 
 ## Parallel-First & Ultracode Orchestration
 
-The orchestrator runs on `best` (Opus 4.8, auto-upgrades as higher tiers become available) at **ultracode** effort — maximum reasoning plus automatic dynamic workflows for substantive tasks. Everything else follows from that single decision.
+The orchestrator runs on `opus` (Opus 5.5), the recommended default; `best` (Fable 5.1 where the org has access) is an optional upgrade. For large decomposable jobs the session-only **ultracode** switch (`/effort ultracode`, effort unchanged) adds automatic dynamic workflows for substantive tasks. Everything else follows from that single decision.
 
 **How it works:**
 
 - **Parallel fan-out is the default.** When a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), the orchestrator spawns multiple subagents in a single message rather than sequentially, then collects and synthesizes their verdicts.
-- **Dynamic-workflows escalation.** When a job outgrows ~10 concurrent subagents — codebase-wide audits, large migrations, cross-checked research — the orchestrator escalates to dynamic workflows (`/workflows` or ultracode) with adversarial verification across tens-to-hundreds of subagents.
+- **Dynamic-workflows escalation.** When a job outgrows ~10 concurrent subagents — codebase-wide audits, large migrations, cross-checked research — the orchestrator escalates to dynamic workflows (`/workflows` or the ultracode switch) with adversarial verification across tens-to-hundreds of subagents.
 - **Subagents stay on tiered aliases.** haiku for simple ops, sonnet for implementation, opus for architecture. Only genuinely hard problems justify the expensive tier.
 - **Effort fields tune token budgets.** Each agent's `effort` frontmatter field (requires Claude Code ≥2.1.152) tells the runtime how hard to think: architect=high, builder/tester/api-guardian=medium, everything else=low.
 - **Smart Routing is the default.** Risk-based, minimal-agent paths replace the old always-Full-Gates default. Estimated 30–50% token reduction per standard feature (based on per-workflow cost models in `docs/AGENT_MODEL_SELECTION.md`).
@@ -46,13 +46,12 @@ Two trees, two purposes. The runtime tree is what Claude Code loads. The project
 
 ```
 ~/.claude/                          ← RUNTIME (What Claude loads)
-├── agents/                         ← 15 agents (8 core + 1 security gate + 6 department), globally available
+├── agents/                         ← 14 agents (7 core + 1 security gate + 6 department), globally available
 │   ├── researcher.md               ← haiku, effort: low
 │   ├── architect.md                ← opus, effort: high
 │   ├── api-guardian.md             ← sonnet, effort: medium
 │   ├── builder.md                  ← sonnet, effort: medium
-│   ├── validator.md                ← sonnet, effort: low
-│   ├── tester.md                   ← sonnet, effort: medium
+│   ├── tester.md                   ← sonnet, effort: medium (opt-in via ux_gate: auto)
 │   ├── scribe.md                   ← haiku, effort: low
 │   ├── github-manager.md           ← haiku, effort: low
 │   ├── security.md                 ← opus, effort: low  (security gate, optional)
@@ -107,10 +106,9 @@ CC_GodMode separates where agents live from where Claude reads them.
 │                                                                      │
 │   CC_GodMode/                         ~/.claude/                     │
 │   └── agents/           ──INSTALL──►  └── agents/                   │
-│       ├── architect.md  (15 files)        ├── architect.md          │
+│       ├── architect.md  (14 files)        ├── architect.md          │
 │       ├── builder.md                      ├── builder.md            │
-│       ├── validator.md                    ├── validator.md          │
-│       ├── ...8 core...                    ├── ...8 core...          │
+│       ├── ...7 core...                    ├── ...7 core...          │
 │       └── ...6 dept...                    └── ...6 dept...          │
 │                                                                      │
 │   SOURCE                               RUNTIME                       │
@@ -162,7 +160,7 @@ Developer changes: shared/types/User.ts
 ╚═══════════════════════════════════════════════════════════╝
 ```
 
-`check-api-impact.js` watches for writes to API-critical paths (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`), diffs the change, discovers downstream consumers, and blocks the workflow until @api-guardian has signed off. Nothing gets forgotten — the hook remembers so the orchestrator doesn't have to.
+`check-api-impact.js` watches for writes to the API-critical paths defined in `skills/api-change/`, diffs the change, discovers downstream consumers, and blocks the workflow until @api-guardian has signed off. Nothing gets forgotten — the hook remembers so the orchestrator doesn't have to.
 
 ---
 
@@ -177,7 +175,8 @@ The architecture has a clear lineage:
 **v6.4** Workflow Modes →
 **v7.0** orchestrator tuning + Smart Routing default →
 **v7.1** @security gate + installer scripts (15 agents total) →
-**v8.0** Ultracode orchestrator + parallel-first architecture
+**v8.0** Ultracode orchestrator + parallel-first architecture →
+**v8.7** @validator dissolved into a deterministic hook + on-demand `/code-review`; @tester made opt-in via `ux_gate` (14 agents total)
 
 Each step is additive. The core contract — `CLAUDE.md` auto-loads, agents live in `~/.claude/agents/`, skills load on demand — has been stable since v6.0.
 
@@ -190,3 +189,8 @@ Each step is additive. The core contract — `CLAUDE.md` auto-loads, agents live
 - [`./AGENT_MODEL_SELECTION.md`](./AGENT_MODEL_SELECTION.md) — model and effort matrix per agent, cost models
 - [`./orchestrator/MODES.md`](./orchestrator/MODES.md) — Smart Routing, Full-Gates, Prototype, Departments, Agent Teams, Ultracode
 - [`../skills/dynamic-workflows/SKILL.md`](../skills/dynamic-workflows/SKILL.md) — when and how to escalate to dynamic workflows with adversarial verification
+
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

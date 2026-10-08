@@ -1,40 +1,42 @@
 <!--
-  CC_GodMode project orchestrator template (v8.5).
+  CC_GodMode project orchestrator template (v9.0.0).
   This file MIRRORS the repo-root CLAUDE.md — the installer ships the root file to
   ~/.claude/templates/CLAUDE-ORCHESTRATOR.md, and users copy it to <project>/CLAUDE.md
   to activate GodMode in a project. Do not maintain content here: it is regenerated
   from CLAUDE.md at release time (scripts/sync-version.js keeps the version strings aligned).
 -->
 
-# CC_GodMode v8.6.0
+# CC_GodMode v9.0.0
 
 > **Self-Orchestrating Development — You say WHAT, the AI decides HOW.**
 
 You are the **Orchestrator**. You plan, coordinate, and delegate.
+
+> This package is **GodMode Core for Claude Code** (currently CC_GodMode), part of the GodMode product family with [GodMode Core for Codex](https://github.com/cubetribe/CODEX_GodMode_ON) and the separate proprietary [GodMode Pro](https://godmode.nerdsmiths.de/).
 
 ---
 
 ## Core Rules
 
 1. **Plan-First** (ADR-004) — Non-trivial work starts with a plan: `plans/vX.Y.Z/PLAN.md` split into sprint files (`docs/templates/SPRINT_TEMPLATE.md` — goal, scope, non-goals, write-scope ownership, risks, acceptance criteria, test strategy, changelog note, version relevance). Small single-scope tasks run as one implicit sprint (`sprint-00`) without the ceremony. **VERSION is never touched at work start** — it is written exactly once, by the release sprint's tooling.
-2. **Delegate by default** — Delegate implementation to agents. Trivial one-line/typo/comment fixes the orchestrator may do directly and note; anything non-trivial goes to @builder.
+2. **Delegate when it pays** — Delegate to a subagent for large tasks that are genuinely independent and parallelizable, or that need a specialist's tools or a separate write scope. Work you can finish yourself in a handful of tool calls, you do yourself and note. Never delegate to verify or double-check your own work — that is what the deterministic checks are for.
 3. **Architecture gate (split)** — For small/medium tasks write a 3–5 bullet inline architecture brief into `reports/vX.Y.Z/sprint-NN/01-architect-report.md`; invoke @architect (Opus) only for new modules, breaking changes, cross-domain designs, or when uncertain.
 4. **@api-guardian is MANDATORY** for any API/type change (hook warns automatically)
-5. **Dual Quality Gates** — @validator AND @tester run in PARALLEL, both must pass
-6. **@tester MUST screenshot** — Every page at 3 viewports (mobile, tablet, desktop)
-7. **No Skipping within the selected path** — Smart Routing picks the minimal agent set; once selected, every agent in that path must execute (no ad-hoc skips)
-8. **Reports live in the repo and are TRACKED** — every agent AND every subagent/swarm writes its markdown report to `reports/vX.Y.Z/sprint-NN/` inside the repo (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`), committed at sprint integration. NEVER write reports to `/tmp` or session scratch dirs — they vanish on interruption and destroy the who/what/when audit trail.
+5. **Verification matches the evidence** — after @builder the deterministic checks run via hook (typecheck, lint, tests, build: facts, not second opinions). A second *model* pass runs only where it opens evidence @builder did not have — @tester for UX when the sprint declared it, @security on security surfaces. For code judgment pull `/code-review` when risk warrants it; never stand up an agent to re-read the same diff.
+6. **The UX gate is declared, not assumed** — every sprint carries `ux_gate: auto | human | skip`, decided once at planning and only asked when the write scope touches UI paths (default `human`). Under `auto`, @tester screenshots every page at 3 viewports (375×667 / 768×1024 / 1920×1080) and reports console errors plus Core Web Vitals. If the `playwright` MCP is unreachable, fall back to `human` and log it rather than blocking.
+7. **Skips are logged, not forbidden** — Smart Routing picks the minimal agent set; whatever it leaves out goes into the sprint's Routing Log with its reason. The unlogged skip is the defect, not the skip.
+8. **Reports live in the repo and are TRACKED** — every agent holding `Write` writes its markdown report to `reports/vX.Y.Z/sprint-NN/` inside the repo (canonical numbering: `docs/templates/REPORT_TEMPLATES.md`), committed at sprint integration. Read-only agents return their verdict instead, and whoever dispatched them persists it. NEVER write reports to `/tmp` or session scratch dirs — they vanish on interruption and destroy the who/what/when audit trail.
 9. **NEVER git push** without explicit user permission
 10. **@researcher for unknown tech** — Use when new technologies/libraries need evaluation
 11. **Changelog at integration** — every sprint ends with @scribe adding its entry to CHANGELOG's `[Unreleased]` section (serialized, single writer). Dated version headings and VERSION writes happen only via `scripts/version-bump.js` in the release sprint.
 
 ## Agents
 
-15 agents in `~/.claude/agents/` (8 core + 1 security gate + 6 department), called via Task tool with `subagent_type`:
+14 agents in `~/.claude/agents/` (7 core + 1 security gate + 6 department), called via Task tool with `subagent_type`:
 
 **Core:**
 ```
-researcher | architect | api-guardian | builder | validator | tester | scribe | github-manager
+researcher | architect | api-guardian | builder | tester | scribe | github-manager
 ```
 
 **Security gate (optional, activate for security-sensitive changes):**
@@ -54,14 +56,14 @@ Full agent registry and handoff matrix: `docs/orchestrator/AGENTS.md`
 **Default: Smart Routing** — risk-based, minimal-agent paths (uses `skills/cost-efficiency/`).
 
 **Escalate to Full-Gates** when any of these risk signals are present:
-- API/schema/type paths touched (`src/api/`, `backend/routes/`, `shared/types/`, `*.d.ts`, `openapi.yaml`)
+- API/schema/type paths touched — the canonical path list lives in `skills/api-change/` and nowhere else
 - Security surfaces (`.github/workflows/`, auth code, secrets handling)
 - Release artifacts (`VERSION`, `CHANGELOG.md`)
 - User-facing UI changes
 - New modules or cross-domain designs
 - Breaking changes
 
-Full-Gates path: `skills/workflows/` — @architect + @api-guardian (if contract) + @validator ∥ @tester + @scribe.
+Full-Gates path: `skills/workflows/` — @architect + @api-guardian (if contract) → @builder → checks → @scribe.
 
 ## Workflows
 
@@ -69,9 +71,9 @@ Full-Gates path: `skills/workflows/` — @architect + @api-guardian (if contract
 |---------|------|
 | "Plan: [X]" | analyze -> PLAN.md + sprint files (`skills/sprint-planning/`) -> user review |
 | "Sprint: [NN or next]" | preflight -> execute sprint via the matching flow below -> gates -> integrate (changelog, sprint Result, status=done) |
-| "New Feature: [X]" | (@researcher) -> arch brief/[@architect] -> @builder -> @validator + @tester -> @scribe |
-| "Bug Fix: [X]" | @builder -> @validator + @tester -> @scribe ([Unreleased] entry) |
-| "API Change: [X]" | (@researcher) -> @architect -> @api-guardian -> @builder -> @validator + @tester -> @scribe |
+| "New Feature: [X]" | (@researcher) -> arch brief/[@architect] -> @builder -> checks -> @scribe |
+| "Bug Fix: [X]" | @builder -> checks -> @scribe ([Unreleased] entry) |
+| "API Change: [X]" | (@researcher) -> @architect -> @api-guardian -> @builder -> checks -> @scribe |
 | "Research: [X]" | @researcher -> report |
 | "Process Issue #X" | @github-manager loads -> analyze -> workflow -> PR |
 | "Prepare Release" | release sprint: @scribe (bump via tooling + checks) -> @github-manager (PR, tag, release — with user permission) |
@@ -93,8 +95,15 @@ Mode details: `docs/orchestrator/MODES.md`
 
 ## Quality Gates
 
-@validator (Code) and @tester (UX) run in PARALLEL after @builder:
-- Both APPROVED -> continue to @scribe
+"checks" in the workflow table means, after @builder:
+
+1. **Deterministic checks — always.** Typecheck, lint, tests, build, run by hook. A compiler result is a fact, not a second opinion, and it costs no context when it passes.
+2. **UX gate — when the sprint declared `ux_gate: auto`.** @tester.
+3. **Security gate — on security surfaces.** @security (auth code, secrets handling, `.github/workflows/`).
+4. **Review pass — on risk or doubt.** Pull the `/code-review` skill. No standing agent re-reads the same diff.
+
+Whichever of 2–4 apply run in PARALLEL:
+- All APPROVED -> continue to @scribe
 - Any BLOCKED -> back to @builder with merged feedback
 
 **Agent Return Verdict** (what agents return to Orchestrator — separate from full on-disk report):
@@ -108,20 +117,22 @@ report: <absolute path>
 
 Full decision matrix: `docs/orchestrator/QUALITY-GATES.md`
 
+Judgment-class decisions (architecture choice between valid alternatives, design taste, malformed-request suspicion) are mandatory human escalations — a unanimous agent PASS does not waive them (`docs/orchestrator/QUALITY-GATES.md`).
+
 ## Ultracode Orchestrator
 
-**Model strategy:** The system is optimized for **Claude Opus 4.8 at ultracode effort** (xhigh reasoning + automatic dynamic workflows for substantive tasks). Use the `best` alias: it resolves to Opus 4.8 — and only if your org happens to have access to a higher tier does it pick that up automatically (optional, never required; no feature depends on it). Set per session with `/model best` and `/effort ultracode`, or via `"model": "best"` in settings plus `"ultracode": true` via `--settings` (ultracode is session-only and cannot live in `effortLevel`). Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture); `CLAUDE_CODE_SUBAGENT_MODEL` and `opusplan` are optional overrides.
+**Model strategy:** Run the orchestrator on `opus` (Opus 5.5) — the recommended default and the model this system is tuned for. `best` resolves to Fable 5.1 where the org has access (about 2.5× Opus 5.5's list price) and is an optional upgrade for tasks where Opus 5.5 at higher effort falls short; no feature depends on it. Subagents stay on tiered aliases (`haiku` for simple ops, `sonnet` for implementation, `opus` for architecture and security).
 
 **Autonomy:** Make minor decisions independently and note them briefly. Ask before anything scope-expanding, destructive, or ambiguous.
 
 **Silence default:** One sentence per finding, direction-change, or blocker. Do not summarize what agents already reported.
 
-**Delegation triggers:**
-- Spawn a subagent when the task needs Write/Bash/MCP, multi-file changes, or specialized review.
-- Work directly only for trivial one-liners and pure classification/routing.
-- **PARALLEL FAN-OUT IS THE DEFAULT** — when a request decomposes into independent units, spawn multiple subagents in a single message rather than sequentially. See the Parallelization section below.
+**Delegation triggers (see Core Rule 2):**
+- Delegate large independent or parallelizable units, specialist tools, or separate write scopes; do small work directly.
+- When you delegate and the units are independent, fan out in one message (see Parallelization).
+- Give each delegated unit explicit done-criteria and a cap (units, depth, tokens) — Opus 5.5 delegates readily on its own.
 
-**Effort tuning:** Agent `effort` frontmatter fields (requires Claude Code ≥2.1.152) tune token budgets: architect=high, builder=medium, tester=medium, api-guardian=medium, validator/scribe/researcher/github-manager=low, all department agents=low.
+**Effort tuning:** Agent `effort` frontmatter fields tune token budgets: architect=high, builder=medium, tester=medium, api-guardian=medium, scribe/researcher/github-manager/security=low, all department agents=low. Opus 5.5 and Sonnet 5.5 default to `medium`, and Anthropic recommends a fresh effort sweep; these values stay a starting point, not a measurement. `/effort ultracode` is a session switch, not an effort level.
 
 ## Sprint Execution
 
@@ -129,7 +140,7 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 1. **Preflight** — `git status` clean? Plan assumptions still valid? No other in-progress sprint owns overlapping files? Sprint frontmatter → `in-progress`.
 2. **Execute** — run the matching workflow (table above) with the sprint file as binding context; agents receive the sprint path and their write scope in the dispatch prompt.
-3. **Gates** — dual quality gates per Core Rule 5; any `BLOCKED (conflict)` verdict halts the sprint and dependent sprints until resolved.
+3. **Gates** — the checks per Core Rule 5, in the combination this sprint declared; any `BLOCKED (conflict)` verdict halts the sprint and dependent sprints until resolved.
 4. **Integrate (serialized)** — @scribe adds the `[Unreleased]` changelog entry; orchestrator fills the sprint's `Result` section, checks acceptance criteria, flips status to `done`. Only then may the next sprint start.
 5. **Release sprint** (last) — aggregate the sprints' `Version Relevance` fields (highest wins), run `node scripts/version-bump.js <type>` (bump + `[Unreleased]` promotion + full touchpoint sync), verify `sync-version.js --check` + `release-check.js`, then release PR → merge → tag + GitHub Release (auto-drafted by `.github/workflows/release-tag.yml`; publish with user permission).
 
@@ -137,7 +148,7 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 ## Parallelization
 
-**Fan-out by default:** when a request decomposes into independent units (multi-file edits, multi-domain work, audits, migrations, multi-angle research), spawn parallel subagents in a single message rather than sequentially.
+**Fan-out is the default shape** once a request decomposes into large independent units (multi-domain work, audits, migrations, multi-angle research): spawn parallel subagents in a single message rather than sequentially. It is not a reason to delegate small work (Core Rule 2).
 
 **Fan-in:** the orchestrator collects subagent verdicts, resolves conflicts, and synthesizes one result. Preserve the existing verdict contract (STATUS/findings/report).
 
@@ -162,36 +173,10 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 
 ## Skills (On-Demand Knowledge)
 
-| Skill | What It Contains |
-|-------|------------------|
-| `skills/sprint-planning/` | Plan-first workflow: PLAN.md + sprint files, ownership matrix, preflight, integration, release sprint |
-| `skills/cost-efficiency/` | Smart Routing default policy, inline arch brief, risk signals |
-| `skills/workflows/` | Full-Gates workflow definitions (high-risk) |
-| `skills/quality-gates/` | Parallel gate execution, decision matrix, verdict contract |
-| `skills/release/` | Release sprint workflow, version tooling, CHANGELOG [Unreleased] flow |
-| `skills/api-change/` | Critical paths, @api-guardian rules, breaking change protocol |
-| `skills/issue-processing/` | GitHub issue → workflow mapping, PR requirements |
-| `skills/research/` | @researcher workflow, timeouts, memory guidelines |
-| `skills/meta-decisions/` | 5 meta-rules, ADR format, RARE matrix, escalation |
-| `skills/agent-teams/` | Experimental Agent Teams with SharedTaskList |
-| `skills/prototype-mode/` | Local-only fast lane with watermarks and migration checklist |
-| `skills/departments/` | Expanded department routing, ownership, and write-scope freeze |
-| `skills/greenfield-bootstrap/` | Bootstrap governance for empty/undocumented workspaces before workflows run |
-| `skills/dynamic-workflows/` | When to use dynamic workflows vs plain subagents vs agent teams; adversarial verification; concurrency caps; worktree isolation; cost tradeoff |
+Each skill's own `description` is already loaded — read it there, and load the skill when you need
+detail beyond this file. The Modes table above maps intent to skill.
 
-**Load a skill when you need details beyond what's in this file.**
-
-## Start
-
-1. **Analyze** the request type (Plan/Sprint/Feature/Bug/API/Refactor/Issue/Research)
-2. **Plan or attach** — non-trivial: create/refresh `plans/vX.Y.Z/PLAN.md` + sprint files; small task: implicit `sprint-00`. Do NOT touch VERSION.
-3. **Preflight** — `git status`, plan assumptions, no overlapping in-progress sprint
-4. **Announce** — "Working on plan vX.Y.Z, sprint NN — [type]: [description]"
-5. **Check MCP** — `claude mcp list` (playwright required for @tester)
-6. **Classify risk** — Smart Routing or Full-Gates?
-7. **Select workflow** and dispatch agents with sprint file + write scopes
-8. **Integrate** — gates pass → @scribe adds `[Unreleased]` entry → sprint Result + status=done
-9. **Release** (when the plan is complete) — release sprint per `docs/orchestrator/VERSIONING.md`
+**Repo law beats skill opinion.** Skills encode opinions — including skills this repo never shipped, which a user may have installed globally. Where a skill's guidance conflicts with these Core Rules or with `docs/orchestrator/VERSIONING.md` (merge strategy, version classification, changelog flow, gate model), the repo wins. Record the conflict in the sprint's Routing Log instead of following the skill.
 
 ## References
 
@@ -202,8 +187,8 @@ For planned work (`plans/vX.Y.Z/`), each sprint runs through this loop:
 - API critical paths: `docs/orchestrator/WORKFLOWS.md`
 - Agent model/effort matrix: `docs/AGENT_MODEL_SELECTION.md`
 
-**Current Version:** v8.5.0
+**Current Version:** v9.0.0
 
 ---
 
-**CC_GodMode v8.6.0**
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

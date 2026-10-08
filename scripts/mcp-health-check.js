@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
  * MCP Health Check System (v5.6.0)
  *
  * Three-tier health validation:
@@ -15,13 +20,25 @@
  * - OFFLINE: ⚫ Gray, completely unavailable
  */
 
-const { execSync } = require('child_process');
+const { execSync, spawn } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 // MCP Server Configuration
 const MCP_SERVERS = {
   required: ['playwright', 'github', 'memory'],
   optional: ['lighthouse', 'a11y']
 };
+
+// v8.7.0: Tier 1 cache — `claude mcp list` boots the full CLI and dials every
+// configured server (2.5-5s per call, worse when servers are down), which is
+// too slow to run inline in a SessionStart hook. Results are cached per
+// project dir and refreshed by a detached background process instead.
+const HEALTH_CACHE_FILE = path.join(os.homedir(), '.claude', 'cache', 'mcp-health.json');
+const HEALTH_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const REFRESH_DEBOUNCE_MS = 60 * 1000;
+const REFRESH_TIMEOUT_MS = 20000;
 
 // Agent-MCP Dependencies
 const AGENT_MCP_DEPENDENCIES = {
@@ -31,8 +48,7 @@ const AGENT_MCP_DEPENDENCIES = {
   'scribe': ['memory'],
   'architect': ['memory'],
   'api-guardian': ['memory'],
-  'builder': [],
-  'validator': []
+  'builder': []
 };
 
 // ANSI Colors
@@ -51,7 +67,7 @@ const colors = {
  * Tier 1: Startup Health Check (5 seconds max)
  * Comprehensive check of all MCP servers
  */
-async function tier1HealthCheck() {
+async function tier1HealthCheck(timeoutMs = 5000) {
   const startTime = Date.now();
   const results = {
     timestamp: new Date().toISOString(),
@@ -71,7 +87,7 @@ async function tier1HealthCheck() {
     // Get MCP server list
     const output = execSync('claude mcp list 2>&1', {
       encoding: 'utf-8',
-      timeout: 5000,
+      timeout: timeoutMs,
       stdio: ['pipe', 'pipe', 'pipe']
     });
 
@@ -125,7 +141,8 @@ async function tier1HealthCheck() {
     });
 
   } catch (error) {
-    // MCP command failed - mark all as unknown
+    // MCP command failed - mark all as unknown (but keep the summary total
+    // honest: "0/5 healthy", not the impossible "0/0 healthy")
     [...MCP_SERVERS.required, ...MCP_SERVERS.optional].forEach(server => {
       results.servers[server] = {
         status: 'UNKNOWN',
@@ -135,11 +152,94 @@ async function tier1HealthCheck() {
         error: error.message,
         lastCheck: new Date().toISOString()
       };
+      results.summary.total++;
     });
   }
 
   results.duration = Date.now() - startTime;
   return results;
+}
+
+/**
+ * Read the health cache. Absent or corrupt files read as a cold cache;
+ * this must never throw into a hook.
+ */
+function readHealthCache() {
+  try {
+    return JSON.parse(fs.readFileSync(HEALTH_CACHE_FILE, 'utf8'));
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Write the health cache atomically (temp file + rename) so a killed
+ * background refresh can never leave a half-written JSON behind.
+ */
+function writeHealthCache(cache) {
+  try {
+    fs.mkdirSync(path.dirname(HEALTH_CACHE_FILE), { recursive: true });
+    const tmp = `${HEALTH_CACHE_FILE}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(cache, null, 2));
+    fs.renameSync(tmp, HEALTH_CACHE_FILE);
+  } catch (error) {
+    // Cache is best-effort — never let it break a hook or refresh run
+  }
+}
+
+/**
+ * Run a full Tier 1 check and store the result for this project dir.
+ * Runs in the detached background process (see spawnBackgroundRefresh),
+ * so it may take its time (REFRESH_TIMEOUT_MS instead of 5s).
+ */
+async function refreshHealthCache() {
+  const results = await tier1HealthCheck(REFRESH_TIMEOUT_MS);
+  const cache = readHealthCache() || {};
+  const byCwd = cache.byCwd || {};
+  byCwd[process.cwd()] = { checkedAt: Date.now(), results };
+  writeHealthCache({ byCwd });
+  return results;
+}
+
+/**
+ * Kick off a detached background refresh of the health cache, debounced so
+ * overlapping session starts don't stampede `claude mcp list`.
+ */
+function spawnBackgroundRefresh() {
+  const cache = readHealthCache() || {};
+  if (cache.refreshStartedAt && Date.now() - cache.refreshStartedAt < REFRESH_DEBOUNCE_MS) {
+    return;
+  }
+  writeHealthCache({ ...cache, refreshStartedAt: Date.now() });
+  try {
+    const child = spawn(process.execPath, [__filename, '--refresh-cache'], {
+      cwd: process.cwd(),
+      detached: true,
+      stdio: 'ignore'
+    });
+    child.unref();
+  } catch (error) {
+    // Best-effort — the next session start will try again
+  }
+}
+
+/**
+ * Synchronous, instant Tier 1 result for hooks: returns the cached result
+ * for this project dir and triggers a background refresh when the cache is
+ * cold or older than HEALTH_CACHE_TTL_MS. `results` is null on a cold cache
+ * — callers should render a "check running in background" state, never wait.
+ */
+function tier1HealthCheckCached() {
+  const cache = readHealthCache();
+  const entry = cache && cache.byCwd && cache.byCwd[process.cwd()];
+  const ageMs = entry && typeof entry.checkedAt === 'number' ? Date.now() - entry.checkedAt : null;
+  if (!entry || !entry.results || ageMs === null || ageMs > HEALTH_CACHE_TTL_MS) {
+    spawnBackgroundRefresh();
+  }
+  if (!entry || !entry.results) {
+    return { fromCache: false, ageMs: null, results: null };
+  }
+  return { fromCache: true, ageMs, results: entry.results };
 }
 
 /**
@@ -366,12 +466,16 @@ function getGracefulDegradation(agentName, unavailableMCP) {
 // Export functions for use by other scripts
 module.exports = {
   tier1HealthCheck,
+  tier1HealthCheckCached,
+  refreshHealthCache,
+  spawnBackgroundRefresh,
   tier2HealthCheck,
   tier3HealthCheck,
   displayHealthResults,
   getGracefulDegradation,
   MCP_SERVERS,
-  AGENT_MCP_DEPENDENCIES
+  AGENT_MCP_DEPENDENCIES,
+  HEALTH_CACHE_FILE
 };
 
 // CLI mode
@@ -388,6 +492,11 @@ if (require.main === module) {
         displayHealthResults(results);
         console.log('');
         console.log(`${colors.gray}Check completed in ${results.duration}ms${colors.reset}`);
+        break;
+
+      case '--refresh-cache':
+        // Background worker mode (spawned detached by spawnBackgroundRefresh)
+        await refreshHealthCache();
         break;
 
       case '2':

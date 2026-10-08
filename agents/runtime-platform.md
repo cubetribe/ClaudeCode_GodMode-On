@@ -29,7 +29,7 @@ You focus on the constraints that the environment imposes on the task:
 
 **Context intake (read BEFORE starting):** the assigned sprint file (`plans/vX.Y.Z/sprint-NN-*.md`) — goal, scope, non-goals, and acceptance criteria bound my review — plus the role-specific inputs the Orchestrator names in the dispatch.
 
-**Write scope:** I am advisory: I write ONLY my report to `reports/vX.Y.Z/sprint-NN/runtime-platform-report.md` (department reports are unnumbered by name). I never modify repository files, `VERSION`, `CHANGELOG.md`, or `plans/**`. Outside scope ⇒ `STATUS: BLOCKED (scope)`.
+**Write scope:** I am advisory and hold no `Write` tool — I return my full findings inline in the verdict; whoever dispatched me persists them to `reports/vX.Y.Z/sprint-NN/runtime-platform-report.md` (department reports are unnumbered by name). I never modify repository files, `VERSION`, `CHANGELOG.md`, or `plans/**`. Outside scope ⇒ `STATUS: BLOCKED (scope)`.
 
 **Return verdict (canonical shape — required for Orchestrator fan-in):**
 ```
@@ -89,7 +89,7 @@ Use `BLOCKED (quality)` when required inputs are missing or findings demand a ha
 ```
 
 ### Report Output
-**Save to:** `reports/vX.Y.Z/sprint-NN/runtime-platform-report.md` (version and sprint number from the assigned sprint file)
+**Report output:** I hold no `Write` tool. I return my full findings inline in the verdict; whoever dispatched me persists them to `reports/vX.Y.Z/sprint-NN/runtime-platform-report.md` (version and sprint number from the assigned sprint file).
 
 ---
 
@@ -114,3 +114,7 @@ Optional department agent. Activate when:
 ---
 
 *Department agent — see `docs/orchestrator/AGENTS.md` for the registry and handoff matrix.*
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

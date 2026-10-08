@@ -1,6 +1,7 @@
 ---
 name: prototype-mode
 description: "Local-only fast lane for rapid spikes and throwaway prototypes. Skips production gates, requires PROTOTYPE ONLY watermarks, and must not be pushed or deployed."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Prototype Mode
@@ -36,8 +37,8 @@ services until it is migrated through the normal CC_GodMode workflow.
 | Version-first release flow | Skipped for throwaway local work |
 | @architect | Optional; use only if the prototype will shape production design |
 | @api-guardian | Skipped; prototypes must not define production contracts |
-| @validator | Skipped as a full gate |
-| @tester | Reduced to one smoke command |
+| Deterministic hook | Reduced to one smoke command in place of the full typecheck/lint/tests/build run |
+| @tester | Skipped; UX gate does not apply to throwaway local work |
 | @scribe | Skipped; no CHANGELOG or release docs for throwaway output |
 | @github-manager | Skipped; no PR, release, or push |
 
@@ -89,6 +90,11 @@ Before promoting prototype output:
 - [ ] Replace placeholder credentials and local-only URLs.
 - [ ] Run @architect if the approach affects production design.
 - [ ] Run @api-guardian if contracts, schemas, CLI surfaces, or public APIs are touched.
-- [ ] Run @validator and @tester as full quality gates.
+- [ ] Run the full quality gates per Core Rule 5 (deterministic hook always; @tester
+  if `ux_gate: auto`; @security on security surfaces; `/code-review` on risk or doubt).
 - [ ] Route documentation and release notes through @scribe.
 - [ ] Get explicit human approval before push or deploy.
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

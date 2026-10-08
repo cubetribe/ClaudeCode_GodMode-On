@@ -1,6 +1,24 @@
 #!/usr/bin/env node
 
 /**
+ * CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+ * Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+ */
+
+/**
+ * ⚠ UNWIRED — found by the v8.7.0 Sprint 03 script audit, kept for reference only.
+ *
+ * No hook config (config/claude-settings.json, ~/.claude/settings.json,
+ * ~/.claude/settings.local.json), no package.json script, no GitHub workflow,
+ * and no installer (apply-global-claude-setup.sh/.ps1, install-mcps.sh)
+ * references or invokes this file, and it is not require()'d by any script
+ * that is itself wired. The audit could not establish when or whether it was
+ * ever wired — only that it is not today. Kept for historical/reference
+ * purposes; do not re-wire without an ADR revisiting the 3-tier escalation
+ * model. Deletion is a separate maintainer decision.
+ */
+
+/**
  * Escalation Handler (v5.8.0)
  *
  * Abort/Escalation Mechanism for CC_GodMode
@@ -296,7 +314,7 @@ class EscalationHandler {
       case 'feedback_loop':
         result.recommendation = {
           action: 'feedback_to_builder',
-          blockedBy: escalation.details.blockedBy || ['validator', 'tester'],
+          blockedBy: escalation.details.blockedBy || ['checks', 'tester'],
           issues: escalation.details.issues || []
         };
         result.action = 'feedback_loop_initiated';

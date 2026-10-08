@@ -36,7 +36,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 **Out of Scope:**
 - Writing production code (that's @builder)
 - API consumer discovery (that's @api-guardian)
-- Code quality validation (that's @validator)
+- Code quality validation (that's the deterministic hook after @builder)
 - Documentation writing (that's @scribe)
 
 **Context Window Focus:**
@@ -60,7 +60,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 
 **Out of Scope:**
 - Implementing the API changes (that's @builder)
-- Validating consumer code quality (that's @validator)
+- Validating consumer code quality (that's the deterministic hook after @builder)
 - Creating documentation (that's @scribe)
 - Deciding API design (that's @architect)
 
@@ -86,7 +86,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 **Out of Scope:**
 - Making architectural decisions (that's @architect)
 - Finding API consumers (that's @api-guardian)
-- Cross-file validation (that's @validator)
+- Cross-file validation beyond the deterministic hook (pull `/code-review` when risk warrants it)
 - Writing documentation (that's @scribe)
 - Creating PRs (that's @github-manager)
 
@@ -98,34 +98,33 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 
 ---
 
-### @validator
-**Primary Responsibility:** Code quality gate validation
+### Deterministic Hook (replaces @validator, v8.7.0)
 
-**In Scope:**
+**Primary Responsibility:** Code quality gate — facts, not a second opinion
+
+@validator was dissolved in Sprint 02 (v8.7.0). It was not an agent that read code and formed
+a judgment; its work was almost entirely deterministic (compiler, test runner, linter), which
+is exactly why it moved out of the model-context loop.
+
+**In Scope (hook, ~0 context on success):**
 - Running TypeScript compilation checks
 - Executing unit tests and checking coverage
-- Security vulnerability scanning
-- Code standards validation (naming, patterns, no-console, etc.)
-- Consumer validation (for API changes)
-- Cross-file consistency checking
-- Issuing APPROVED or BLOCKED decision
+- Lint checks and build
+- Emitting output only on failure, which goes straight to @builder
 
-**Out of Scope:**
-- Implementing fixes (that's @builder)
-- Making architectural decisions (that's @architect)
-- UX testing (that's @tester)
-- Writing documentation (that's @scribe)
+**Out of Scope (moved elsewhere):**
+- Code judgment / review — pulled on demand via `/code-review`, not a standing agent
+- UX testing (that's @tester, opt-in via `ux_gate: auto`)
+- Security scanning of secrets/auth/injection (that's @security, on security surfaces)
+- Consumer discovery (that's @api-guardian)
 
-**Context Window Focus:**
-- All files changed in current feature
-- Related consumer files
-- Test results and coverage reports
-- Lint and type check outputs
+**Context Window Focus:** None — the hook runs outside the model context and reports nothing
+when it passes.
 
 ---
 
 ### @tester
-**Primary Responsibility:** UX quality gate validation
+**Primary Responsibility:** UX quality gate validation (opt-in via `ux_gate: auto`, decided once at sprint planning)
 
 **In Scope:**
 - Running E2E tests (Playwright)
@@ -137,7 +136,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 
 **Out of Scope:**
 - Writing E2E tests (that's @builder)
-- Code quality validation (that's @validator)
+- Code quality validation (that's the deterministic hook after @builder)
 - Implementing fixes (that's @builder)
 - Creating documentation (that's @scribe)
 
@@ -169,7 +168,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 - Writing code (that's @builder)
 - Making architectural decisions (that's @architect)
 - Creating PRs (that's @github-manager)
-- Validation work (that's @validator/@tester)
+- Validation work (that's the deterministic hook / @tester)
 
 **Context Window Focus:**
 - All agent reports from current workflow
@@ -193,7 +192,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 **Out of Scope:**
 - Writing code (that's @builder)
 - Writing documentation (that's @scribe)
-- Validation work (that's @validator/@tester)
+- Validation work (that's the deterministic hook / @tester)
 - Pushing without permission (always ask user!)
 
 **Context Window Focus:**
@@ -211,14 +210,14 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 
 ### Budget Allocation
 
-**Token Budget:** 200K+ tokens (alias `sonnet` → Sonnet 4.6; `opus`/`best` → Opus 4.8, 1M context)
+**Token Budget:** 200K+ tokens (alias `sonnet` → Sonnet 5.5; `opus` → Opus 5.5, 1M context; `best` → Fable 5.1 where available, else Opus 5.5)
 
 **Recommended Allocation by Agent:**
 - @architect: 30-40% (needs broad context for design decisions)
 - @api-guardian: 20-30% (needs file tree and import graphs)
 - @builder: 20-30% (needs specs and code files)
-- @validator: 15-20% (needs changed files and test results)
-- @tester: 15-20% (needs test results and screenshots)
+- Deterministic hook: 0% (runs outside model context)
+- @tester: 15-20% (needs test results and screenshots; only when `ux_gate: auto`)
 - @scribe: 10-15% (needs agent reports)
 - @github-manager: 5-10% (needs metadata only)
 
@@ -227,7 +226,7 @@ This policy defines **what is in scope** and **what is out of scope** for each C
 **1. Read Only What You Need**
 - @architect: Don't read implementation code, only existing patterns
 - @builder: Don't read unrelated files, only what you're changing
-- @validator: Don't re-read specs, only code and test outputs
+- @builder: run local checks (typecheck/lint/tests) before handoff so the hook has less to report
 - @tester: Don't read code, only test results and screenshots
 
 **2. Use Compact Representations**
@@ -274,11 +273,12 @@ Each agent MUST end their report with an explicit handoff section:
 - No console errors
 ```
 
-**Example (@builder to @validator + @tester):**
+**Example (@builder handoff to checks):**
 ```markdown
-## HANDOFF TO @validator + @tester
+## HANDOFF — checks
 
-Implementation complete. Ready for parallel quality gates.
+Implementation complete. The deterministic hook runs automatically on the next
+tool write; @tester runs only if this sprint declared `ux_gate: auto`.
 
 ### Changed Files
 - src/auth/AuthService.ts (new)
@@ -287,15 +287,15 @@ Implementation complete. Ready for parallel quality gates.
 
 ### Test Coverage
 - Unit tests: src/auth/AuthService.test.ts
-- E2E tests: tests/auth/login.spec.ts
+- E2E tests: tests/auth/login.spec.ts (only relevant if ux_gate: auto)
 ```
 
 ### Handoff Chain
 
 ```
-User → @architect → @builder → @validator ┐
-                                           ├─→ @scribe → @github-manager
-                                @tester ┘
+User → @architect → @builder → Hook (always) ┐
+                                               ├─→ @scribe → @github-manager
+                        @tester (if ux_gate: auto) ┘
 ```
 
 **Critical Rule:** No agent may skip their designated role. If work is not needed for a specific agent, they should produce a minimal report stating "No work required for this workflow" and pass to the next agent.
@@ -400,24 +400,24 @@ Agents should be aware of their context usage and warn when approaching limits.
 
 ## 6. Cross-Agent Coordination
 
-### Parallel Execution (@validator + @tester)
+### Parallel Execution (Hook + @tester + @security, whichever apply)
 
 **Context Isolation:**
-- Each agent has independent context
-- No shared state during execution
+- The hook runs outside model context entirely
+- @tester and @security (when both apply) have independent context, no shared state
 - Reports saved to separate files
 
 **Synchronization Point:**
-- Both agents complete independently
-- Orchestrator reads both reports
+- All applicable checks complete independently
+- Orchestrator reads the hook's exit status plus any agent reports
 - Decision matrix applied:
-  - BOTH APPROVED → proceed to @scribe
-  - ANY BLOCKED → return to @builder
+  - ALL APPROVED/PASS → proceed to @scribe
+  - ANY BLOCKED/FAIL → return to @builder
 
 **Context Handoff:**
-- If blocked, feedback from BOTH agents sent to @builder
+- If blocked, feedback from all applicable checks sent to @builder in one merged message
 - @builder receives merged feedback in single message
-- No need to re-read both full reports
+- No need to re-read full reports
 
 ---
 
@@ -492,6 +492,7 @@ This policy is enforced through:
 
 ## Version History
 
+- **v8.7.0** - @validator dissolved into a deterministic hook + on-demand `/code-review`; @tester made opt-in via `ux_gate`
 - **v5.7.0** - Initial context scope policy formalization
 - **v5.6.0** - Foundation (parallel quality gates, agent validation)
 

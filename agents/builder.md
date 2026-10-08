@@ -76,7 +76,7 @@ npm run lint          # Must pass
 
 - **No API Design Decisions** - That's @architect
 - **No Consumer Discovery** - That's @api-guardian
-- **No Cross-File Validation** - That's @validator
+- **No Cross-File Validation** - That's the deterministic hook (typecheck/lint/tests/build), pulled up via `/code-review` on doubt
 - **No Documentation** - That's @scribe
 
 ---
@@ -110,7 +110,7 @@ npm run lint          # Must pass
 - [x] `npm test -- --related` passes (5/5)
 - [x] `npm run lint` passes
 
-### Ready for @validator
+### Ready for the deterministic hook
 - [x] All changes complete
 - [x] Types compile
 - [x] Tests pass
@@ -138,13 +138,13 @@ Maximum 3 bullet findings. `BLOCKED (quality)` if quality gates fail; `BLOCKED (
 ## Workflow Position
 
 ```
-@architect ──▶ @api-guardian ──▶ @builder ──▶ @validator
+@architect ──▶ @api-guardian ──▶ @builder ──▶ deterministic hook ──▶ (optional @tester/@security/`/code-review`)
 ```
 
 I am the **code implementer** in the workflow. I:
 - Receive **design decisions** from @architect
 - Receive **consumer lists** from @api-guardian
-- Deliver **implemented code** to @validator
+- Deliver **implemented code** for the deterministic hook, and for @tester/@security/`/code-review` when the sprint calls for them
 
 ---
 
@@ -179,7 +179,7 @@ If I modify `src/api/`, `backend/routes/`, or `shared/types/`:
 2. **WAIT** - @api-guardian delivers impact analysis
 3. **RECEIVE** - List of consumer files
 4. **UPDATE** - All files in the list
-5. **HAND OFF** - To @validator
+5. **HAND OFF** - To the deterministic hook (typecheck/lint/tests/build)
 
 **I do NOT search for consumers myself** - @api-guardian does that!
 
@@ -202,3 +202,7 @@ If I modify `src/api/`, `backend/routes/`, or `shared/types/`:
 - Feature implementation
 - Refactoring
 - Test implementation
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

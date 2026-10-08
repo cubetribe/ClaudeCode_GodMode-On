@@ -1,6 +1,7 @@
 ---
 name: workflows
 description: "CC_GodMode Full-Gates workflow definitions — used for high-risk work and when Smart Routing escalates. Default routing is Smart Routing (skills/cost-efficiency/)."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Full-Gates Workflow Definitions
@@ -16,10 +17,10 @@ is a prototype, cross-domain department run, or explicit Agent Teams run.
 
 | Command Pattern | Workflow | Agents |
 |----------------|----------|--------|
-| "New Feature: [X]" | Feature | (@researcher) → @architect → @builder → @validator ∥ @tester → @scribe |
-| "Bug Fix: [X]" | Bug Fix | @builder → @validator ∥ @tester |
-| "API Change: [X]" | API Change | (@researcher) → @architect → @api-guardian → @builder → @validator ∥ @tester → @scribe |
-| "Refactor: [X]" | Refactor | @architect → @builder → @validator ∥ @tester |
+| "New Feature: [X]" | Feature | (@researcher) → @architect → @builder → checks → @scribe |
+| "Bug Fix: [X]" | Bug Fix | @builder → checks |
+| "API Change: [X]" | API Change | (@researcher) → @architect → @api-guardian → @builder → checks → @scribe |
+| "Refactor: [X]" | Refactor | @architect → @builder → checks |
 | "Research: [X]" | Research | @researcher → report |
 | "Process Issue #X" | Issue | @github-manager loads → analyze → select workflow → PR |
 | "Prepare Release" | Release | @scribe → @github-manager |
@@ -42,7 +43,7 @@ User Request → "New Feature: [X]"
    → Implementation following @architect specs
    → All code changes, tests, types
     ↓
-4. @validator ∥ @tester (PARALLEL — both MUST pass)
+4. checks (Core Rule 5 — deterministic hook always; @tester, @security, /code-review as declared/applicable, PARALLEL)
    → See quality-gates skill for decision matrix
     ↓
 5. @scribe
@@ -56,7 +57,7 @@ User Request → "Bug Fix: [X]"
     ↓
 1. @builder (fix implementation)
     ↓
-2. @validator ∥ @tester (PARALLEL)
+2. checks (Core Rule 5 — deterministic hook always; @tester, @security, /code-review as declared/applicable, PARALLEL)
     ↓
 3. INTEGRATE — @scribe adds the `[Unreleased]` CHANGELOG entry (Core Rule 11: every sprint, even one-line fixes)
 ```
@@ -79,21 +80,15 @@ User Request → "API Change: [X]"
     ↓
 4. @builder (implementation + consumer updates)
     ↓
-5. @validator ∥ @tester (PARALLEL)
+5. checks (Core Rule 5 — deterministic hook always; @tester, @security, /code-review as declared/applicable, PARALLEL)
     ↓
 6. @scribe (document breaking changes)
 ```
 
 ## Critical API Paths
 
-These file patterns **always** trigger @api-guardian:
-
-- `src/api/**`
-- `backend/routes/**`
-- `shared/types/**`
-- `*.d.ts`
-- `openapi.yaml` / `schema.graphql`
-- `**/interfaces/**`
+API/schema/type paths **always** trigger @api-guardian. The canonical path list lives in
+`skills/api-change/` and nowhere else — this file does not repeat it.
 
 ## Research Workflow (Standalone)
 
@@ -151,9 +146,13 @@ All agents are called via the `Task` tool with `subagent_type`:
 Task tool → subagent_type: "architect"     → @architect
 Task tool → subagent_type: "api-guardian"   → @api-guardian
 Task tool → subagent_type: "builder"        → @builder
-Task tool → subagent_type: "validator"      → @validator
 Task tool → subagent_type: "tester"         → @tester
+Task tool → subagent_type: "security"       → @security
 Task tool → subagent_type: "scribe"         → @scribe
 Task tool → subagent_type: "github-manager" → @github-manager
 Task tool → subagent_type: "researcher"     → @researcher
 ```
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*

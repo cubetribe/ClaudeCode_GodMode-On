@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# CC_GodMode - Copyright (c) 2025-2026 Dennis Westermann (www.dennis-westermann.de)
+# Proprietary - not open source. See LICENSE. Redistribution/re-hosting prohibited.
+#
 # CC_GodMode MCP Server Installation Script
 # https://github.com/cubetribe/CC_GodMode
 #

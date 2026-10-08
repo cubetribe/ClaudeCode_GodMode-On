@@ -1,6 +1,7 @@
 ---
 name: departments
 description: "Expanded department-based orchestration for large cross-domain CC_GodMode work. Freezes ownership, handoffs, and write scopes before implementation."
+license: "Proprietary - (c) 2025-2026 Dennis Westermann. Free for private non-commercial use; redistribution/re-hosting prohibited. See LICENSE: github.com/cubetribe/ClaudeCode_GodMode-On"
 ---
 
 # Departments Mode
@@ -25,10 +26,10 @@ through the normal quality gates.
 
 | Department | Owns | Usual agent support |
 | --- | --- | --- |
-| Runtime Platform | `config/`, hooks, MCP setup, install/runtime behavior | @architect, @builder, @validator |
+| Runtime Platform | `config/`, hooks, MCP setup, install/runtime behavior | @architect, @builder |
 | Workflow Design | `CLAUDE.md`, `skills/`, `docs/orchestrator/`, orchestration loops | @researcher, @architect |
 | Workspace Governance | `VERSION`, `CHANGELOG.md`, `DECISIONS.md`, policies, templates | @architect, @scribe |
-| Quality Operations | validation scripts, report templates, gate behavior | @validator, @tester |
+| Quality Operations | validation scripts, report templates, gate behavior | @tester, @security |
 | Docs & Developer Experience | `README.md`, prompts, onboarding docs, examples | @scribe |
 | CI & GitHub | PR/release framing, CI/CD, GitHub workflow surfaces | @github-manager |
 | API & Contracts | API/type/schema/CLI/public contract surfaces | @api-guardian |
@@ -42,7 +43,7 @@ Create or update these before implementation begins:
 - write-scope matrix: which files each department owns or must not touch
 - handoff checklist: what each department must report back
 
-Reports should live under `reports/v[VERSION]/` and stay concise.
+Reports should live under `reports/vX.Y.Z/sprint-NN/` and stay concise.
 
 ## Routing Rules
 
@@ -51,7 +52,9 @@ Reports should live under `reports/v[VERSION]/` and stay concise.
 3. Use @architect to freeze the department routing map and write-scope matrix.
 4. Use @api-guardian whenever contracts, schemas, CLI, config, or public behavior change.
 5. Keep @builder as the single implementation writer unless a temporary write lease is explicit.
-6. Use @validator and @tester as the joint quality gate.
+6. Use the Core Rule 5 gate combination for this sprint (deterministic hook always;
+   @tester if `ux_gate: auto`; @security on security surfaces; `/code-review` on
+   risk or doubt) as the quality gate.
 7. Use @scribe only after quality gates pass.
 8. Use @github-manager only for issue, PR, release, or GitHub surfaces.
 
@@ -71,3 +74,7 @@ Stop and ask the user before:
 - touching production credentials or live services
 - pushing, tagging, publishing, or deploying
 - merging unrelated histories or importing a whole external repository
+
+---
+
+*CC_GodMode — © 2025–2026 Dennis Westermann ([dennis-westermann.de](https://www.dennis-westermann.de)). Proprietary — not open source. Free for private, non-commercial use; redistribution or re-hosting outside GitHub is prohibited; attribution required. Official source: [github.com/cubetribe/ClaudeCode_GodMode-On](https://github.com/cubetribe/ClaudeCode_GodMode-On). See LICENSE.*
