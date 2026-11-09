@@ -131,6 +131,10 @@ function runCommand(cmd) {
 // that it could not look - a quality gate passing in silence. Walking the
 // tree here also removes the shell-injection surface of interpolating
 // `pattern` into a command line.
+//
+// `pattern` is matched as a plain substring, not a regex: the only call site
+// passes a file basename, and grep would have treated a dot in one as a
+// metacharacter anyway.
 function scanConsumers(pattern, limit = Infinity) {
   const hits = [];
 
@@ -271,10 +275,6 @@ console.log('');
 // Search by filename
 const fileNameCount = countConsumers(fileName);
 const fileNameConsumers = getConsumers(fileName);
-
-// Search by import pattern
-const importPattern = `from.*${fileName}|import.*${fileName}`;
-const importConsumers = getConsumers(importPattern);
 
 if (fileNameConsumers) {
   console.log(`Found ${fileNameCount} potential consumer(s):`);
