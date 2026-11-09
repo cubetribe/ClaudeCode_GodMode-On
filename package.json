@@ -19,6 +19,7 @@
     "release:check": "node scripts/release-check.js",
     "pre-push": "node scripts/pre-push-check.js",
     "hooks:test": "node scripts/test-hooks-contract.js",
+    "encoding:check": "node scripts/check-script-encoding.js",
     "install:verify": "node scripts/verify-install.js"
   },
   "dependencies": {

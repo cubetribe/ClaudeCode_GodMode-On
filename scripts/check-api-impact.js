@@ -109,28 +109,78 @@ if (!isApiFile && !isTypeFile && !isSchemaFile) {
   return;
 }
 
-// Helper: Run command safely
+// Helper: Run command safely. stderr is dropped through stdio rather than a
+// "2>/dev/null" redirect: /dev/null is not a device under cmd.exe, so that
+// redirect made every call emit "The system cannot find the path specified."
 function runCommand(cmd) {
   try {
-    return execSync(cmd, { encoding: 'utf-8', timeout: 10000 }).trim();
+    return execSync(cmd, {
+      encoding: 'utf-8',
+      timeout: 10000,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
   } catch (e) {
     return '';
   }
 }
 
+// Helper: the equivalent of `grep -rn <pattern> src/ --include=*.ts(x)`,
+// done in Node. This used to shell out to grep piped into wc/head, none of
+// which exists in a stock cmd.exe on Windows: the command failed, the count
+// came back empty, and the gate reported "no consumers" instead of reporting
+// that it could not look - a quality gate passing in silence. Walking the
+// tree here also removes the shell-injection surface of interpolating
+// `pattern` into a command line.
+//
+// `pattern` is matched as a plain substring, not a regex: the only call site
+// passes a file basename, and grep would have treated a dot in one as a
+// metacharacter anyway.
+function scanConsumers(pattern, limit = Infinity) {
+  const hits = [];
+
+  const walk = (dir) => {
+    if (hits.length >= limit) return;
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch (e) {
+      return; // missing or unreadable directory - nothing to report
+    }
+    for (const entry of entries) {
+      if (hits.length >= limit) return;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!/\.tsx?$/.test(entry.name)) continue;
+      let lines;
+      try {
+        lines = fs.readFileSync(full, 'utf8').split(/\r?\n/);
+      } catch (e) {
+        continue;
+      }
+      const rel = path.relative(process.cwd(), full).split(path.sep).join('/');
+      for (let i = 0; i < lines.length; i++) {
+        if (!lines[i].includes(pattern)) continue;
+        hits.push(`${rel}:${i + 1}:${lines[i]}`);
+        if (hits.length >= limit) return;
+      }
+    }
+  };
+
+  walk(path.join(process.cwd(), 'src'));
+  return hits;
+}
+
 // Helper: Count consumers
 function countConsumers(pattern) {
-  const result = runCommand(
-    `grep -rn "${pattern}" src/ --include="*.ts" --include="*.tsx" 2>/dev/null | wc -l`
-  );
-  return parseInt(result, 10) || 0;
+  return scanConsumers(pattern).length;
 }
 
 // Helper: Get consumers
 function getConsumers(pattern, limit = CONFIG.maxConsumersToShow) {
-  return runCommand(
-    `grep -rn "${pattern}" src/ --include="*.ts" --include="*.tsx" 2>/dev/null | head -${limit}`
-  );
+  return scanConsumers(pattern, limit).join('\n');
 }
 
 // Helper: Detect potential breaking changes
@@ -138,7 +188,7 @@ function detectBreakingChanges(filePath) {
   const changes = [];
 
   // Get git diff if available
-  const diff = runCommand(`git diff HEAD -- "${filePath}" 2>/dev/null`);
+  const diff = runCommand(`git diff HEAD -- "${filePath}"`);
 
   if (diff) {
     // Check for removed lines (potential breaking)
@@ -225,10 +275,6 @@ console.log('');
 // Search by filename
 const fileNameCount = countConsumers(fileName);
 const fileNameConsumers = getConsumers(fileName);
-
-// Search by import pattern
-const importPattern = `from.*${fileName}|import.*${fileName}`;
-const importConsumers = getConsumers(importPattern);
 
 if (fileNameConsumers) {
   console.log(`Found ${fileNameCount} potential consumer(s):`);

@@ -149,17 +149,27 @@ wire_hooks() {
     // must normalize to the SAME absolute install location in the merged
     // output, otherwise a relative path resolves against whatever cwd the
     // session happens to be in and breaks outside the repo.
+    function quotedScriptPath(basename) {
+      // Quote the expanded path. Unquoted, the command breaks on any
+      // CLAUDE_HOME containing a space (C:\Users\First Last\.claude,
+      // /Users/First Last/...): the shell hands node only the first word,
+      // so every hook fails in every session. Backslashes are normalized
+      // to forward slashes - node accepts them on every platform and they
+      // need no extra escaping inside settings.json.
+      const home = String(claudeHome).replace(/\\/g, "/").replace(/\/+$/, "");
+      return "\"" + home + "/scripts/" + basename.replace(/"/g, "") + "\"";
+    }
     function adjustCommand(command) {
       // Form 1: "~/.claude/scripts/<name>.js" -> "$CLAUDE_HOME/scripts/<name>.js"
       let adjusted = command.replace(
         /(\S*)~\/\.claude\/scripts\/(\S+)/,
-        (_m, prefix, basename) => `${prefix}${claudeHome}/scripts/${basename}`
+        (_m, prefix, basename) => prefix.replace(/"/g, "") + quotedScriptPath(basename)
       );
       // Form 2: repo-relative "scripts/<name>.js" (not already ~/.claude- or
       // absolute-prefixed) -> "$CLAUDE_HOME/scripts/<name>.js"
       adjusted = adjusted.replace(
         /(^|\s)scripts\/([^\s/]+\.js)(?=\s|$)/,
-        (_m, lead, basename) => `${lead}${claudeHome}/scripts/${basename}`
+        (_m, lead, basename) => lead + quotedScriptPath(basename)
       );
       return adjusted;
     }
