@@ -99,7 +99,7 @@ function main() {
   }
 
   // 5. Latest GitHub release (optional, needs gh + network)
-  const ghLatest = sh('gh release view --json tagName -q .tagName 2>/dev/null');
+  const ghLatest = sh('gh release view --json tagName -q .tagName');
   if (ghLatest && latestTag) {
     const ghV = parseV(ghLatest);
     if (ghV && cmpV(ghV, latestTag) !== 0) {

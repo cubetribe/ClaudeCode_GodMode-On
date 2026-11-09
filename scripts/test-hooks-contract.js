@@ -116,6 +116,19 @@ function makeFixtureCwd() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'ccgm-hooks-contract-'));
 }
 
+// Windows keeps a short-lived handle on a directory a child process just
+// touched, so a plain rmSync throws EPERM - which took the whole suite down
+// before it could report anything. maxRetries makes Node back off and retry
+// (it only honours maxRetries/retryDelay when recursive is set), and a
+// failure to clean up a temp fixture must never decide the suite outcome.
+function rmrf(target) {
+  try {
+    fs.rmSync(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+  } catch (e) {
+    /* best effort - the OS will clear the temp dir */
+  }
+}
+
 function runScript(repoPath, { args = [], stdin = '', cwd, timeoutMs = 15000 } = {}) {
   const res = spawnSync(process.execPath, [repoPath, ...args], {
     input: stdin,
@@ -269,7 +282,7 @@ if (byBasename.has('session-start.js')) {
     if (res.status !== 0) overallOk = false;
     assertNoUsageError('session-start.js', res);
   } finally {
-    fs.rmSync(fixture, { recursive: true, force: true });
+    rmrf(fixture);
   }
 } else {
   check('session-start.js: wired and probed', false, 'not found among wired hooks — skipped');
@@ -314,7 +327,7 @@ if (byBasename.has('check-api-impact.js')) {
       if (res.status !== 0 || !mentionsImpact) overallOk = false;
       assertNoUsageError('check-api-impact.js (API payload)', res);
     } finally {
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 
@@ -342,7 +355,7 @@ if (byBasename.has('check-api-impact.js')) {
       if (res.status !== 0 || !noImpactWarning) overallOk = false;
       assertNoUsageError('check-api-impact.js (non-API payload)', res);
     } finally {
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 
@@ -359,7 +372,7 @@ if (byBasename.has('check-api-impact.js')) {
       if (res.status !== 0) overallOk = false;
       assertNoUsageError('check-api-impact.js (garbage stdin)', res);
     } finally {
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 } else {
@@ -428,7 +441,7 @@ without adding any real signal beyond what is already declared above.
       if (res.status !== 0) overallOk = false;
       assertNoUsageError('validate-agent-output.js (passing report)', res);
     } finally {
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 
@@ -450,7 +463,7 @@ without adding any real signal beyond what is already declared above.
       if (res.status !== 2) overallOk = false;
       assertNoUsageError('validate-agent-output.js (incomplete report)', res);
     } finally {
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 
@@ -468,7 +481,7 @@ without adding any real signal beyond what is already declared above.
       if (res.status !== 0) overallOk = false;
       assertNoUsageError('validate-agent-output.js (no report)', res);
     } finally {
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 } else {
@@ -519,7 +532,7 @@ without adding any real signal beyond what is already declared above.
           assertNoUsageError('verify-changes.js (no recognized project)', res);
         }
       } finally {
-        fs.rmSync(fixture, { recursive: true, force: true });
+        rmrf(fixture);
       }
     }
 
@@ -545,7 +558,7 @@ without adding any real signal beyond what is already declared above.
         if (res.status !== 0 || !zeroOutput) overallOk = false;
         assertNoUsageError('verify-changes.js (no changes)', res);
       } finally {
-        fs.rmSync(fixture, { recursive: true, force: true });
+        rmrf(fixture);
       }
     }
 
@@ -562,7 +575,7 @@ without adding any real signal beyond what is already declared above.
         if (res.status !== 0) overallOk = false;
         assertNoUsageError('verify-changes.js (garbage stdin)', res);
       } finally {
-        fs.rmSync(fixture, { recursive: true, force: true });
+        rmrf(fixture);
       }
     }
   } else {
@@ -590,7 +603,7 @@ without adding any real signal beyond what is already declared above.
       return fn();
     } finally {
       process.chdir(prevCwd);
-      fs.rmSync(fixture, { recursive: true, force: true });
+      rmrf(fixture);
     }
   }
 
@@ -758,12 +771,32 @@ without adding any real signal beyond what is already declared above.
 // not assumed.
 {
   const INSTALLER_PATH = path.join(REPO_ROOT, 'scripts', 'apply-global-claude-setup.sh');
+  const INSTALLER_PS1_PATH = path.join(REPO_ROOT, 'scripts', 'apply-global-claude-setup.ps1');
   const VERIFY_INSTALL_PATH = path.join(REPO_ROOT, 'scripts', 'verify-install.js');
   const installerExists = fs.existsSync(INSTALLER_PATH);
   check('apply-global-claude-setup.sh: exists in scripts/', installerExists, installerExists ? INSTALLER_PATH : `expected at ${INSTALLER_PATH}`);
   check('verify-install.js: exists in scripts/', fs.existsSync(VERIFY_INSTALL_PATH), fs.existsSync(VERIFY_INSTALL_PATH) ? VERIFY_INSTALL_PATH : `expected at ${VERIFY_INSTALL_PATH}`);
 
+  // Probe the installer this platform's users actually run. The bash
+  // installer rejects a Windows-style CLAUDE_HOME outright ("must be an
+  // absolute path"), so on Windows every case below used to fail for a
+  // reason unrelated to what it asserts - while the PowerShell installer,
+  // the only one a Windows user can run, was never exercised at all. That
+  // gap is how a .ps1 that did not even parse shipped in v9.0.0 (#46).
   function runInstaller(claudeHome, extraArgs = []) {
+    if (process.platform === 'win32') {
+      const psArgs = extraArgs.map(a => (a === '--check' ? '-Check' : a));
+      return spawnSync(
+        'powershell.exe',
+        [
+          '-ExecutionPolicy', 'Bypass', '-NoProfile',
+          '-File', INSTALLER_PS1_PATH,
+          '-ClaudeHome', claudeHome,
+          ...psArgs,
+        ],
+        { cwd: REPO_ROOT, env: { ...process.env }, encoding: 'utf8', timeout: 60000 }
+      );
+    }
     return spawnSync('bash', [INSTALLER_PATH, ...extraArgs], {
       cwd: REPO_ROOT,
       env: { ...process.env, CLAUDE_HOME: claudeHome },
@@ -843,7 +876,7 @@ without adding any real signal beyond what is already declared above.
         );
         if (!godmodeHooksAdded) overallOk = false;
       } finally {
-        fs.rmSync(claudeHome, { recursive: true, force: true });
+        rmrf(claudeHome);
       }
     }
 
@@ -878,7 +911,7 @@ without adding any real signal beyond what is already declared above.
         );
         if (!noDuplicates) overallOk = false;
       } finally {
-        fs.rmSync(claudeHome, { recursive: true, force: true });
+        rmrf(claudeHome);
       }
     }
 
@@ -913,7 +946,7 @@ without adding any real signal beyond what is already declared above.
           if (!allEventsPresent) overallOk = false;
         }
       } finally {
-        fs.rmSync(claudeHome, { recursive: true, force: true });
+        rmrf(claudeHome);
       }
     }
 
@@ -957,7 +990,7 @@ without adding any real signal beyond what is already declared above.
         );
         if (!namesMissingAgent) overallOk = false;
       } finally {
-        fs.rmSync(claudeHome, { recursive: true, force: true });
+        rmrf(claudeHome);
       }
     }
   } else {

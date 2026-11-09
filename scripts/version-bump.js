@@ -365,10 +365,10 @@ function detectBumpType() {
 
   try {
     // Get recent commit messages
-    const recentCommits = execSync('git log --oneline -10 2>/dev/null', { encoding: 'utf-8' }).trim();
+    const recentCommits = execSync('git log --oneline -10', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 
     // Get git diff to check for new files
-    const diffStat = execSync('git diff --stat HEAD~1 2>/dev/null', { encoding: 'utf-8' }).trim();
+    const diffStat = execSync('git diff --stat HEAD~1', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 
     // Check for breaking change indicators
     if (recentCommits.match(/BREAKING CHANGE|breaking:/i)) {

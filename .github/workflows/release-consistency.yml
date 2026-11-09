@@ -28,5 +28,102 @@ jobs:
       - name: Release invariant check
         run: node scripts/release-check.js --ci
 
+      - name: Script encoding check
+        run: node scripts/check-script-encoding.js
+
+      - name: Hook contract check
+        run: node scripts/test-hooks-contract.js
+
+  # Windows coverage.
+  #
+  # v9.0.0 shipped a PowerShell installer that did not parse at all under
+  # Windows PowerShell 5.1, and a hook wiring that broke on any user profile
+  # containing a space — both invisible here, because nothing in CI had ever
+  # run on Windows (issue #46).
+  #
+  # `shell: powershell` is Windows PowerShell 5.1: the shell every Windows 11
+  # machine ships with, and the one that decodes a BOM-less UTF-8 script as the
+  # ANSI codepage. Do NOT switch these steps to `pwsh` — PowerShell 7 decodes
+  # UTF-8 correctly and would hide exactly the class of defect this job exists
+  # to catch.
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Script encoding check
+        run: node scripts/check-script-encoding.js
+
+      - name: Installer parses under Windows PowerShell 5.1
+        run: |
+          "PSVersion: $($PSVersionTable.PSVersion)"
+          $errs = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD 'scripts\apply-global-claude-setup.ps1'),
+            [ref]$null, [ref]$errs) | Out-Null
+          if ($errs.Count -gt 0) {
+            $errs | ForEach-Object { "  line $($_.Extent.StartLineNumber): $($_.Message)" }
+            throw "$($errs.Count) parse error(s): the installer cannot run on Windows at all"
+          }
+          "parse ok"
+
+      - name: Install into a path containing a space
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP 'God Mode Test\.claude'
+          & powershell.exe -ExecutionPolicy Bypass -NoProfile `
+            -File .\scripts\apply-global-claude-setup.ps1 -ClaudeHome $target
+          if ($LASTEXITCODE -ne 0) { throw "installer exited $LASTEXITCODE" }
+          "CCGM_TEST_HOME=$target" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Verify that install
+        run: |
+          $env:CLAUDE_HOME = $env:CCGM_TEST_HOME
+          node scripts/verify-install.js
+          if ($LASTEXITCODE -ne 0) { throw 'verify-install.js reported an incomplete install' }
+
+      - name: Wired hook commands resolve when a shell runs them
+        run: |
+          # The unquoted-path defect surfaces here and nowhere else: the shell
+          # splits "node C:\Users\First Last\.claude\scripts\x.js" at the space
+          # and node reports "Cannot find module". Exit codes are deliberately
+          # not asserted - some hooks exit non-zero by contract on an empty
+          # payload; what must hold is that the script is FOUND.
+          $settings = Get-Content (Join-Path $env:CCGM_TEST_HOME 'settings.json') -Raw | ConvertFrom-Json
+          $failed = 0
+          foreach ($ev in $settings.hooks.PSObject.Properties.Name) {
+            foreach ($entry in $settings.hooks.$ev) {
+              foreach ($h in $entry.hooks) {
+                $out = (& cmd.exe /c "echo {} | $($h.command)" 2>&1) | Out-String
+                if ($out -match 'Cannot find module') {
+                  "FAIL [$ev] $($h.command)"
+                  $failed++
+                } else {
+                  "ok   [$ev] $($h.command)"
+                }
+              }
+            }
+          }
+          if ($failed -gt 0) { throw "$failed hook command(s) did not resolve to a script" }
+
+      - name: Re-run is idempotent (no duplicate hook entries)
+        run: |
+          & powershell.exe -ExecutionPolicy Bypass -NoProfile `
+            -File .\scripts\apply-global-claude-setup.ps1 -ClaudeHome $env:CCGM_TEST_HOME
+          if ($LASTEXITCODE -ne 0) { throw "second installer run exited $LASTEXITCODE" }
+          $settings = Get-Content (Join-Path $env:CCGM_TEST_HOME 'settings.json') -Raw | ConvertFrom-Json
+          $count = 0
+          foreach ($ev in $settings.hooks.PSObject.Properties.Name) {
+            foreach ($entry in $settings.hooks.$ev) { $count += $entry.hooks.Count }
+          }
+          "hook commands after two runs: $count"
+          if ($count -ne 6) { throw "expected 6 hook commands, found $count" }
+
       - name: Hook contract check
         run: node scripts/test-hooks-contract.js

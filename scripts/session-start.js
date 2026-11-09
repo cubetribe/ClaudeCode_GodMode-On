@@ -50,7 +50,6 @@ try {
 }
 
 // Configuration
-// VERSION_FILE: Always read from CC_GodMode installation (~/.claude/VERSION)
 // REPORTS_DIR: Use project directory for reports
 const HOME_DIR = os.homedir();
 const CLAUDE_DIR = path.join(HOME_DIR, '.claude');
@@ -58,7 +57,20 @@ const VERSION_FILE = path.join(CLAUDE_DIR, 'VERSION');
 const REPORTS_DIR = path.join(process.cwd(), 'reports');
 
 // v8.6.0 - Sprint 02: Install/repo drift guard + broken-wiring guard
-const INSTALL_VERSION_MARKER = path.join(HOME_DIR, '.cc-godmode-version');
+// The install marker lives in CLAUDE_DIR, not the home directory: it is the
+// file BOTH installers write (apply-global-claude-setup.{sh,ps1}) and the one
+// verify-install.js checks, so it is the authoritative "is installed" record.
+// It was previously read from HOME_DIR, which nothing ever writes.
+const INSTALL_VERSION_MARKER = path.join(CLAUDE_DIR, '.cc-godmode-version');
+
+// Name the installer the reader can actually run: a Windows user cannot run
+// the .sh script, and pointing them at it is a dead end. Forward slashes on
+// purpose - PowerShell accepts them, and a backslash here would need escaping
+// that is easy to get wrong in a string ('.\s' is not an escape, so JS would
+// silently drop the backslash and print ".scriptsapply-...").
+const INSTALLER_HINT = process.platform === 'win32'
+  ? './scripts/apply-global-claude-setup.ps1'
+  : './scripts/apply-global-claude-setup.sh';
 const CLAUDE_SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
 
 // ANSI Colors (same as version-bump.js)
@@ -191,7 +203,7 @@ function parseVersion(versionString) {
  */
 function printNotInstalledNotice() {
   console.log(
-    `${colors.gray}CC_GodMode not installed — run scripts/apply-global-claude-setup.sh${colors.reset}`
+    `${colors.gray}CC_GodMode not installed — run ${INSTALLER_HINT}${colors.reset}`
   );
 }
 
@@ -204,22 +216,29 @@ function printNotInstalledNotice() {
  */
 function checkVersionFile() {
   try {
-    // Missing ~/.claude/VERSION (including a missing ~/.claude entirely) is
-    // the "not installed yet" case - graceful, not an error.
-    if (!fs.existsSync(VERSION_FILE)) {
+    // Resolve the version from the first marker that exists:
+    //   1. ~/.claude/VERSION             - older or manual installs
+    //   2. ~/.claude/.cc-godmode-version - what both installers actually write
+    // Only (1) used to be consulted, so a scripted install left this hook
+    // reporting "not installed" while --check and verify-install.js reported a
+    // healthy runtime (issues #41, #46). Missing both (including a missing
+    // ~/.claude entirely) is the real "not installed yet" case - graceful,
+    // not an error.
+    const sourceFile = [VERSION_FILE, INSTALL_VERSION_MARKER].find(f => fs.existsSync(f));
+    if (!sourceFile) {
       return null;
     }
 
     // Read and parse version
-    const content = fs.readFileSync(VERSION_FILE, 'utf8');
+    const content = fs.readFileSync(sourceFile, 'utf8');
     const version = parseVersion(content);
 
     if (!version) {
       console.log(
-        `${colors.yellow}⚠ Warning: Invalid version format in VERSION file: "${content.trim()}"${colors.reset}`
+        `${colors.yellow}⚠ Warning: Invalid version format in ${path.basename(sourceFile)}: "${content.trim()}"${colors.reset}`
       );
       console.log(
-        `${colors.gray}  VERSION file must contain semantic version (MAJOR.MINOR.PATCH), e.g. 1.0.0${colors.reset}`
+        `${colors.gray}  ${path.basename(sourceFile)} must contain a semantic version (MAJOR.MINOR.PATCH), e.g. 1.0.0${colors.reset}`
       );
       return null;
     }
@@ -383,11 +402,11 @@ async function checkMcpHealth() {
  */
 function detectVersionBump() {
   try {
-    const recentCommits = execSync('git log --oneline -10 2>/dev/null', { encoding: 'utf-8' }).trim();
-    const diffStat = execSync('git diff --stat HEAD~1 2>/dev/null', { encoding: 'utf-8' }).trim();
+    const recentCommits = execSync('git log --oneline -10', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const diffStat = execSync('git diff --stat HEAD~1', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 
     // Check for uncommitted changes
-    const statusOutput = execSync('git status --porcelain 2>/dev/null', { encoding: 'utf-8' }).trim();
+    const statusOutput = execSync('git status --porcelain', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
     if (!statusOutput) {
       return null; // No changes to analyze
     }
@@ -519,7 +538,7 @@ function detectDriftWarnings() {
 
     if (marker && repoVersion && marker !== repoVersion) {
       warnings.push(
-        `Install v${marker} behind repo v${repoVersion} — run scripts/apply-global-claude-setup.sh`
+        `Install v${marker} behind repo v${repoVersion} — run ${INSTALLER_HINT}`
       );
     }
 
